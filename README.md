@@ -545,8 +545,8 @@ class VerifyCsrfToken extends Middleware
 
 ```
 
-[travis-image]: https://travis-ci.org/diadal/universal-social-auth.svg?branch=master
-[travis-url]: https://travis-ci.org/diadal/universal-social-auth
+[travis-image]: https://travis-ci.com/diadal/universal-social-auth.svg?branch=master
+[travis-url]: https://travis-ci.com/diadal/universal-social-auth
 
 if any issue [check](https://github.com/diadal/universal-social-auth/issues)
 
