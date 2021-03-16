@@ -9,7 +9,7 @@ module.exports = {
   entry: srcPath + "/index.ts",
   output: {
     path: libPath,
-    filename: "index.js",
+    filename: "universal-social-auth.js",
     library: "UniversalSocialauth",
     libraryTarget: "umd",
     libraryExport: "default"

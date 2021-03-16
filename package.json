@@ -1,11 +1,11 @@
 {
   "name": "universal-social-auth",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Social Authentication library for (SPA)",
-  "main": "dist/universal-social-auth.js",
-  "types": "dist/universal-social-auth.js.d.ts",
+  "main": "lib/universal-social-auth.js",
+  "types": "lib/index.d.ts",
   "files": [
-    "dist"
+    "lib"
   ],
   "scripts": {
     "build": "webpack --mode=production --config webpack.config.build.js",
