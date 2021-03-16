@@ -1,4 +1,3 @@
-[![Build Status][travis-image]][travis-url]
 [![Known Vulnerabilities](https://snyk.io/test/github/diadal/universal-social-auth/badge.svg)](https://snyk.io/test/github/diadal/universal-social-auth)
 
 # universal-social-auth
@@ -544,9 +543,9 @@ class VerifyCsrfToken extends Middleware
 
 
 ```
-
+<!-- 
 [travis-image]: https://travis-ci.com/diadal/universal-social-auth.svg?branch=master
-[travis-url]: https://travis-ci.com/diadal/universal-social-auth
+[travis-url]: https://travis-ci.com/diadal/universal-social-auth -->
 
 if any issue [check](https://github.com/diadal/universal-social-auth/issues)
 

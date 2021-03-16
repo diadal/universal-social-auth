@@ -10,7 +10,7 @@ module.exports = {
   output: {
     path: libPath,
     filename: "index.js",
-    library: "VQRCodeStyling",
+    library: "UniversalSocialauth",
     libraryTarget: "umd",
     libraryExport: "default"
   },
