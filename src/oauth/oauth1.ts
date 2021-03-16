@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import OAuthPopup from './popup'
 import { joinUrl } from '../utils'
 import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -10,7 +7,7 @@ interface Keyc {
 }
 
 interface KeyD {
-  [x: string]: Record<string, any> | string | boolean | undefined ;
+  [x: string]: Record<string, unknown> | string | boolean | undefined ;
 }
 interface def {
     name: string | null;
@@ -117,7 +114,7 @@ export default class OAuth {
     }
 
     return this.getRequestToken().then(async (response) => {
-      const popupResponse = (this.openPopup((response)))
+      const popupResponse = (this.openPopup((<Keyc><unknown>response)))
       const token = this.exchangeForToken(popupResponse, userData)
       console.log('token', token)
       return token
@@ -142,10 +139,10 @@ export default class OAuth {
     return this.$http(requestOptions)
   }
 
-  openPopup (response:AxiosResponse<any>) {
-    const rep:Keyc = <Keyc> <unknown>response
+  openPopup (response:Keyc) {
+    const rep = response
     console.log('openPopup', rep)
-    const rep2 = rep[this.options.responseDataKey]
+    const rep2 = <KeyD><unknown>rep[this.options.responseDataKey]
     const url:Location = <Location> <unknown>[this.providerConfig.authorizationEndpoint, this.buildQueryString(rep2)].join('?')
     const OauthP = (<OAuthPopup> this.oauthPopup)
     const location = <Window> OauthP.popup
@@ -157,7 +154,7 @@ export default class OAuth {
     }
   }
 
-  exchangeForToken (oauth: any, userData:Record<string, any>) {
+  exchangeForToken (oauth: any, userData:Record<string, unknown>) {
     const payload = {
       ...userData,
       ...oauth
@@ -176,11 +173,11 @@ export default class OAuth {
     return this.$http(<AxiosRequestConfig>requestOptions)
   }
 
-  buildQueryString (params: any) {
+  buildQueryString (params: KeyD) {
     console.log('oauth1 params', params)
     const parsedParams = []
     for (const key in params) {
-      const value = params[key]
+      const value = <string | number | boolean><unknown>params[key]
       parsedParams.push(encodeURIComponent(key) + '=' + encodeURIComponent(value))
     }
     return parsedParams.join('&')

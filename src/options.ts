@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/**
- * Default configuration
- */
 
 import { AxiosInstance } from 'axios'
 

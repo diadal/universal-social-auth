@@ -1,12 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-fallthrough */
 import CookieStorage from './storage/cookie-storage'
 import LocalStorage from './storage/local-storage'
 import MemoryStorage from './storage/memory-storage'
 import SessionStorage from './storage/session-storage'
 import { OptionsA } from './utils'
 
-export default function StorageFactory (options: { storageType: any; storageNamespace: null; cookieStorage: OptionsA }) {
+export default function StorageFactory (options: { storageType: string; storageNamespace: null; cookieStorage: OptionsA }) {
   switch (options.storageType) {
     case 'localStorage':
       try {

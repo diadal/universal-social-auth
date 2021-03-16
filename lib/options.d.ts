@@ -1,6 +1,3 @@
-/**
- * Default configuration
- */
 import { AxiosInstance } from 'axios';
 declare const _default: {
     baseUrl: null;

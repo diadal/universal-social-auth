@@ -5,8 +5,8 @@ export default class UniversalSocialauth {
     options: Opt | undefined;
     storage: Storage1 | undefined;
     $http: AxiosInstance | undefined;
-    OverrideOptions: any;
-    defaultOptions: any;
+    OverrideOptions: Record<string, unknown> | undefined;
+    defaultOptions: Record<string, unknown> | undefined;
     constructor($http: AxiosInstance, overrideOptions: Record<string, unknown>);
     authenticate(provider: string, ProData: ProderT, userData?: {}): Promise<unknown>;
 }

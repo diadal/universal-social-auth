@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { AxiosInstance } from 'axios'
 import { ProderT } from './providers'
 
@@ -28,8 +26,8 @@ export default class UniversalSocialauth {
   options: Opt | undefined;
   storage: Storage1 | undefined;
   $http: AxiosInstance | undefined;
-  OverrideOptions: any;
-  defaultOptions: any;
+  OverrideOptions: Record<string, unknown> | undefined;
+  defaultOptions: Record<string, unknown> | undefined;
   constructor (
     $http: AxiosInstance,
     overrideOptions: Record<string, unknown>
@@ -100,7 +98,7 @@ export default class UniversalSocialauth {
     ProData: ProderT,
     userData = {}
   ) {
-    const ProviderOver:{providers:string[]} = <{providers:string[]}> this.OverrideOptions
+    const ProviderOver:{providers:Record<string, unknown>} = <{providers:Record<string, unknown>}> this.OverrideOptions
     const ProviderOverr:KeyB = <KeyB><unknown>ProviderOver.providers
     const ProviderOverride:ProderT = <ProderT>ProviderOverr[provider]
     // const ProviderOpt:string[] = <string[]>ProData
@@ -112,17 +110,17 @@ export default class UniversalSocialauth {
         ...ProviderOverride
       }
     }
-    const FinalOpts:string[] = <string[]> {
+    const FinalOpts:Record<string, unknown> = <Record<string, unknown>> {
       ...this.defaultOptions,
       ...Opts
     }
     this.options = <Opt><unknown>FinalOpts
 
     // console.log('FinalOpts', FinalOpts)
-    this.storage = <Storage1> <unknown>StorageFactory(<{ storageType: any; storageNamespace: null; cookieStorage: OptionsA} ><unknown>FinalOpts)
+    this.storage = <Storage1> <unknown>StorageFactory(<{ storageType: string; storageNamespace: null; cookieStorage: OptionsA} ><unknown>FinalOpts)
 
-    const proconfg:{provider: string[]; bindRequestInterceptor:(agr0:Req)=>void; bindResponseInterceptor:(arg0:Req)=>void} = <{provider: string[];bindRequestInterceptor:()=>void; bindResponseInterceptor:()=>void}> <unknown>FinalOpts
-    const providerConfig:string[] = proconfg.provider
+    const proconfg:{provider: Record<string, unknown>; bindRequestInterceptor:(agr0:Req)=>void; bindResponseInterceptor:(arg0:Req)=>void} = <{provider: Record<string, unknown>;bindRequestInterceptor:()=>void; bindResponseInterceptor:()=>void}> <unknown>FinalOpts
+    const providerConfig:Record<string, unknown> = proconfg.provider
     const proConfig:{oauthType:string} = <{oauthType:string}><unknown>providerConfig
     if (
       proconfg.bindRequestInterceptor &&
@@ -179,7 +177,7 @@ export default class UniversalSocialauth {
         })
         .catch(err => new Error(err))
     } catch (error) {
-      const err:string[] = <string[]> error
+      const err:Record<string, unknown> = <Record<string, unknown>> error
       return err
     }
   }

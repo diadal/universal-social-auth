@@ -1,16 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable prefer-rest-params */
-
 interface KeyB {
   [x: string]: string | boolean| Record<string, unknown>| unknown[];
 }
-// interface Key {
-//   [x: string]: Date;
-// }
+
 export interface OptionsA {
 
   [x: string]: string | boolean | null | undefined | Date;
@@ -27,35 +18,6 @@ export interface ProviderA {
 export interface Provider {
 
   providers : ProviderA
-}
-// interface A {
-
-// }
-
-if (typeof Object.assign !== 'function') {
-  Object.assign = function (target: unknown) {
-    'use strict'
-    if (target == null) {
-      throw new TypeError('Cannot convert undefined or null to object')
-    }
-
-    const to: IArguments = <IArguments>Object(target)
-
-    for (let index = 1; index < arguments.length; index++) {
-      const nextSource: IArguments = <IArguments>arguments[index]
-
-      if (nextSource != null) {
-        // Skip over if undefined or null
-        for (const nextKey in nextSource) {
-          // Avoid bugs when hasOwnProperty is shadowed
-          if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-            to[nextKey] = nextSource[nextKey]
-          }
-        }
-      }
-    }
-    return to
-  }
 }
 
 export function camelCase (name: string) {
@@ -166,13 +128,8 @@ export function parseQueryString (str: string): KeyB {
  * @return {Object}
  */
 export function decodeBase64 (base64: string): string {
-  // const base64 = str;
-
-  // create a buffer
-  const buff = Buffer.from(base64, 'base64')
-
-  // decode buffer as UTF-8
-  const str = buff.toString('utf-8')
+ 
+  const str = atob(base64)
 
   return str
 }

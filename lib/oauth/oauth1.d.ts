@@ -1,5 +1,11 @@
 import OAuthPopup from './popup';
 import { AxiosInstance, AxiosResponse } from 'axios';
+interface Keyc {
+    [x: string]: AxiosResponse<any>;
+}
+interface KeyD {
+    [x: string]: Record<string, unknown> | string | boolean | undefined;
+}
 interface def {
     name: string | null;
     url: string | null;
@@ -54,8 +60,8 @@ export default class OAuth {
     constructor($http: AxiosInstance, storage: Storage, providerConfig: ProviderConfig1, options: Opt1);
     init(userData: Record<string, string | undefined>): Promise<AxiosResponse<any>>;
     getRequestToken(): Promise<AxiosResponse<any>>;
-    openPopup(response: AxiosResponse<any>): Promise<unknown>;
-    exchangeForToken(oauth: any, userData: Record<string, any>): import("axios").AxiosPromise<any>;
-    buildQueryString(params: any): string;
+    openPopup(response: Keyc): Promise<unknown>;
+    exchangeForToken(oauth: any, userData: Record<string, unknown>): import("axios").AxiosPromise<any>;
+    buildQueryString(params: KeyD): string;
 }
 export {};
