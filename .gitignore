@@ -1,6 +1,6 @@
 # IDEA
 .idea
-
+.DS_Store
 # npm modules
 /node_modules
 
