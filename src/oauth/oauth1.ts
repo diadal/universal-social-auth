@@ -111,7 +111,7 @@ export default class OAuth {
   async init (userData: Record<string, string| undefined>) {
     this.oauthPopup = new OAuthPopup('about:blank', this.providerConfig.name, this.providerConfig.popupOptions)
 
-    if (window && !window.cordova) {
+    if (window) {
       // console.log('this.providerConfig.redirectUri', this.providerConfig.redirectUri)
       void this.oauthPopup.open(this.providerConfig.redirectUri, true)
     }
@@ -150,7 +150,7 @@ export default class OAuth {
     const OauthP = (<OAuthPopup> this.oauthPopup)
     const location = <Window> OauthP.popup
     location.location = url
-    if (window && window.cordova) {
+    if (window) {
       return OauthP.open(this.providerConfig.redirectUri, this.providerConfig.skipPooling)
     } else {
       return OauthP.pooling(this.providerConfig.redirectUri)

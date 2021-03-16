@@ -26,7 +26,7 @@ export default {
 
   /**
    * Default request interceptor for Axios library
-   * @context {VueSocialauth}
+   * @context {UniversalSocialauth}
    */
   bindRequestInterceptor: function ($auth: { options: { tokenHeader: string }; $http: AxiosInstance }) {
     console.log('$auth', $auth)
@@ -42,7 +42,7 @@ export default {
 
   /**
    * Default response interceptor for Axios library
-   * @contect {VueSocialauth}
+   * @contect {UniversalSocialauth}
    */
   bindResponseInterceptor: function ($auth: { $http: AxiosInstance }) {
     $auth.$http.interceptors.response.use((response) => {

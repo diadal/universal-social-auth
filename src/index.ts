@@ -1,5 +1,5 @@
 // import './utils'
 // import 'promise'
-import VueSocialauth from './authenticate'
+import UniversalSocialauth from './authenticate'
 
-export default VueSocialauth
+export default UniversalSocialauth

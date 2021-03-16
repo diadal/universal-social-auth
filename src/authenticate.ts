@@ -24,7 +24,7 @@ interface Req {
     options: Opt
 }
 
-export default class VueSocialauth {
+export default class UniversalSocialauth {
   options: Opt | undefined;
   storage: Storage1 | undefined;
   $http: AxiosInstance | undefined;
