@@ -1,9 +1,9 @@
 import OAuthPopup from './popup'
 import { joinUrl } from '../utils'
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { AxiosInstance, AxiosResponse } from 'axios'
 
 interface Keyc {
-  [x: string]: AxiosResponse<any> ;
+  [x: string]: AxiosResponse<Record<string, unknown>> ;
 }
 
 interface KeyD {
@@ -115,7 +115,7 @@ export default class OAuth {
 
     return this.getRequestToken().then(async (response) => {
       const popupResponse = (this.openPopup((<Keyc><unknown>response)))
-      const token = this.exchangeForToken(popupResponse, userData)
+      const token = this.exchangeForToken(<Record<string, unknown>><unknown>popupResponse, userData)
       console.log('token', token)
       return token
     })
@@ -154,7 +154,7 @@ export default class OAuth {
     }
   }
 
-  exchangeForToken (oauth: any, userData:Record<string, unknown>) {
+  exchangeForToken (oauth: Record<string, unknown>, userData:Record<string, unknown>) {
     const payload = {
       ...userData,
       ...oauth
@@ -170,7 +170,7 @@ export default class OAuth {
     } else {
       requestOptions.url = this.providerConfig.url
     }
-    return this.$http(<AxiosRequestConfig>requestOptions)
+    return this.$http(<Record<string, unknown>>requestOptions)
   }
 
   buildQueryString (params: KeyD) {

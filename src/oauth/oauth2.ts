@@ -70,13 +70,13 @@ export type RepsO = AxiosResponse & oAuth
 // }
 
 export interface ProviderConfig {
-  [x: string]: number | string | Func | boolean | Record<string, any>;
+  [x: string]: number | string | Func | boolean | Record<string, unknown>;
   scopeDelimiter: string;
   scopePrefix: string;
   name: string;
   state: string | Func;
   authorizationEndpoint: string;
-  popupOptions: Record<string, any>;
+  popupOptions: Record<string, unknown>;
   redirectUri: string;
   url: string;
   clientId: string | number;
@@ -118,7 +118,7 @@ export default class OAuth2 {
     this.options = options
   }
 
-  async init (userData: Record<string, string| undefined>) {
+  async init (userData: Record<string, unknown>) {
     const stateName = this.providerConfig.name + '_state'
     const isFunc: Func = <Func> this.providerConfig.state
     const isStr = <string> this.providerConfig.state
@@ -143,12 +143,12 @@ export default class OAuth2 {
     const OauthP = this.oauthPopup
 
     try {
-      const response = OauthP.open(
+      const response:Record<string, unknown> =<Record<string, unknown>> <unknown>OauthP.open(
         this.providerConfig.redirectUri,
         this.providerConfig.skipPooling
       )
       if (response) {
-        const rsp = <any>response
+        const rsp:{state:string} = <{state:string}><unknown>response
 
         if (
           this.providerConfig.responseType === 'code' ||
@@ -164,57 +164,25 @@ export default class OAuth2 {
             )
           )
         }
-        const token = await this.exchangeForToken(rsp, userData)
+        const token = await this.exchangeForToken(<RepsO><unknown>response, userData)
         console.log('token2', token)
 
         return token
       }
       console.log('Oauth', response)
     } catch (error) {
-      // console.log('error11', error)
       return new Error(error)
     }
-    // return new Promise((resolve, reject) => {
-    //   OauthP.open(
-    //     this.providerConfig.redirectUri,
-    //     this.providerConfig.skipPooling
-    //   )
-    //     .then((response) => {
-    //       console.log('response', response)
-    //       const rsp = <RepsO>response
-    //       if (
-    //         this.providerConfig.responseType === 'code' ||
-    //         !this.providerConfig.url
-    //       ) {
-    //         return resolve(response)
-    //       }
-
-    //       if (rsp.state && rsp.state !== this.storage.getItem(stateName)) {
-    //         return reject(
-    //           new Error(
-    //             'State parameter value does not match original OAuth request state value'
-    //           )
-    //         )
-    //       }
-    //       const token = this.exchangeForToken(rsp, userData)
-    //       console.log('token2', token)
-
-    //       resolve(token)
-    //     })
-    //     .catch((err: any) => {
-    //       reject(err)
-    //     })
-    // })
+    return
+ 
   }
 
-  async exchangeForToken (oauth: RepsO, userData: Record<string, any>) {
+  async exchangeForToken (oauth: RepsO, userData: Record<string, unknown>) {
     const payload = {
       ...userData
     }
 
     for (const key in defaultProviderConfig.responseParams) {
-      // const value = defaultProviderConfig[key]
-
       switch (key) {
         case 'code':
           payload[key] = oauth.code
@@ -256,7 +224,7 @@ export default class OAuth2 {
    * @return {String}
    */
   _stringifyRequestParams (): string {
-    const keyValuePairs: any[][] = []
+    const keyValuePairs: unknown[][] = []
     const paramCategories = [
       'defaultUrlParams',
       'requiredUrlParams',
@@ -266,7 +234,7 @@ export default class OAuth2 {
     paramCategories.forEach(categoryName => {
       if (!this.providerConfig[categoryName]) return
       if (!Array.isArray(this.providerConfig[categoryName])) return
-      const Procate = <Record<string, any>>(<unknown> this.providerConfig[categoryName])
+      const Procate = (<string[]> <unknown>this.providerConfig[categoryName])
       Procate.forEach((paramName: string) => {
         const camelCaseParamName = camelCase(paramName)
         const Proconf = <() => void>(<unknown> this.providerConfig[paramName])

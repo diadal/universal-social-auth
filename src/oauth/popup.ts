@@ -2,11 +2,11 @@
 import { parseQueryString, getFullUrlPath, isUndefined } from '../utils'
 
 export default class OAuthPopup {
-  popupOptions: Record<string, string | undefined>
-  popup: any
+  popupOptions: Record<string, unknown>
+  popup: Window | null
   url: string
   name: string
-  constructor (url: string, name: string, popupOptions: Record<string, string| undefined>) {
+  constructor (url: string, name: string, popupOptions: Record<string, unknown>) {
     this.popup = null
     this.url = url
     this.name = name
@@ -15,7 +15,6 @@ export default class OAuthPopup {
 
   open (redirectUri: string, skipPooling: boolean) {
     try {
-      // this.popup = window.open(this.url, this.name, this._stringifyOptions())
       this.popup = window.open(this.url, this.name, this._stringifyOptions())
       if (this.popup && this.popup.focus) {
         this.popup.focus()
@@ -32,10 +31,9 @@ export default class OAuthPopup {
       return Promise.reject(new Error('OAuth popup error occurred'))
     }
   }
-
-
+  
   pooling (redirectUri: string) {
-    return new Promise((resolve:any) => {
+    return new Promise((resolve:(value: unknown) => void) => {
       const redirectUriParser = document.createElement('a')
       redirectUriParser.href = redirectUri
       const redirectUriPath = getFullUrlPath(redirectUriParser)
@@ -46,11 +44,9 @@ export default class OAuthPopup {
           poolingInterval = 0
           reject(new Error('Auth popup window closed'))
         }
-        // console.log('this.popup.location.href', this.popup.location.href)
-        // alert(this.popup.location.href)
 
         try {
-          const location = this.popup
+          const location = <Window>this.popup
 
           const popupWindowPath = getFullUrlPath(location.location)
           console.log('location.location', location.location)
@@ -99,8 +95,5 @@ export default class OAuthPopup {
 }
 
 function reject (arg0: Error) {
-  throw new Error('Function not implemented.')
+  throw new Error(`Function not implemented. ${<string><unknown>arg0}`)
 }
-// function reject (arg0: Error) {
-//   throw new Error('Function not implemented.')
-// }

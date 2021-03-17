@@ -12,13 +12,13 @@ export interface oAuth {
 }
 export declare type RepsO = AxiosResponse & oAuth;
 export interface ProviderConfig {
-    [x: string]: number | string | Func | boolean | Record<string, any>;
+    [x: string]: number | string | Func | boolean | Record<string, unknown>;
     scopeDelimiter: string;
     scopePrefix: string;
     name: string;
     state: string | Func;
     authorizationEndpoint: string;
-    popupOptions: Record<string, any>;
+    popupOptions: Record<string, unknown>;
     redirectUri: string;
     url: string;
     clientId: string | number;
@@ -40,7 +40,7 @@ export default class OAuth2 {
     options: Opt;
     oauthPopup: OAuthPopup | undefined;
     constructor($http: AxiosInstance, storage: Storage1, providerConfig: ProviderConfig, options: Opt);
-    init(userData: Record<string, string | undefined>): Promise<unknown>;
-    exchangeForToken(oauth: RepsO, userData: Record<string, any>): Promise<AxiosResponse<any>>;
+    init(userData: Record<string, unknown>): Promise<Record<string, unknown> | AxiosResponse<any> | Error | undefined>;
+    exchangeForToken(oauth: RepsO, userData: Record<string, unknown>): Promise<AxiosResponse<any>>;
     _stringifyRequestParams(): string;
 }

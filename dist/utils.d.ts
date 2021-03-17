@@ -1,5 +1,5 @@
-interface KeyB {
-    [x: string]: string | boolean | Record<string, unknown> | unknown[];
+export interface KeyB {
+    [x: string]: string | boolean | Record<string, unknown>;
 }
 export interface OptionsA {
     [x: string]: string | boolean | null | undefined | Date;
@@ -25,6 +25,5 @@ export declare function getFullUrlPath(location: Location | HTMLAnchorElement): 
 export declare function parseQueryString(str: string): KeyB;
 export declare function decodeBase64(base64: string): string;
 export declare function parseCookies(str: string): KeyB;
-export declare function formatOptions(options: any): string;
-export declare function formatCookie(key: string | number, value: string, options: any): string;
-export {};
+export declare function formatOptions(options: Record<string, unknown>): string;
+export declare function formatCookie(key: string | number, value: string, options: Record<string, unknown>): string;

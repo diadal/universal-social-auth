@@ -1,6 +1,9 @@
-interface KeyB {
-  [x: string]: string | boolean| Record<string, unknown>| unknown[];
+
+export interface KeyB {
+  [x: string]: string | boolean| Record<string, unknown>;
 }
+ 
+
 
 export interface OptionsA {
 
@@ -148,7 +151,7 @@ export function parseCookies (str: string) {
   return parsed
 }
 
-export function formatOptions (options: any) {
+export function formatOptions (options: Record<string, unknown>) {
   const { path, domain, expires, secure } = options
   const exp = <Date> expires
   const Path = <string> path
@@ -168,7 +171,7 @@ export function formatOptions (options: any) {
 export function formatCookie (
   key: string | number,
   value: string,
-  options: any
+  options: Record<string, unknown>
 ) {
   return [
     encodeURIComponent(key),

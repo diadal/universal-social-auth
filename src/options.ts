@@ -25,12 +25,8 @@ export default {
    * @context {UniversalSocialauth}
    */
   bindRequestInterceptor: function ($auth: { options: { tokenHeader: string }; $http: AxiosInstance }) {
-    console.log('$auth', $auth)
-    const tokenHeader = $auth.options.tokenHeader
-
+    const tokenHeader:string = $auth.options.tokenHeader
     $auth.$http.interceptors.request.use((config) => {
-      console.log('bindRequestInterceptor', config)
-
       delete config.headers[tokenHeader]
       return config
     })

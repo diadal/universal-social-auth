@@ -7,10 +7,6 @@ import StorageFactory from './storage'
 import OAuth1, { Opt1, ProviderConfig1 } from './oauth/oauth1'
 import OAuth2, { Opt, ProviderConfig, Storage1 } from './oauth/oauth2'
 
-// export interface ProderT {
-//   [x: string]: Record<string, any> | string | boolean | undefined ;
-// }
-
 interface KeyB {
   [x: string]: Record<string, unknown>;
 }
@@ -63,35 +59,8 @@ export default class UniversalSocialauth {
         }
       }
 
-      // storage: {
-      //   get () {
-      //     return storage
-      //   }
-      // },
-
-      // tokenName: {
-      //   get () {
-      //     if (this.options.tokenPrefix) {
-      //       return [this.options.tokenPrefix, this.options.tokenName].join('_')
-      //     } else {
-      //       return this.options.tokenName
-      //     }
-      //   }
-      // }
     })
   }
-
-  // /**
-  //  * Get token if user is authenticated
-  //  * @return {String} Authentication token
-  //  */
-  // getToken (tokenName:string): string {
-  //   return this.storage.getItem(tokenName)
-  // }
-
-  // tokenName (tokenName: string) {
-  //   throw new Error('Method not implemented. ' + tokenName)
-  // }
 
   async authenticate (
     provider: string,
@@ -101,9 +70,6 @@ export default class UniversalSocialauth {
     const ProviderOver:{providers:Record<string, unknown>} = <{providers:Record<string, unknown>}> this.OverrideOptions
     const ProviderOverr:KeyB = <KeyB><unknown>ProviderOver.providers
     const ProviderOverride:ProderT = <ProderT>ProviderOverr[provider]
-    // const ProviderOpt:string[] = <string[]>ProData
-    // console.log('ProviderOpt', ProviderOpt)
-
     const Opts = {
       provider: {
         ...ProData,
@@ -115,8 +81,6 @@ export default class UniversalSocialauth {
       ...Opts
     }
     this.options = <Opt><unknown>FinalOpts
-
-    // console.log('FinalOpts', FinalOpts)
     this.storage = <Storage1> <unknown>StorageFactory(<{ storageType: string; storageNamespace: null; cookieStorage: OptionsA} ><unknown>FinalOpts)
 
     const proconfg:{provider: Record<string, unknown>; bindRequestInterceptor:(agr0:Req)=>void; bindResponseInterceptor:(arg0:Req)=>void} = <{provider: Record<string, unknown>;bindRequestInterceptor:()=>void; bindResponseInterceptor:()=>void}> <unknown>FinalOpts
@@ -128,15 +92,9 @@ export default class UniversalSocialauth {
       proconfg.bindResponseInterceptor &&
       typeof proconfg.bindResponseInterceptor === 'function'
     ) {
-      // console.log('this', this)
       const data:Req = <Req><unknown>{ options: this.options, storage: this.storage, $http: this.$http, providerConfig: providerConfig }
-      // console.log('data', data)
-
-      // proconfg.bindRequestInterceptor.call(this)
       proconfg.bindRequestInterceptor.call(this, data)
-
       proconfg.bindResponseInterceptor.call(this, data)
-      // proconfg.bindResponseInterceptor.call(data)
     } else {
       throw new Error(
         'Both request and response interceptors must be functions'
@@ -169,7 +127,7 @@ export default class UniversalSocialauth {
         default:
           return new Error('Invalid OAuth type')
       }
-      return <Promise<Record<string, unknown> | Error>>providerInstance
+      return providerInstance
         .init(userData)
         .then(response => {
           return <Record<string, unknown>>response
@@ -177,7 +135,7 @@ export default class UniversalSocialauth {
         .catch(err => new Error(err))
     } catch (error) {
       const err:Record<string, unknown> = <Record<string, unknown>> error
-      return <Record<string, unknown>>err
+      return err
     }
   }
 }

@@ -1,9 +1,10 @@
 {
     "compilerOptions": {
         "outDir": "./dist/",
+        "module": "esnext",
+        "resolveJsonModule": true,
         "sourceMap": true,
-        "module": "es6",
-        "target": "es5",
+        "target": "es6",
         "allowJs": true,
         "moduleResolution": "node",
         "declaration": true,
@@ -19,5 +20,7 @@
         "esModuleInterop": true,
         "removeComments": true
     },
-    "include": ["./src/**/*"]
+    "include": ["./src/**/*"],
+
+    "exclude": ["./dist", "node_modules"]
 }

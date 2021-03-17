@@ -20,4 +20,4 @@ export {
 }
 
 
-// export default UniversalSocialauth
+export default UniversalSocialauth
