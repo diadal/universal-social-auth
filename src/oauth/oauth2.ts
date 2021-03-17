@@ -133,7 +133,7 @@ export default class OAuth2 {
       this._stringifyRequestParams()
     ].join('?')
 
-    // console.log('url', url)
+    // // console.log('url', url)
 
     this.oauthPopup = new OAuthPopup(
       url,
@@ -165,11 +165,11 @@ export default class OAuth2 {
           )
         }
         const token = await this.exchangeForToken(<RepsO><unknown>response, userData)
-        console.log('token2', token)
+        // console.log('token2', token)
 
         return token
       }
-      console.log('Oauth', response)
+      // console.log('Oauth', response)
     } catch (error) {
       return new Error(error)
     }
@@ -211,7 +211,7 @@ export default class OAuth2 {
     const post = await this.$http.post(exchangeTokenUrl, payload, {
       withCredentials: this.options.withCredentials
     })
-    console.log('post', post)
+    // console.log('post', post)
 
     return post
   }

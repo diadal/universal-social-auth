@@ -1,5 +1,6 @@
 const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const DropConsoleWebpackPlugin = require('drop-console-webpack-plugin')
 
 const rootPath = path.resolve(__dirname, "./");
 const srcPath = path.resolve(rootPath, "src");
@@ -28,6 +29,7 @@ const mainConfig = {
   },
   plugins: [
     new CleanWebpackPlugin(),
+    new DropConsoleWebpackPlugin(),
   ],
   resolve: {
     extensions: ['.ts', '.js']
@@ -56,6 +58,7 @@ const providerConfig = {
   },
   plugins: [
     new CleanWebpackPlugin(),
+    new DropConsoleWebpackPlugin(),
   ],
   resolve: {
     extensions: ['.ts', '.js']

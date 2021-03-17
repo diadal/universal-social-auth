@@ -1,6 +1,6 @@
 {
   "name": "universal-social-auth",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Social Authentication library for (SPA)",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -90,6 +90,7 @@
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^8.0.0",
+    "drop-console-webpack-plugin": "^4.0.0",
     "eslint-plugin-ts": "^1.0.0",
     "ts-loader": "^8.0.18",
     "webpack-cli": "^4.5.0"

@@ -109,14 +109,14 @@ export default class OAuth {
     this.oauthPopup = new OAuthPopup('about:blank', this.providerConfig.name, this.providerConfig.popupOptions)
 
     if (window) {
-      // console.log('this.providerConfig.redirectUri', this.providerConfig.redirectUri)
+      // // console.log('this.providerConfig.redirectUri', this.providerConfig.redirectUri)
       void this.oauthPopup.open(this.providerConfig.redirectUri, true)
     }
 
     return this.getRequestToken().then(async (response) => {
       const popupResponse = (this.openPopup((<Keyc><unknown>response)))
       const token = this.exchangeForToken(<Record<string, unknown>><unknown>popupResponse, userData)
-      console.log('token', token)
+      // console.log('token', token)
       return token
     })
   }
@@ -135,13 +135,13 @@ export default class OAuth {
     } else {
       requestOptions.url = this.providerConfig.url
     }
-    console.log('requestOptions', requestOptions)
+    // console.log('requestOptions', requestOptions)
     return this.$http(requestOptions)
   }
 
   openPopup (response:Keyc) {
     const rep = response
-    console.log('openPopup', rep)
+    // console.log('openPopup', rep)
     const rep2 = <KeyD><unknown>rep[this.options.responseDataKey]
     const url:Location = <Location> <unknown>[this.providerConfig.authorizationEndpoint, this.buildQueryString(rep2)].join('?')
     const OauthP = (<OAuthPopup> this.oauthPopup)
@@ -174,7 +174,7 @@ export default class OAuth {
   }
 
   buildQueryString (params: KeyD) {
-    console.log('oauth1 params', params)
+    // console.log('oauth1 params', params)
     const parsedParams = []
     for (const key in params) {
       const value = <string | number | boolean><unknown>params[key]

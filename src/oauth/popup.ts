@@ -24,7 +24,7 @@ export default class OAuthPopup {
         return Promise.resolve()
       } else {
         const pool = this.pooling(redirectUri)
-        console.log('pool', pool)
+        // console.log('pool', pool)
         return pool
       }
     } catch (e) {
@@ -49,9 +49,9 @@ export default class OAuthPopup {
           const location = <Window>this.popup
 
           const popupWindowPath = getFullUrlPath(location.location)
-          console.log('location.location', location.location)
+          // console.log('location.location', location.location)
 
-          console.log('redirectUriPath', redirectUriPath)
+          // console.log('redirectUriPath', redirectUriPath)
 
           if (popupWindowPath === redirectUriPath) {
             if (location.location.search || location.location.hash) {
@@ -84,7 +84,7 @@ export default class OAuthPopup {
   _stringifyOptions () {
     const options:string[] = []
     const Popup = this.popupOptions
-    console.log('Popup', Popup)
+    // console.log('Popup', Popup)
     for (const optionKey in Popup) {
       if (!isUndefined(<undefined>(Popup[optionKey]))) {
         options.push(`${optionKey}=${<string>(Popup[optionKey])}`)

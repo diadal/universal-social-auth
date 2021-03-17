@@ -38,7 +38,7 @@ export default {
    */
   bindResponseInterceptor: function ($auth: { $http: AxiosInstance }) {
     $auth.$http.interceptors.response.use((response) => {
-      console.log('bindResponseInterceptor', response)
+      // console.log('bindResponseInterceptor', response)
       return response
     })
   },

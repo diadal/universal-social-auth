@@ -32,13 +32,13 @@ export default class UniversalSocialauth {
     //   let opts = objectExtend({}, defaultOptions)
     //   opts = objectExtend(options, overrideOptions)
     //   const storage = StorageFactory(opts)
-    //   console.log('optsopts', opts)
+    //   // console.log('optsopts', opts)
 
     //   return { opts: opts, storage: storage }
     // }
     $http.interceptors.response.use((response) => {
       const data: Response = <Response>response.data
-      console.log('datadata', data)
+      // console.log('datadata', data)
       return response
     })
     Object.defineProperties(this, {
@@ -107,7 +107,7 @@ export default class UniversalSocialauth {
       let providerInstance
       switch (proConfig.oauthType) {
         case '1.0':
-          console.log('providerConfig', providerConfig)
+          // console.log('providerConfig', providerConfig)
 
           providerInstance = new OAuth1(
             (<AxiosInstance> this.$http),
