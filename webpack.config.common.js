@@ -10,7 +10,8 @@ const mainConfig = {
   output: {
     path: libPath,
     filename: "index.js",
-    library: "UniversalSocialauth"
+    library: "UniversalSocialauth",
+    libraryTarget: "umd" 
   },
   module: {
     rules: [

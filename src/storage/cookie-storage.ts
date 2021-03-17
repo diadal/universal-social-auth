@@ -4,12 +4,11 @@
 import {
   formatCookie,
   parseCookies
-  // OptionsA
 } from '../utils'
 
 class CookieStorage {
-  _defaultOptions: any
-  constructor (defaultOptions: any) {
+  _defaultOptions: Record<string, unknown>
+  constructor (defaultOptions: Record<string, unknown>) {
     const def = {
       domain: window.location.hostname,
       expires: null,

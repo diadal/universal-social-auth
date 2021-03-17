@@ -70,7 +70,9 @@ npm install universal-social-auth
 ## Usage
 ```javascript
 import axios, { AxiosInstance } from 'axios'
-import {UniversalSocialauth} from 'universal-social-auth'
+import UniversalSocialauth from 'components/universal-social-auth/dist'
+or import {UniversalSocialauth} from 'universal-social-auth'
+
 
 `Vue3` declare module '@vue/runtime-core' {
             interface ComponentCustomProperties {
@@ -103,7 +105,7 @@ const options = {
 
 const Oauth:UniversalSocialauth = new VueSocialauth(axios, options)
 
-`Vue2` Vue.use(Oauth)
+`Vue2` Vue.use($Oauth, Oauth)
 `Vue3` app.config.globalProperties.$Oauth = Oauth
 `Other Framework` based on your global declaration
 ```
@@ -128,15 +130,16 @@ Button Method 2 note the note provider name eg: `Github` each provider must the 
 ### View Component
 ```javascript
 <script lang="ts">
+import { ProderT } from 'universal-social-auth/dist/providers'
+
 // Button Method 1
-import { Providers, ProderT, } from 'components/vue-social-auth/src/providers'
+import { Providers} from 'universal-social-auth'
 
 // Button Method 2
-import { ProderT, Github, Facebook, Google , Twitter} from 'components/vue-social-auth/src/providers'
+import { Github, Facebook, Google , Twitter} from 'universal-social-auth'
+const MycustomProvider = {
 
-const Mycustom = {
-
-    // Mycustom proivder datas
+    // Mycustom provider datas
 }
 
 // Below are the functions to use inside you export default be `Vue3 Setup()` or `Vue2 data()` or other `Framework`
