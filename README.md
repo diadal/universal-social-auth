@@ -37,9 +37,9 @@ backend frameworks [Laravel](https://laravel.com/) and [Other Php Frameworks](ht
 
 **NOTE:** New features*
 
-**1:**  Ability to add none exsiting privider 
+**1:**  Ability to add none exsiting provider 
 
-**2:**  importation only `Required` privider 
+**2:**  importation only `Required` provider 
 
 **3:**  No more `Buffer` fuction were call base on user request or needs 
 
