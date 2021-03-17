@@ -17,20 +17,12 @@ declare const _default: {
     };
     requestDataKey: string;
     responseDataKey: string;
-    /**
-     * Default request interceptor for Axios library
-     * @context {UniversalSocialauth}
-     */
     bindRequestInterceptor: ($auth: {
         options: {
             tokenHeader: string;
         };
         $http: AxiosInstance;
     }) => void;
-    /**
-     * Default response interceptor for Axios library
-     * @contect {UniversalSocialauth}
-     */
     bindResponseInterceptor: ($auth: {
         $http: AxiosInstance;
     }) => void;

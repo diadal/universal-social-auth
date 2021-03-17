@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "outDir": "./lib/",
+        "outDir": "./dist/",
         "sourceMap": true,
         "module": "es6",
         "target": "es5",
@@ -16,7 +16,8 @@
         "forceConsistentCasingInFileNames": true,
         "noImplicitReturns": true,
         "noUnusedLocals": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "removeComments": true
     },
     "include": ["./src/**/*"]
 }

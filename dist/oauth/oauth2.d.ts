@@ -42,12 +42,5 @@ export default class OAuth2 {
     constructor($http: AxiosInstance, storage: Storage1, providerConfig: ProviderConfig, options: Opt);
     init(userData: Record<string, string | undefined>): Promise<unknown>;
     exchangeForToken(oauth: RepsO, userData: Record<string, any>): Promise<AxiosResponse<any>>;
-    /**
-     * Stringify oauth params
-     * @author Sahat Yalkabov <https://github.com/sahat>
-     * @copyright Method taken from https://github.com/sahat/satellizer
-     *
-     * @return {String}
-     */
     _stringifyRequestParams(): string;
 }

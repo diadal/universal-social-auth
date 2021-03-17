@@ -20,42 +20,9 @@ export declare function isDefined(value: string[]): boolean;
 export declare function isObject(value: Record<string, unknown>): boolean;
 export declare function isString(value: string): boolean;
 export declare function isNumber(value: number): boolean;
-/**
- * Assemble url from two segments
- *
- * @author Sahat Yalkabov <https://github.com/sahat>
- * @copyright Method taken from https://github.com/sahat/satellizer
- *
- * @param  {String} baseUrl Base url
- * @param  {String} url     URI
- * @return {String}
- */
 export declare function joinUrl(baseUrl: string, url: string): string;
-/**
- * Get full path based on current location
- *
- * @author Sahat Yalkabov <https://github.com/sahat>
- * @copyright Method taken from https://github.com/sahat/satellizer
- *
- * @param  {Location} location
- * @return {String}
- */
 export declare function getFullUrlPath(location: Location | HTMLAnchorElement): string;
-/**
- * Parse query string variables
- *
- * @author Sahat Yalkabov <https://github.com/sahat>
- * @copyright Method taken from https://github.com/sahat/satellizer
- *
- * @param  {String} Query string
- * @return {String | Boolean}
- */
 export declare function parseQueryString(str: string): KeyB;
-/**
- * Decode base64 string *
- * @param  {String} str base64 encoded string
- * @return {Object}
- */
 export declare function decodeBase64(base64: string): string;
 export declare function parseCookies(str: string): KeyB;
 export declare function formatOptions(options: any): string;

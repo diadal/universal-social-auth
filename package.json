@@ -1,10 +1,17 @@
 {
   "name": "universal-social-auth",
-  "version": "0.0.8",
+  "version": "0.1.1",
   "description": "Social Authentication library for (SPA)",
-  "main": "lib/universal-social-auth.js",
-  "unpkg": "lib/universal-social-auth.js",
-  "types": "lib/index.d.ts",
+  "main": "dist/index.js",
+  "unpkg": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "webpack --mode=production --config webpack.config.build.js",
+    "build:dev": "webpack --mode=development --config webpack.config.build.js"
+  },
   "keywords": [
     "vue",
     "vuejs",
@@ -76,5 +83,11 @@
   "homepage": "https://github.com/diadal/universal-social-auth",
   "dependencies": {
     "axios": "^0.21.1"
+  },
+  "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^8.0.0",
+    "ts-loader": "^8.0.18",
+    "webpack-cli": "^4.5.0"
   }
 }

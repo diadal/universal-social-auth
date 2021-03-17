@@ -10,7 +10,8 @@ module.exports = (env, argv) => {
   }
 
   if (argv.mode === "production") {
-    // config.devtool = "source-map";
+    config.devtool = "source-map";
+    console.log = function () {};
   }
 
   return config;
