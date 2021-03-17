@@ -70,7 +70,7 @@ npm install universal-social-auth
 ## Usage
 ```javascript
 import axios, { AxiosInstance } from 'axios'
-import UniversalSocialauth from 'universal-social-auth'
+import {UniversalSocialauth} from 'universal-social-auth'
 
 `Vue3` declare module '@vue/runtime-core' {
             interface ComponentCustomProperties {

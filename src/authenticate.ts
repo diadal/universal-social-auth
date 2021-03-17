@@ -169,16 +169,15 @@ export default class UniversalSocialauth {
         default:
           return new Error('Invalid OAuth type')
       }
-      // console.log('providerInstance', providerInstance)
-      return providerInstance
+      return <Promise<Record<string, unknown> | Error>>providerInstance
         .init(userData)
         .then(response => {
-          return response
+          return <Record<string, unknown>>response
         })
         .catch(err => new Error(err))
     } catch (error) {
       const err:Record<string, unknown> = <Record<string, unknown>> error
-      return err
+      return <Record<string, unknown>>err
     }
   }
 }
