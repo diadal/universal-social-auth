@@ -27,6 +27,7 @@ export default {
   bindRequestInterceptor: function ($auth: { options: { tokenHeader: string }; $http: AxiosInstance }) {
     const tokenHeader:string = $auth.options.tokenHeader
     $auth.$http.interceptors.request.use((config) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       delete config.headers[tokenHeader]
       return config
     })

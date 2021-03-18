@@ -37,8 +37,7 @@ export default class UniversalSocialauth {
     //   return { opts: opts, storage: storage }
     // }
     $http.interceptors.response.use((response) => {
-      const data: Response = <Response>response.data
-      // console.log('datadata', data)
+
       return response
     })
     Object.defineProperties(this, {
