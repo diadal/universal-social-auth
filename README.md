@@ -69,6 +69,8 @@ composer require socialiteproviders/github
 ```bash
 npm install universal-social-auth
 ```
+`Vue2 Example` (https://github.com/diadal/universal-social-auth-test-vu2)
+
 
 ## Usage
 ```javascript
@@ -114,10 +116,12 @@ const options = {
 
 const Oauth:UniversalSocialauth = new UniversalSocialauth(axios, options)
 
+
 `Vue2` Vue.prototype.$axios = axios
-Vue.prototype.$Oauth = Oauth
+`Vue2` Vue.prototype.$Oauth = Oauth
 
 `Vue3` app.config.globalProperties.$Oauth = Oauth
+`Vue3` app.config.globalProperties.$axios = axios
 
 `Other Framework` based on your global declaration
 ```
