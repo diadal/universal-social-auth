@@ -1,6 +1,6 @@
 {
   "name": "universal-social-auth",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Social Authentication library for (SPA)",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -50,10 +50,7 @@
     "email": "info@diadal.com.ng",
     "url": "https://diadal.com.ng"
   },
-  "repository": {
-    "type": "git",
-    "url": "it+https://github.com/diadal/universal-social-auth.git"
-  },
+  "repository": "git:https://github.com/diadal/universal-social-auth.git",
   "license": "MIT",
   "tags": [
     "auth",
@@ -83,14 +80,12 @@
   },
   "homepage": "https://github.com/diadal/universal-social-auth",
   "dependencies": {
-    "axios": "^0.21.1",
-    "prettier": "^2.2.1"
+    "axios": "^0.21.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^8.0.0",
-    "drop-console-webpack-plugin": "^4.0.0",
     "eslint-plugin-ts": "^1.0.0",
     "ts-loader": "^8.0.18",
     "webpack-cli": "^4.5.0"

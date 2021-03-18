@@ -3,7 +3,7 @@
     [
       "es2017",
       {
-        "modules": false
+        "modules": true
       }
     ]
   ],

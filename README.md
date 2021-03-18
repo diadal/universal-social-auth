@@ -86,6 +86,12 @@ or import {UniversalSocialauth} from 'universal-social-auth'
             }
 const options = {
   providers: {
+    apple: {
+      nonce: '**************',
+      state: '**************',
+      clientId: '**************',
+      redirectUri: 'https://myapp.com/auth/github/callback'
+    },
     github: {
       clientId: '**************',
       redirectUri: 'https://myapp.com/auth/github/callback'

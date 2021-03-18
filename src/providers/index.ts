@@ -3,12 +3,27 @@
 }
 
 const Providers:ProderT = {
+  apple: {
+    name: 'apple',
+    url: '/auth/apple',
+    authorizationEndpoint: 'https://appleid.apple.com/auth/authorize',
+    redirectUri: window.location.origin + '/',
+    responseType: ['code'],
+    requiredUrlParams: ['scope'],
+    scope: ['name','email', 'id'],
+    scopeDelimiter: '%20',
+    display: 'popup',
+    usePopup: true,
+    oauthType: '2.0',
+    popupOptions: { width: 580, height: 400 }
+  },
   facebook: {
     name: 'facebook',
     url: '/auth/facebook',
     authorizationEndpoint: 'https://www.facebook.com/v2.5/dialog/oauth',
     redirectUri: window.location.origin + '/',
-    requiredUrlParams: ['display', 'scope'],
+    responseMode: ['form_post'],
+    requiredUrlParams: ['scope'],
     scope: ['email'],
     scopeDelimiter: ',',
     display: 'popup',
@@ -148,6 +163,7 @@ const Providers:ProderT = {
   }
 }
 
+const Apple = Providers.apple
 const Facebook = Providers.facebook
 const Google = Providers.google
 const Github = Providers.github
@@ -161,6 +177,7 @@ const Oauth1 = Providers.oauth1
 const Oauth2 = Providers.oauth2
 export {
   Providers,
+  Apple,
   Facebook,
   Google,
   Github,
