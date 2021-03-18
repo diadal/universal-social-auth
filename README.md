@@ -114,8 +114,11 @@ const options = {
 
 const Oauth:UniversalSocialauth = new UniversalSocialauth(axios, options)
 
-`Vue2` Vue.use($Oauth, Oauth)
+`Vue2` Vue.prototype.$axios = axios
+Vue.prototype.$Oauth = Oauth
+
 `Vue3` app.config.globalProperties.$Oauth = Oauth
+
 `Other Framework` based on your global declaration
 ```
 
