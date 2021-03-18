@@ -73,7 +73,7 @@ npm install universal-social-auth
 ## Usage
 ```javascript
 import axios, { AxiosInstance } from 'axios'
-import UniversalSocialauth from 'components/universal-social-auth/dist'
+import UniversalSocialauth from 'universal-social-auth'
 or import {UniversalSocialauth} from 'universal-social-auth'
 
 

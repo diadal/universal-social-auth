@@ -1,7 +1,5 @@
 const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-var failPlugin = require('webpack-fail-plugin');
-
 
 const rootPath = path.resolve(__dirname, "./");
 const srcPath = path.resolve(rootPath, "src");
@@ -28,7 +26,6 @@ const mainConfig = {
   },
   plugins: [
     new CleanWebpackPlugin(),
-    failPlugin
   ],
   resolve: {
     extensions: ['.ts', '.js']
@@ -55,7 +52,6 @@ const providerConfig = {
   },
   plugins: [
     new CleanWebpackPlugin(),
-    failPlugin
   ],
   resolve: {
     extensions: ['.ts', '.js']
