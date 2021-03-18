@@ -112,7 +112,7 @@ const options = {
   }
 }
 
-const Oauth:UniversalSocialauth = new VueSocialauth(axios, options)
+const Oauth:UniversalSocialauth = new UniversalSocialauth(axios, options)
 
 `Vue2` Vue.use($Oauth, Oauth)
 `Vue3` app.config.globalProperties.$Oauth = Oauth
