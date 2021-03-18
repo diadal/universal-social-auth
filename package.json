@@ -10,7 +10,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "webpack --mode=production --config webpack.config.build.js",
+    "build": "webpack --mode=production --config webpack.config.build.js --bail",
     "build:dev": "webpack --mode=development --config webpack.config.build.js"
   },
   "keywords": [

@@ -1,5 +1,7 @@
 const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+var failPlugin = require('webpack-fail-plugin');
+
 
 const rootPath = path.resolve(__dirname, "./");
 const srcPath = path.resolve(rootPath, "src");
@@ -20,14 +22,13 @@ const mainConfig = {
         test: /\.ts$/,
         loader: 'ts-loader',
         exclude: /node_modules/,
-        options: {
-          appendTsSuffixTo: [/\.vue$/],
-        }
+        
       },
     ]
   },
   plugins: [
     new CleanWebpackPlugin(),
+    failPlugin
   ],
   resolve: {
     extensions: ['.ts', '.js']
@@ -48,14 +49,13 @@ const providerConfig = {
         test: /\.ts$/,
         loader: 'ts-loader',
         exclude: /node_modules/,
-        options: {
-          appendTsSuffixTo: [/\.vue$/],
-        }
+        
       },
     ]
   },
   plugins: [
     new CleanWebpackPlugin(),
+    failPlugin
   ],
   resolve: {
     extensions: ['.ts', '.js']
