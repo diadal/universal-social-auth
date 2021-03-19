@@ -45,6 +45,8 @@ backend frameworks [Laravel](https://laravel.com/) and [Other Php Frameworks](ht
 
 **4:**  Optional how to handle addition security validation like `2fa` `Email code` if enabled by the user after first login 
 
+**5:**  Support for Native App framework [Capacitorjs](https://capacitorjs.com/), [Ionic](https://ionicframework.com/), [Cordova](https://cordova.apache.org/), [Nativescript](https://nativescript.org/) & `More`
+
 **Default Provider:** `Apple` `Facebook` `Google` `Github` `Instagram` `Twitter` `Bitbucket` `Linkedin` `Vkontakte` `Live` `Oauth1` & `Oauth2` 
 
 **NOTE:** PR of New Provider can be submited default location `src/providers/index.ts`(https://github.com/diadal/universal-social-auth/src/providers/index.ts)
@@ -73,6 +75,37 @@ npm install universal-social-auth
 
 
 ## Usage
+
+for Native App Frameworks config your APp to support Deep Link I used [capacitorjs](https://capacitorjs.com/docs/guides/deep-links) as an example and use [Emitter](https://github.com/developit/mitt) to pass data to page component
+
+```javascript
+// Optional for Native App main.[js|ts] or app.[js|ts]
+ App.addListener('appUrlOpen', function (data) {
+    const slug = data.url.split('.com').pop()
+    if (slug) {
+     /// redirectUri: 'https://myapp.com/auth/github/callback'
+       const calback ='/callback' //string from reirectUri make this unique  
+       const code = slug.split('code=').pop()
+       const checker = slug?.toString().includes(calback) && code
+       if (checker) {
+         emitter.emit('OauthCall', code)
+       }
+       else{
+            router.push({
+            path: slug
+          })
+       }
+
+    }
+  })
+
+
+
+ 
+```
+
+
+
 ```javascript
 import axios, { AxiosInstance } from 'axios'
 import UniversalSocialauth from 'universal-social-auth'
@@ -215,10 +248,23 @@ async function useLoginFirst (e: User) {
         console.log(err)
       })
     }
+// Optional for Native App listen to the event `OauthCall` from your page component main.[js|ts] or app.[js|ts]
+
+    emitter.on('OauthCall',  (e) => {
+      if(e){
+
+        responseData.value.code = e
+        useSocialLogin()
+
+      }
+
+
+    })
 
 
 </script>
 ```
+**NOTE:**  Dont forget to off `emitter` `beforeDestroy` or `onBeforeUnmount` if you are building for Native App
 
 #### Vue Router
 
