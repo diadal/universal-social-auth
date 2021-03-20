@@ -14,4 +14,5 @@ declare const Vkontakte: Record<string, unknown>;
 declare const Live: Record<string, unknown>;
 declare const Oauth1: Record<string, unknown>;
 declare const Oauth2: Record<string, unknown>;
-export { Providers, Apple, Facebook, Google, Github, Instagram, Bitbucket, Twitter, Vkontakte, Live, Linkedin, Oauth2, Oauth1, ProderT };
+declare const Twitch: Record<string, unknown>;
+export { Providers, Apple, Facebook, Google, Github, Instagram, Bitbucket, Twitter, Vkontakte, Live, Linkedin, Oauth2, Oauth1, Twitch, ProderT };

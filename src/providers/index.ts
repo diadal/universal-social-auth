@@ -1,8 +1,8 @@
- interface ProderT {
-  [x: string]: Record<string, unknown> ;
+interface ProderT {
+  [x: string]: Record<string, unknown>;
 }
 
-const Providers:ProderT = {
+const Providers: ProderT = {
   apple: {
     name: 'apple',
     url: '/auth/apple',
@@ -10,7 +10,7 @@ const Providers:ProderT = {
     redirectUri: window.location.origin + '/',
     responseType: ['code'],
     requiredUrlParams: ['scope'],
-    scope: ['name','email', 'id'],
+    scope: ['name', 'email', 'id'],
     scopeDelimiter: '%20',
     display: 'popup',
     usePopup: true,
@@ -160,21 +160,33 @@ const Providers:ProderT = {
       clientId: 'clientId',
       redirectUri: 'redirectUri'
     }
+  },
+  twitch: {
+    name: 'twitch',
+    url: '/auth/twitch',
+    authorizationEndpoint: 'https://id.twitch.tv/oauth2/authorize',
+    scope: ['openid', 'user_read', 'user:read:email', 'user:edit'],
+    scopeDelimiter: '%20',
+    oauthType: '2.0',
+    responseType: 'code',
+    responseParams: 'code',
+    popupOptions: { width: 452, height: 633 }
   }
-}
+};
 
-const Apple = Providers.apple
-const Facebook = Providers.facebook
-const Google = Providers.google
-const Github = Providers.github
-const Instagram = Providers.instagram
-const Twitter = Providers.twitter
-const Bitbucket = Providers.bitbucket
-const Linkedin = Providers.linkedin
-const Vkontakte = Providers.vkontakte
-const Live = Providers.live
-const Oauth1 = Providers.oauth1
-const Oauth2 = Providers.oauth2
+const Apple = Providers.apple;
+const Facebook = Providers.facebook;
+const Google = Providers.google;
+const Github = Providers.github;
+const Instagram = Providers.instagram;
+const Twitter = Providers.twitter;
+const Bitbucket = Providers.bitbucket;
+const Linkedin = Providers.linkedin;
+const Vkontakte = Providers.vkontakte;
+const Live = Providers.live;
+const Oauth1 = Providers.oauth1;
+const Oauth2 = Providers.oauth2;
+const Twitch = Providers.twitch;
 export {
   Providers,
   Apple,
@@ -189,5 +201,6 @@ export {
   Linkedin,
   Oauth2,
   Oauth1,
+  Twitch,
   ProderT
-}
+};

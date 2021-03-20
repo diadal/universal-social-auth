@@ -47,7 +47,7 @@ backend frameworks [Laravel](https://laravel.com/) and [Other Php Frameworks](ht
 
 **5:**  Support for Native App framework [Capacitorjs](https://capacitorjs.com/), [Ionic](https://ionicframework.com/), [Cordova](https://cordova.apache.org/), [Nativescript](https://nativescript.org/) & `More`
 
-**Default Provider:** `Apple` `Facebook` `Google` `Github` `Instagram` `Twitter` `Bitbucket` `Linkedin` `Vkontakte` `Live` `Oauth1` & `Oauth2` 
+**Default Provider:** `Apple` `Facebook` `Google` `Github` `Instagram` `Twitter` `Bitbucket` `Linkedin` `Vkontakte` `Live` `Oauth1`, `Oauth2` & `Twitch`
 
 **NOTE:** PR of New Provider can be submited default location `src/providers/index.ts`(https://github.com/diadal/universal-social-auth/src/providers/index.ts)
 
