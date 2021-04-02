@@ -211,7 +211,7 @@ const MycustomProvider = {
 
 
 async function useLoginFirst (e: User) {
-    // this sample of to pust user data to my store
+    // this sample of how to pust user data to my store
       const firstlogin: boolean = await box.$auth.firstlogin(e)
       if (firstlogin) {
         const apm: string = box.$appName
