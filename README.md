@@ -126,7 +126,7 @@ const options = {
       state: '**************',
       clientId: '**************',
       responseMode: 'form_post',
-      requiredUrlParams: ['response_mode'],
+      optionalUrlParams: ['response_mode'],
       redirectUri: 'https://myapp.com/auth/github/callback'
     },
     github: {
