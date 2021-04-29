@@ -1,5 +1,4 @@
-
-import { AxiosInstance } from 'axios'
+import { AxiosInstance } from 'axios';
 
 export default {
   baseUrl: null,
@@ -24,25 +23,27 @@ export default {
    * Default request interceptor for Axios library
    * @context {UniversalSocialauth}
    */
-  bindRequestInterceptor: function ($auth: { options: { tokenHeader: string }; $http: AxiosInstance }) {
-    const tokenHeader:string = $auth.options.tokenHeader
-    $auth.$http.interceptors.request.use((config) => {
+  bindRequestInterceptor: function($auth: {
+    options: { tokenHeader: string };
+    $http: AxiosInstance;
+  }) {
+    const tokenHeader: string = $auth.options.tokenHeader;
+    $auth.$http.interceptors.request.use(config => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      delete config.headers[tokenHeader]
-      return config
-    })
+      delete config.headers[tokenHeader];
+      return config;
+    });
   },
 
   /**
    * Default response interceptor for Axios library
    * @contect {UniversalSocialauth}
    */
-  bindResponseInterceptor: function ($auth: { $http: AxiosInstance }) {
-    $auth.$http.interceptors.response.use((response) => {
-      // console.log('bindResponseInterceptor', response)
-      return response
-    })
+  bindResponseInterceptor: function($auth: { $http: AxiosInstance }) {
+    $auth.$http.interceptors.response.use(response => {
+      return response;
+    });
   },
 
   provider: {}
-}
+};

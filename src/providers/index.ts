@@ -10,7 +10,7 @@ const Providers: ProderT = {
     redirectUri: window.location.origin + '/',
     responseType: ['code'],
     requiredUrlParams: ['scope'],
-    scope: ['name', 'email', 'id'],
+    scope: ['name', 'email'],
     scopeDelimiter: '%20',
     display: 'popup',
     usePopup: true,
@@ -75,7 +75,20 @@ const Providers: ProderT = {
     url: '/auth/twitter',
     authorizationEndpoint: 'https://api.twitter.com/oauth/authenticate',
     redirectUri: window.location.origin,
-    oauthType: '1.0',
+    oauthType: '2.0',
+    popupOptions: { width: 495, height: 645 }
+  },
+  twitter2: {
+    name: 'twitter',
+    url: '/auth/twitter',
+    authorizationEndpoint: 'https://api.twitter.com/oauth/authenticate',
+    tokenURL: 'https://api.twitter.com/oauth2/token',
+    redirectUri: window.location.origin,
+    scopeDelimiter: ',',
+    sessionKey: 'oauth:twitter',
+    userProfileURL:
+      'https://api.twitter.com/1.1/account/verify_credentials.json',
+    oauthType: '2.0',
     popupOptions: { width: 495, height: 645 }
   },
 
@@ -160,17 +173,6 @@ const Providers: ProderT = {
       clientId: 'clientId',
       redirectUri: 'redirectUri'
     }
-  },
-  twitch: {
-    name: 'twitch',
-    url: '/auth/twitch',
-    authorizationEndpoint: 'https://id.twitch.tv/oauth2/authorize',
-    scope: ['openid', 'user_read', 'user:read:email', 'user:edit'],
-    scopeDelimiter: '%20',
-    oauthType: '2.0',
-    responseType: 'code',
-    responseParams: 'code',
-    popupOptions: { width: 452, height: 633 }
   }
 };
 
@@ -186,7 +188,6 @@ const Vkontakte = Providers.vkontakte;
 const Live = Providers.live;
 const Oauth1 = Providers.oauth1;
 const Oauth2 = Providers.oauth2;
-const Twitch = Providers.twitch;
 export {
   Providers,
   Apple,
@@ -201,6 +202,5 @@ export {
   Linkedin,
   Oauth2,
   Oauth1,
-  Twitch,
   ProderT
 };

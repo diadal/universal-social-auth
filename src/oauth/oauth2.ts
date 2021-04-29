@@ -1,37 +1,37 @@
-import OAuthPopup from './popup'
+import OAuthPopup from './popup';
 import {
   camelCase,
   // isFunction,
   isString,
   joinUrl
   // objectExtend
-} from '../utils'
+} from '../utils';
 
-import { AxiosInstance, AxiosResponse } from 'axios'
+import { AxiosInstance, AxiosResponse } from 'axios';
 
 interface def {
-    name: string | null;
-    url: string | null;
-    clientId: string | null;
-    authorizationEndpoint: string | null;
-    redirectUri: string | null;
-    scope: string | null;
-    scopePrefix: string | null;
-    scopeDelimiter: string | null;
-    state: string | null;
-    requiredUrlParams: string | null;
-    defaultUrlParams: string[];
-    responseType: string;
-    responseParams: {
+  name: string | null;
+  url: string | null;
+  clientId: string | null;
+  authorizationEndpoint: string | null;
+  redirectUri: string | null;
+  scope: string | null;
+  scopePrefix: string | null;
+  scopeDelimiter: string | null;
+  state: string | null;
+  requiredUrlParams: string[] | null;
+  defaultUrlParams: string[];
+  responseType: string;
+  responseParams: {
     code: string;
     clientId: string;
     redirectUri: string;
-};
-oauthType: string;
-    popupOptions: Record<string, unknown>;
+  };
+  oauthType: string;
+  popupOptions: Record<string, unknown>;
 }
 
-const defaultProviderConfig:def = {
+const defaultProviderConfig: def = {
   name: null,
   url: null,
   clientId: null,
@@ -51,7 +51,7 @@ const defaultProviderConfig:def = {
   },
   oauthType: '2.0',
   popupOptions: {}
-}
+};
 
 export interface Func {
   (): unknown;
@@ -64,7 +64,7 @@ export interface oAuth {
   state: string;
 }
 
-export type RepsO = AxiosResponse & oAuth
+export type RepsO = AxiosResponse & oAuth;
 // interface Scp {
 //   (scopeDelimiter: string): string;
 // }
@@ -102,118 +102,116 @@ export default class OAuth2 {
   providerConfig: ProviderConfig;
   options: Opt;
   oauthPopup: OAuthPopup | undefined;
-  constructor (
+  constructor(
     $http: AxiosInstance,
     storage: Storage1,
     providerConfig: ProviderConfig,
     options: Opt
   ) {
-    this.$http = $http
-    this.storage = storage
-    this.providerConfig = <ProAndDef> {
+    this.$http = $http;
+    this.storage = storage;
+    this.providerConfig = <ProAndDef>{
       ...defaultProviderConfig,
       ...providerConfig
-    }
-
-    this.options = options
+    };
+    this.options = options;
   }
 
-  async init (userData: Record<string, unknown>) {
-    const stateName = this.providerConfig.name + '_state'
-    const isFunc: Func = <Func> this.providerConfig.state
-    const isStr = <string> this.providerConfig.state
+  async init(userData: Record<string, unknown>) {
+    const stateName = this.providerConfig.name + '_state';
+    const isFunc: Func = <Func>this.providerConfig.state;
+    const isStr = <string>this.providerConfig.state;
     if (typeof isFunc === 'function') {
-      this.storage.setItem(stateName, isFunc())
+      this.storage.setItem(stateName, isFunc());
     } else if (isString(isStr)) {
-      this.storage.setItem(stateName, isStr)
+      this.storage.setItem(stateName, isStr);
     }
 
     const url = [
       this.providerConfig.authorizationEndpoint,
       this._stringifyRequestParams()
-    ].join('?')
-
-    // // console.log('url', url)
+    ].join('?');
 
     this.oauthPopup = new OAuthPopup(
       url,
       this.providerConfig.name,
       this.providerConfig.popupOptions
-    )
-    const OauthP = this.oauthPopup
+    );
+    const OauthP = this.oauthPopup;
 
     try {
-      const response:Record<string, unknown> =<Record<string, unknown>> <unknown>OauthP.open(
-        this.providerConfig.redirectUri,
-        this.providerConfig.skipPooling
-      )
+      const response: Record<string, unknown> = <Record<string, unknown>>(
+        (<unknown>(
+          OauthP.open(
+            this.providerConfig.redirectUri,
+            this.providerConfig.skipPooling
+          )
+        ))
+      );
       if (response) {
-        const rsp:{state:string} = <{state:string}><unknown>response
+        const rsp: { state: string } = <{ state: string }>(<unknown>response);
 
         if (
           this.providerConfig.responseType === 'code' ||
-            !this.providerConfig.url
+          !this.providerConfig.url
         ) {
-          return response
+          return response;
         }
 
         if (rsp.state && rsp.state !== this.storage.getItem(stateName)) {
-          return (
-            new Error(
-              'State parameter value does not match original OAuth request state value'
-            )
-          )
+          return new Error(
+            'State parameter value does not match original OAuth request state value'
+          );
         }
-        const token = await this.exchangeForToken(<RepsO><unknown>response, userData)
-        // console.log('token2', token)
+        const token = await this.exchangeForToken(
+          <RepsO>(<unknown>response),
+          userData
+        );
 
-        return token
+        return token;
       }
-      // console.log('Oauth', response)
     } catch (error) {
-      return new Error(error)
+      return new Error(error);
     }
-    return
- 
+    return;
   }
 
-  async exchangeForToken (oauth: RepsO, userData: Record<string, unknown>) {
+  async exchangeForToken(oauth: RepsO, userData: Record<string, unknown>) {
     const payload = {
       ...userData
-    }
+    };
 
     for (const key in defaultProviderConfig.responseParams) {
       switch (key) {
         case 'code':
-          payload[key] = oauth.code
-          break
+          payload[key] = oauth.code;
+          break;
         case 'clientId':
-          payload[key] = this.providerConfig.clientId
-          break
+          payload[key] = this.providerConfig.clientId;
+          break;
         case 'redirectUri':
-          payload[key] = this.providerConfig.redirectUri
-          break
+          payload[key] = this.providerConfig.redirectUri;
+          break;
         default:
-          payload[key] = oauth[key]
+          payload[key] = oauth[key];
       }
     }
 
     if (oauth.state) {
-      payload.state = oauth.state
+      payload.state = oauth.state;
     }
 
-    let exchangeTokenUrl
+    let exchangeTokenUrl;
     if (this.options.baseUrl) {
-      exchangeTokenUrl = joinUrl(this.options.baseUrl, this.providerConfig.url)
+      exchangeTokenUrl = joinUrl(this.options.baseUrl, this.providerConfig.url);
     } else {
-      exchangeTokenUrl = this.providerConfig.url
+      exchangeTokenUrl = this.providerConfig.url;
     }
     const post = await this.$http.post(exchangeTokenUrl, payload, {
       withCredentials: this.options.withCredentials
-    })
-    // console.log('post', post)
+    });
 
-    return post
+    return post;
   }
 
   /**
@@ -223,49 +221,50 @@ export default class OAuth2 {
    *
    * @return {String}
    */
-  _stringifyRequestParams (): string {
-    const keyValuePairs: unknown[][] = []
+  _stringifyRequestParams(): string {
+    const keyValuePairs: unknown[][] = [];
     const paramCategories = [
       'defaultUrlParams',
       'requiredUrlParams',
       'optionalUrlParams'
-    ]
+    ];
 
     paramCategories.forEach(categoryName => {
-      if (!this.providerConfig[categoryName]) return
-      if (!Array.isArray(this.providerConfig[categoryName])) return
-      const Procate = (<string[]> <unknown>this.providerConfig[categoryName])
+      if (!this.providerConfig[categoryName]) return;
+      if (!Array.isArray(this.providerConfig[categoryName])) return;
+      const Procate = <string[]>(<unknown>this.providerConfig[categoryName]);
       Procate.forEach((paramName: string) => {
-        const camelCaseParamName = camelCase(paramName)
-        const Proconf = <() => void>(<unknown> this.providerConfig[paramName])
+        const camelCaseParamName = camelCase(paramName);
+        const Proconf = <() => void>(<unknown>this.providerConfig[paramName]);
 
-        let paramValue = typeof Proconf === 'function'
-          ? Proconf()
-          : this.providerConfig[camelCaseParamName]
+        let paramValue =
+          typeof Proconf === 'function'
+            ? Proconf()
+            : this.providerConfig[camelCaseParamName];
 
-        if (paramName === 'redirect_uri' && !paramValue) return
+        if (paramName === 'redirect_uri' && !paramValue) return;
 
         if (paramName === 'state') {
-          const stateName = this.providerConfig.name + '_state'
-          paramValue = encodeURIComponent(this.storage.getItem(stateName))
+          const stateName = this.providerConfig.name + '_state';
+          paramValue = encodeURIComponent(this.storage.getItem(stateName));
         }
         if (paramName === 'scope' && Array.isArray(paramValue)) {
-          paramValue = paramValue.join(this.providerConfig.scopeDelimiter)
+          paramValue = paramValue.join(this.providerConfig.scopeDelimiter);
           if (this.providerConfig.scopePrefix) {
             paramValue = [this.providerConfig.scopePrefix, paramValue].join(
               this.providerConfig.scopeDelimiter
-            )
+            );
           }
         }
 
-        keyValuePairs.push([paramName, paramValue])
-      })
-    })
+        keyValuePairs.push([paramName, paramValue]);
+      });
+    });
 
     return keyValuePairs
       .map(param => {
-        return param.join('=')
+        return param.join('=');
       })
-      .join('&')
+      .join('&');
   }
 }

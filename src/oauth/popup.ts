@@ -27,10 +27,11 @@ export default class OAuthPopup {
         return Promise.resolve();
       } else {
         const pool = this.pooling(redirectUri);
+
         return pool;
       }
     } catch (e) {
-      return Promise.reject('OAuth popup error occurred');
+      return Promise.reject(new Error('OAuth popup error occurred'));
     }
   }
 
@@ -92,6 +93,7 @@ export default class OAuthPopup {
   _stringifyOptions() {
     const options: string[] = [];
     const Popup = this.popupOptions;
+
     for (const optionKey in Popup) {
       if (!isUndefined(<undefined>Popup[optionKey])) {
         options.push(`${optionKey}=${<string>Popup[optionKey]}`);
@@ -100,3 +102,7 @@ export default class OAuthPopup {
     return options.join(',');
   }
 }
+
+// function reject(arg0: Error) {
+//   throw new Error(`Function not implemented. ${<string>(<unknown>arg0)}`);
+// }
