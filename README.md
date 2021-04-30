@@ -126,7 +126,9 @@ const options = {
       state: '**************',
       clientId: '**************',
       responseMode: 'form_post',
-      optionalUrlParams: ['response_mode'],
+      response_type: 'code  id_token',
+      optionalUrlParams: ['response_mode', 'use_popup', 'state'],
+      usePopup: true,
       redirectUri: 'https://myapp.com/auth/github/callback'
     },
     github: {
@@ -288,6 +290,10 @@ async function useLoginFirst (e: User) {
 ```php
 
 Route::post('sociallogin/{provider}', 'Auth\AuthController@SocialSignup');
+
+// you need the post method to work with apple
+Route::post('auth/{provider}/callback', 'Auth\AuthAppController@AppleCode');
+
 Route::get('auth/{provider}/callback', 'OutController@index')->where('provider', '.*');
 
 
@@ -346,6 +352,12 @@ class AuthController extends Controller
 
     }
 
+  // note if you are using sign by apple you need this
+    public function AppleCode(Request $r, $provider)
+    {
+        // you can get apple code or finish all the process once
+        return redirect($r->url() . '?code=' . $r->code);
+    }
 
     public function SocialSignup(Request $r, $provider)
     {
@@ -372,13 +384,15 @@ class AuthController extends Controller
         try {
             // Socialite will pick response data automatic
             $user = Socialite::driver($provider)->stateless()->user();
-            $token = $user->token ?? null;
+           $token = $user->token ?? null;
             $refreshToken = $user->refreshToken ?? null;
             $expiresIn = $user->expiresIn ?? null;
             $tokenSecret = $user->tokenSecret ?? null;
-            $id = $user->getId();
-            $nickname = $user->getNickname();
-            $name = $user->getName();
+            $id = $user->id ?? $user->getId();
+            $nickname = $user->nickname ?? $user->getNickname();
+            $firstName = $user->name->firstName ?? null;
+            $lastName = $user->name->lastName ?? null;
+            $name = $user->name ?? $firstName . ' ' . $lastName ?? null;
             $email = $user->getEmail();
             $profileImage = $user->getAvatar();
 
@@ -397,8 +411,11 @@ class AuthController extends Controller
 
             ];
         // this is optional can be skip you can return your user data from here
+        if($email){
 
         return $this->SocialSignupNext($r, $data);
+
+        }
 
         } catch (\Throwable $th) {
             logger($th);
@@ -511,6 +528,55 @@ class AuthController extends Controller
 
 
 ```
+
+
+#### EventServiceProvider.php for Apple
+
+```
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
+use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Event;
+
+class EventServiceProvider extends ServiceProvider
+{
+    /**
+     * The event listener mappings for the application.
+     *
+     * @var array
+     */
+    protected $listen = [
+        Registered::class => [
+            SendEmailVerificationNotification::class,
+        ],
+        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
+            // ... other providers
+            'SocialiteProviders\\Twitch\\TwitchExtendSocialite@handle',
+            'SocialiteProviders\\Apple\\AppleExtendSocialite@handle',
+
+        ],
+    ];
+
+    /**
+     * Register any events for your application.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        parent::boot();
+
+        //
+    }
+}
+
+```
+
+
 
 
 #### services.php

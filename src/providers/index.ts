@@ -5,17 +5,15 @@ interface ProderT {
 const Providers: ProderT = {
   apple: {
     name: 'apple',
-    url: '/auth/apple',
+    url: '',
     authorizationEndpoint: 'https://appleid.apple.com/auth/authorize',
     redirectUri: window.location.origin + '/',
-    responseType: ['code'],
     requiredUrlParams: ['scope'],
     scope: ['name', 'email'],
     scopeDelimiter: '%20',
     display: 'popup',
-    usePopup: true,
     oauthType: '2.0',
-    popupOptions: { width: 580, height: 400 }
+    popupOptions: { width: 460, height: 600 }
   },
   facebook: {
     name: 'facebook',

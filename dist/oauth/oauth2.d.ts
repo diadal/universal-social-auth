@@ -40,7 +40,6 @@ export default class OAuth2 {
     options: Opt;
     oauthPopup: OAuthPopup | undefined;
     constructor($http: AxiosInstance, storage: Storage1, providerConfig: ProviderConfig, options: Opt);
-    init(userData: Record<string, unknown>): Promise<Record<string, unknown> | AxiosResponse<any> | Error | undefined>;
-    exchangeForToken(oauth: RepsO, userData: Record<string, unknown>): Promise<AxiosResponse<any>>;
+    init(): Promise<Record<string, unknown> | undefined>;
     _stringifyRequestParams(): string;
 }

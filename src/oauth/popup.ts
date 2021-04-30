@@ -27,7 +27,6 @@ export default class OAuthPopup {
         return Promise.resolve();
       } else {
         const pool = this.pooling(redirectUri);
-
         return pool;
       }
     } catch (e) {
@@ -41,7 +40,7 @@ export default class OAuthPopup {
       redirectUriParser.href = redirectUri;
       const redirectUriPath = getFullUrlPath(redirectUriParser);
 
-      let poolingInterval = window.setInterval(() => {
+      let poolingInterval = <number>(<unknown>setInterval(() => {
         if (
           !this.popup ||
           this.popup.closed ||
@@ -86,7 +85,7 @@ export default class OAuthPopup {
         } catch (e) {
           // Ignore DOMException: Blocked a frame with origin from accessing a cross-origin frame.
         }
-      }, 250);
+      }, 250));
     });
   }
 
@@ -102,7 +101,3 @@ export default class OAuthPopup {
     return options.join(',');
   }
 }
-
-// function reject(arg0: Error) {
-//   throw new Error(`Function not implemented. ${<string>(<unknown>arg0)}`);
-// }

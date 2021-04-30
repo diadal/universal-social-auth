@@ -1,11 +1,5 @@
 import OAuthPopup from './popup';
-import {
-  camelCase,
-  // isFunction,
-  isString,
-  joinUrl
-  // objectExtend
-} from '../utils';
+import { camelCase, isString } from '../utils';
 
 import { AxiosInstance, AxiosResponse } from 'axios';
 
@@ -65,9 +59,6 @@ export interface oAuth {
 }
 
 export type RepsO = AxiosResponse & oAuth;
-// interface Scp {
-//   (scopeDelimiter: string): string;
-// }
 
 export interface ProviderConfig {
   [x: string]: number | string | Func | boolean | Record<string, unknown>;
@@ -117,7 +108,7 @@ export default class OAuth2 {
     this.options = options;
   }
 
-  async init(userData: Record<string, unknown>) {
+  async init() {
     const stateName = this.providerConfig.name + '_state';
     const isFunc: Func = <Func>this.providerConfig.state;
     const isStr = <string>this.providerConfig.state;
@@ -138,80 +129,20 @@ export default class OAuth2 {
       this.providerConfig.popupOptions
     );
     const OauthP = this.oauthPopup;
-
     try {
       const response: Record<string, unknown> = <Record<string, unknown>>(
-        (<unknown>(
-          OauthP.open(
-            this.providerConfig.redirectUri,
-            this.providerConfig.skipPooling
-          )
-        ))
+        await OauthP.open(
+          this.providerConfig.redirectUri,
+          this.providerConfig.skipPooling
+        )
       );
       if (response) {
-        const rsp: { state: string } = <{ state: string }>(<unknown>response);
-
-        if (
-          this.providerConfig.responseType === 'code' ||
-          !this.providerConfig.url
-        ) {
-          return response;
-        }
-
-        if (rsp.state && rsp.state !== this.storage.getItem(stateName)) {
-          return new Error(
-            'State parameter value does not match original OAuth request state value'
-          );
-        }
-        const token = await this.exchangeForToken(
-          <RepsO>(<unknown>response),
-          userData
-        );
-
-        return token;
+        return response;
       }
     } catch (error) {
-      return new Error(error);
+      return Promise.reject(error);
     }
     return;
-  }
-
-  async exchangeForToken(oauth: RepsO, userData: Record<string, unknown>) {
-    const payload = {
-      ...userData
-    };
-
-    for (const key in defaultProviderConfig.responseParams) {
-      switch (key) {
-        case 'code':
-          payload[key] = oauth.code;
-          break;
-        case 'clientId':
-          payload[key] = this.providerConfig.clientId;
-          break;
-        case 'redirectUri':
-          payload[key] = this.providerConfig.redirectUri;
-          break;
-        default:
-          payload[key] = oauth[key];
-      }
-    }
-
-    if (oauth.state) {
-      payload.state = oauth.state;
-    }
-
-    let exchangeTokenUrl;
-    if (this.options.baseUrl) {
-      exchangeTokenUrl = joinUrl(this.options.baseUrl, this.providerConfig.url);
-    } else {
-      exchangeTokenUrl = this.providerConfig.url;
-    }
-    const post = await this.$http.post(exchangeTokenUrl, payload, {
-      withCredentials: this.options.withCredentials
-    });
-
-    return post;
   }
 
   /**
@@ -241,7 +172,6 @@ export default class OAuth2 {
           typeof Proconf === 'function'
             ? Proconf()
             : this.providerConfig[camelCaseParamName];
-
         if (paramName === 'redirect_uri' && !paramValue) return;
 
         if (paramName === 'state') {

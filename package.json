@@ -1,6 +1,6 @@
 {
   "name": "universal-social-auth",
-  "version": "0.2.1",
+  "version": "0.2.4",
   "description": "Social Authentication library for (SPA, PWA & App)",
   "main": "dist/index.js",
   "module": "dist/index.js",

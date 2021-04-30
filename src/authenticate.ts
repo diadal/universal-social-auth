@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { AxiosInstance } from 'axios';
 import { ProderT } from './providers';
 
@@ -25,7 +27,6 @@ export default class UniversalSocialauth {
   OverrideOptions: Record<string, unknown> | undefined;
   defaultOptions: Record<string, unknown> | undefined;
   constructor($http: AxiosInstance, overrideOptions: Record<string, unknown>) {
-
     $http.interceptors.response.use(response => {
       return response;
     });
@@ -138,8 +139,8 @@ export default class UniversalSocialauth {
       }
       return providerInstance
         .init(userData)
-        .then(response => {
-          return <Record<string, unknown>>response;
+        .then((response: any) => {
+          return response;
         })
         .catch(err => new Error(err));
     } catch (error) {
