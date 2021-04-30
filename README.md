@@ -80,25 +80,31 @@ for Native App Frameworks config your APp to support Deep Link I used [capacitor
 
 ```javascript
 // Optional for Native App main.[js|ts] or app.[js|ts]
- App.addListener('appUrlOpen', function (data) {
-    const slug = data.url.split('.com').pop()
+   void App.addListener('appUrlOpen', function(data) {
+    const slug = data.url.split('.app').pop();
     if (slug) {
-     /// redirectUri: 'https://myapp.com/auth/github/callback'
-       const calback ='/callback' //string from reirectUri make this unique  
-       const code = slug.split('code=').pop()
-       const checker = slug?.toString().includes(calback) && code
-       if (checker) {
-         emitter.emit('OauthCall', code)
-       }
-       else{
-            router.push({
-            path: slug
-          })
-       }
-
+      const calback = '/callback';
+      const ccode = slug.split('code=').pop();
+      const checker = slug?.toString().includes(calback) && ccode;
+      if (checker) {
+        const code = getUrlParameter('code', data.url);
+        const state = getUrlParameter('state', data.url);
+        const idToken = getUrlParameter('id_token', data.url);
+        const user = getUrlParameter('user', data.url);
+        const postdata = {
+          code: code,
+          state: state,
+          id_token: idToken,
+          user: user
+        };
+        emitter.emit('OauthCall', postdata);
+      } else {
+        void router.push({
+          path: slug
+        });
+      }
     }
-  })
-
+  });
 
 
  
@@ -195,17 +201,35 @@ const MycustomProvider = {
     // Mycustom provider datas
 }
 
+interface Rsp {
+  code: string;
+  provider: string;
+  id_token: string;
+  state: string;
+  user: string | boolean;
+}
+const rps = {
+  code: '',
+  provider: '',
+  id_token: '',
+  state: '',
+  user: ''
+};
+
 // Below are the functions to use inside you export default be `Vue3 Setup()` or `Vue2 data()` or other `Framework`
+const responseData = ref<Rsp>(rps);
 
  function useAuthProvider (provider:string, proData:Record<string, unknown>| null) {
       const pro = <ProderT>proData
-
+      responseData.value.provider = provider
       const ProData = pro || <ProderT>Providers[provider]
       box.$Oauth.authenticate(provider, ProData).then((response) => {
         const rsp:{code:string} = <{code:string}>response
         if (rsp.code) {
-          responseData.value.code = rsp.code
-          responseData.value.provider = provider
+           responseData.value.code = Oauth.code;
+          responseData.value.state = Oauth.state;
+          responseData.value.id_token = Oauth.id_token;
+          responseData.value.user = Oauth.user !== true ? Oauth.user : '';
           useSocialLogin()
         }
       }).catch((err:unknown) => {
@@ -233,7 +257,14 @@ async function useLoginFirst (e: User) {
   function useSocialLogin () {
       // otp from input Otp form 
       // hash user data in your backend with Cache or save to database
-      const pdata = { code: responseData.value.code, otp: data.value.tok, hash: hash.value }
+      const pdata = { 
+        code: responseData.value.code,
+        state: responseData.value.state,
+        id_token: responseData.value.id_token,
+        user: responseData.value.user,
+        otp: data.value.tok,
+        hash: hash.value
+         }
       box.$axios.post('/social-login/' + responseData.value.provider, pdata).then(async (response) => {
           // `response` data base on your backend config 
         if (response.data.status === 444) {
@@ -355,18 +386,25 @@ class AuthController extends Controller
   // note if you are using sign by apple you need this
     public function AppleCode(Request $r, $provider)
     {
-        // you can get apple code or finish all the process once
-        return redirect($r->url() . '?code=' . $r->code);
+       // you can get apple code or finish all the process once passing $r->user & $r->id_token optional depend on what you can to achieve
+        if ($r->user && $r->user !== true) {
+            $user = json_decode($r->user, true);
+            Cache::put($r->state, $user, now()->addMinutes(5));
+        }
+        return redirect($r->url() . '?code=' . $r->code . '&id_token=' . $r->id_token . '&state=' . $r->state . '&user=' . $r->user);
     }
 
     public function SocialSignup(Request $r, $provider)
     {
-        $validator = Validator::make($r->all(), [
+       $validator = Validator::make($r->all(), [
             'code' => 'nullable|string',
             'hash' => 'nullable|string',
             'otp' => 'nullable|numeric',
             'token' => 'nullable|string',
             'secret' => 'nullable|string',
+            'id_token' => 'nullable|string',
+            'state' => 'nullable|string',
+            'user' => 'nullable|string',
 
         ]);
         if ($validator->fails()) {
@@ -376,27 +414,26 @@ class AuthController extends Controller
             ];
         }
 
-        $hash = $r->hash ?? null;
+        $hash = $this->clean($r->hash) ?? null;
         $hashuser = Cache::get($hash);
         if ($hashuser) {
-            return $this->SocialSignupNext($r, $hashuser);
+            return $this->SocialSignup($r, $hashuser);
         }
         try {
-            // Socialite will pick response data automatic
             $user = Socialite::driver($provider)->stateless()->user();
-           $token = $user->token ?? null;
+            $getcacheUser = Cache::get($r->state);
+            $token = $user->token ?? null;
             $refreshToken = $user->refreshToken ?? null;
             $expiresIn = $user->expiresIn ?? null;
             $tokenSecret = $user->tokenSecret ?? null;
             $id = $user->id ?? $user->getId();
             $nickname = $user->nickname ?? $user->getNickname();
-            $firstName = $user->name->firstName ?? null;
-            $lastName = $user->name->lastName ?? null;
+            $firstName = $getcacheUser['name']['firstName']  ?? $user->name->firstName ?? null;
+            $lastName = $getcacheUser['name']['lastName'] ?? $user->name->lastName ?? null;
             $name = $user->name ?? $firstName . ' ' . $lastName ?? null;
-            $email = $user->getEmail();
+            $email = $getcacheUser['email']  ?? $user->getEmail();
             $profileImage = $user->getAvatar();
-
-             $data =  [
+            $data =  [
                 'name' => $name,
                 'nickname' => $nickname,
                 'profileImage' => $profileImage,
@@ -410,12 +447,10 @@ class AuthController extends Controller
                 'expiresIn' => $expiresIn,
 
             ];
-        // this is optional can be skip you can return your user data from here
-        if($email){
 
-        return $this->SocialSignupNext($r, $data);
-
-        }
+            if ($email || $id) {
+                return $provider == 'twitch' ? $data : $this->SocialSignup($r, $data);
+            }
 
         } catch (\Throwable $th) {
             logger($th);
