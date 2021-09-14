@@ -80,7 +80,7 @@
   },
   "homepage": "https://github.com/diadal/universal-social-auth",
   "dependencies": {
-    "axios": "^0.21.1"
+    "axios": "^0.21.3"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.18.0",
