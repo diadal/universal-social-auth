@@ -10,3 +10,4 @@ tsconfig.json
 webpack.config.build.js
 webpack.config.common.js
 webpack.config.dev-server.js
+package-lock.json
