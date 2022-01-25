@@ -1,6 +1,6 @@
 {
   "name": "universal-social-auth",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Social Authentication library for (SPA, PWA & App)",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -80,14 +80,14 @@
   },
   "homepage": "https://github.com/diadal/universal-social-auth",
   "dependencies": {
-    "axios": "^0.21.3"
+    "axios": "^0.25.0"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.18.0",
-    "clean-webpack-plugin": "^3.0.0",
-    "copy-webpack-plugin": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.10.1",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^10.2.1",
     "eslint-plugin-ts": "^1.0.0",
-    "ts-loader": "^8.0.18",
+    "ts-loader": "^9.2.6",
     "webpack-cli": "^4.5.0"
   }
 }
