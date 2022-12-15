@@ -267,7 +267,7 @@ async function useLoginFirst (e: User) {
 
 </script>
 ```
-**NOTE:**  Dont forget to off `emitter` `beforeDestroy` or `onBeforeUnmount` if you are building for Native App
+**NOTE:**  Dont forget to off `emitter` `beforeDestroy` or `onBeforeUnmount` if you are building for Native App also *must redirect back to the same domain*
 
 #### Vue Router
 
