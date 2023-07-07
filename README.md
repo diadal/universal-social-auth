@@ -182,6 +182,12 @@ Button Method 2 note the note provider name eg: `Github` each provider must the 
 ### View Component
 ```javascript
 <script lang="ts">
+
+import {
+  getCurrentInstance,
+  ComponentCustomProperties,
+  ComponentInternalInstance,
+} from 'vue';
 import { ProderT } from 'universal-social-auth/dist/providers'
 
 // Button Method 1
@@ -193,6 +199,11 @@ const MycustomProvider = {
 
     // Mycustom provider datas
 }
+
+const globalProperties = <ComponentInternalInstance>getCurrentInstance();
+const box: ComponentCustomProperties = <ComponentCustomProperties>(
+  globalProperties.appContext.config.globalProperties
+);
 
 // Below are the functions to use inside you export default be `Vue3 Setup()` or `Vue2 data()` or other `Framework`
 
@@ -217,13 +228,9 @@ async function useLoginFirst (e: User) {
     // this sample of how to pust user data to my store
       const firstlogin: boolean = await box.$auth.firstlogin(e)
       if (firstlogin) {
-        const apm: string = box.$appName
-        $q.notify({
-          color: 'positive',
-          textColor: 'white',
-          message: `Welcome To ${apm}`,
-          icon: 'mdi-alarm'
-        })
+        
+       const msg = `Welcome To My App`
+        alert(msg)
         await box.$router.push({ name: 'dashboard' })
         return
       }
