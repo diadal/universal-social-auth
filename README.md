@@ -354,7 +354,7 @@ class AuthController extends Controller
   // note if you are using sign by apple you need this
     public function AppleCode(Request $r, $provider)
     {
-        // you can get apple code or finish all the process once
+        //You can get apple code or finish all the process once
         return redirect($r->url() . '?code=' . $r->code);
     }
 
@@ -429,10 +429,10 @@ class AuthController extends Controller
 
     public function SocialSignupNext($request, $userdata)
     {
-        $email = $this->xlean($userdata['email']);
-        $provider = $this->clean($userdata['provider']);
-        $provider_id = $this->clean($userdata['provider_id']);
-        $name = $this->nlean($userdata['name']);
+        $email = $userdata['email'];
+        $provider = $userdata['provider'];
+        $provider_id = $userdata['provider_id'];
+        $name = $userdata['name'];
         $usr = User::where('email', $email)->get();
 
         $user =  $usr->where('provider', $provider)
