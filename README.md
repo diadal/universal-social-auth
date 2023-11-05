@@ -30,17 +30,17 @@ backend frameworks [Laravel](https://laravel.com/) and [Other Php Frameworks](ht
 
 **looking for old version** [vue-social-auth](https://github.com/diadal/vue-social-auth)
 
-**WARNING:** Default request library is `axios`.
+**WARNING:** Default request library is `Axios`.
 
-**NOTE:** It also work with any Php with `Socialite`
+**NOTE:** It also works with any PHP with `Socialite`
 
 **NOTE:** New features*
 
-**1:**  Ability to add none exsiting provider
+**1:**  Ability to add none existing provider
 
-**2:**  importation only `Required` provider
+**2:**  Importation only `Required` provider
 
-**3:**  No more `Buffer` fuction were call base on user request or needs
+**3:**  No more `Buffer` functions were called based on user requests or needs
 
 **4:**  Optional how to handle addition security validation like `2fa` `Email code` if enabled by the user after first login
 
@@ -48,15 +48,15 @@ backend frameworks [Laravel](https://laravel.com/) and [Other Php Frameworks](ht
 
 **Default Provider:** `Apple` `Facebook` `Google` `Github` `Instagram` `Twitter` `Bitbucket` `Linkedin` `Vkontakte` `Live` `Oauth1`, `Oauth2` & `Twitch`
 
-**NOTE:** PR of New Provider can be submited default location `src/providers/index.ts`(https://github.com/diadal/universal-social-auth/src/providers/index.ts)
+**NOTE:** PR of New Provider can be submitted default location `src/providers/index.ts`(https://github.com/diadal/universal-social-auth/src/providers/index.ts)
 
 ## Supported OAuth providers and configurations
 
 ## Installation
 
-## firstly install `Socialite`
+## First install `Socialite`
 
-**NOTE:** make sure you config your `Socialite` configuration data in `services.php` & `.env` for more details
+**NOTE:** Make sure you config your `Socialite` configuration data in `services.php` & `.env` for more details
 check  [https://socialiteproviders.netlify.com/](https://socialiteproviders.netlify.com/)
 
 ```bash
@@ -70,7 +70,9 @@ composer require socialiteproviders/github
 ```bash
 npm install universal-social-auth
 ```
-`Vue2 Example` (https://github.com/diadal/universal-social-auth-test-vu2)
+`Vue3 Example` ([https://github.com/diadal/universal-social-auth-vue3](https://github.com/diadal/universal-social-auth-test-vue3))
+
+`Vue2 Example` ([https://github.com/diadal/universal-social-auth-test-vu2](https://github.com/diadal/universal-social-auth-test-vu2))
 
 
 ## Usage
@@ -83,9 +85,9 @@ for Native App Frameworks config your APp to support Deep Link I used [capacitor
     const slug = data.url.split('.com').pop()
     if (slug) {
      /// redirectUri: 'https://myapp.com/auth/github/callback'
-       const calback ='/callback' //string from reirectUri make this unique
+       const callback ='/callback' //string from reirectUri make this unique
        const code = slug.split('code=').pop()
-       const checker = slug?.toString().includes(calback) && code
+       const checker = slug?.toString().includes(callback) && code
        if (checker) {
          emitter.emit('OauthCall', code)
        }
@@ -114,7 +116,7 @@ or import {UniversalSocialauth} from 'universal-social-auth'
 `Vue3` declare module '@vue/runtime-core' {
             interface ComponentCustomProperties {
                 $axios: AxiosInstance;
-                $Oauth:UniversalSocialauth;
+                $Oauth: UniversalSocialauth;
 
             }
             }
