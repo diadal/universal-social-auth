@@ -70,7 +70,7 @@ composer require socialiteproviders/github
 ```bash
 npm install universal-social-auth
 ```
-`Vue3 Example` ([https://github.com/diadal/universal-social-auth-vue3](https://github.com/diadal/universal-social-auth-test-vue3))
+`Vue3 Example` ([https://github.com/diadal/universal-social-auth-test-vue3](https://github.com/diadal/universal-social-auth-test-vue3))
 
 `Vue2 Example` ([https://github.com/diadal/universal-social-auth-test-vu2](https://github.com/diadal/universal-social-auth-test-vu2))
 
