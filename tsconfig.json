@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "outDir": "./dist/",
+        "rootDir": "./src",
         "module": "esnext",
         "resolveJsonModule": true,
         "sourceMap": true,
@@ -18,7 +19,8 @@
         "noImplicitReturns": true,
         "noUnusedLocals": true,
         "esModuleInterop": true,
-        "removeComments": true
+        "removeComments": true,
+        "ignoreDeprecations": "6.0"
     },
     "include": ["./src/**/*"],
 
