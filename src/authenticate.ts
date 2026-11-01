@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { AxiosInstance } from 'axios';
+import { AxiosInstance, AxiosInterceptorManager } from 'axios';
 import { ProderT } from './providers';
 
 import { OptionsA } from './utils';
@@ -20,16 +20,35 @@ interface Req {
   options: Opt;
 }
 
+interface TrackedIds {
+  request: number[];
+  response: number[];
+}
+
+function trackInterceptors<V>(
+  manager: AxiosInterceptorManager<V>,
+  ids: number[]
+): AxiosInterceptorManager<V> {
+  const use = manager.use as (...args: unknown[]) => number;
+  return {
+    use: (...args: unknown[]) => {
+      const id = use.apply(manager, args);
+      ids.push(id);
+      return id;
+    },
+    eject: id => manager.eject(id),
+    clear: () => manager.clear()
+  } as AxiosInterceptorManager<V>;
+}
+
 export default class UniversalSocialauth {
   options: Opt | undefined;
   storage: Storage1 | undefined;
   $http: AxiosInstance | undefined;
   OverrideOptions: Record<string, unknown> | undefined;
   defaultOptions: Record<string, unknown> | undefined;
+  private interceptorIds: TrackedIds = { request: [], response: [] };
   constructor($http: AxiosInstance, overrideOptions: Record<string, unknown>) {
-    $http.interceptors.response.use(response => {
-      return response;
-    });
     Object.defineProperties(this, {
       $http: {
         get() {
@@ -50,11 +69,22 @@ export default class UniversalSocialauth {
     });
   }
 
+  private ejectInterceptors() {
+    const http = this.$http as AxiosInstance;
+    this.interceptorIds.request.forEach(id =>
+      http.interceptors.request.eject(id)
+    );
+    this.interceptorIds.response.forEach(id =>
+      http.interceptors.response.eject(id)
+    );
+    this.interceptorIds = { request: [], response: [] };
+  }
+
   async authenticate(provider: string, ProData: ProderT, userData = {}) {
-    const ProviderOver: { providers: Record<string, unknown> } = <
-      { providers: Record<string, unknown> }
+    const ProviderOver: { providers?: Record<string, unknown> } = <
+      { providers?: Record<string, unknown> }
       >this.OverrideOptions;
-    const ProviderOverr: KeyB = <KeyB>(<unknown>ProviderOver.providers);
+    const ProviderOverr: KeyB = <KeyB>(<unknown>ProviderOver?.providers ?? {});
     const ProviderOverride: ProderT = <ProderT>ProviderOverr[provider];
     const Opts = {
       provider: {
@@ -99,10 +129,24 @@ export default class UniversalSocialauth {
       proconfg.bindResponseInterceptor &&
       typeof proconfg.bindResponseInterceptor === 'function'
     ) {
+      this.ejectInterceptors();
+      const http = this.$http as AxiosInstance;
+      const trackedHttp = Object.assign(Object.create(http) as AxiosInstance, {
+        interceptors: {
+          request: trackInterceptors(
+            http.interceptors.request,
+            this.interceptorIds.request
+          ),
+          response: trackInterceptors(
+            http.interceptors.response,
+            this.interceptorIds.response
+          )
+        }
+      });
       const data: Req = <Req>(<unknown>{
         options: this.options,
         storage: this.storage,
-        $http: this.$http,
+        $http: trackedHttp,
         providerConfig: providerConfig
       });
       proconfg.bindRequestInterceptor.call(this, data);

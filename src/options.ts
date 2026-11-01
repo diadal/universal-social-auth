@@ -12,7 +12,7 @@ export default {
   storageType: 'localStorage',
   storageNamespace: 'vue3-social-auth',
   cookieStorage: {
-    domain: window.location.hostname,
+    domain: typeof window !== 'undefined' ? window.location.hostname : undefined,
     path: '/',
     secure: false
   },

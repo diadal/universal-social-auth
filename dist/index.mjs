@@ -1,4 +1,4 @@
-//#region src/options.ts
+// src/options.ts
 var e = {
 	baseUrl: null,
 	tokenName: "token",
@@ -11,7 +11,7 @@ var e = {
 	storageType: "localStorage",
 	storageNamespace: "vue3-social-auth",
 	cookieStorage: {
-		domain: window.location.hostname,
+		domain: typeof window < "u" ? window.location.hostname : void 0,
 		path: "/",
 		secure: !1
 	},
@@ -26,8 +26,7 @@ var e = {
 	},
 	provider: {}
 };
-//#endregion
-//#region src/utils.ts
+// src/utils.ts
 function t(e) {
 	return e.replace(/([:\-_]+(.))/g, function(e, t, n, r) {
 		return r ? n.toUpperCase() : n;
@@ -51,7 +50,7 @@ function a(e) {
 function o(e) {
 	let t = {}, n, r;
 	return (e || "").split("&").forEach((e) => {
-		e && (r = e.split("="), n = decodeURIComponent(r[0]), t[n] = r[1] ? decodeURIComponent(r[1]) : !0);
+		e && (r = e.split("="), n = decodeURIComponent(r[0]), t[n] = !r[1] || decodeURIComponent(r[1]));
 	}), t;
 }
 function s(e) {
@@ -79,8 +78,7 @@ function l(e, t, n) {
 		c(n)
 	].join("");
 }
-//#endregion
-//#region src/storage/cookie-storage.ts
+// src/storage/cookie-storage.ts
 var u = class {
 	constructor(e) {
 		let t = {
@@ -164,8 +162,7 @@ var u = class {
 		return this.namespace ? [this.namespace, e].join(".") : e;
 	}
 };
-//#endregion
-//#region src/storage.ts
+// src/storage.ts
 function m(e) {
 	switch (e.storageType) {
 		case "localStorage": try {
@@ -178,8 +175,7 @@ function m(e) {
 		default: return new f(e.storageNamespace);
 	}
 }
-//#endregion
-//#region src/oauth/popup.ts
+// src/oauth/popup.ts
 var h = class {
 	constructor(e, t, n) {
 		this.popup = null, this.url = e, this.name = t, this.popupOptions = n;
@@ -201,13 +197,12 @@ var h = class {
 					let e = this.popup;
 					if (a(e.location) === i) {
 						if (e.location.search || e.location.hash) {
-							let r = o(e.location.search.substring(1).replace(/\/$/, "")), i = o(e.location.hash.substring(1).replace(/[/$]/, "")), a = {
+							let r = o(e.location.search.substring(1)), i = o(e.location.hash.substring(1)), a = {
 								...r,
 								...i
 							};
-							a.error ? n(a.error) : t(a);
-						} else n("OAuth redirect has occurred but no query or hash parameters were found.");
-						clearInterval(s), s = 0, e.close();
+							clearInterval(s), s = 0, e.close(), a.error ? n(a.error) : t(a);
+						} else clearInterval(s), s = 0, e.close(), n("OAuth redirect has occurred but no query or hash parameters were found.");
 					}
 				} catch {}
 			}, 250);
@@ -238,7 +233,7 @@ var h = class {
 		}, this.options = r;
 	}
 	async init(e) {
-		return this.oauthPopup = new h("about:blank", this.providerConfig.name, this.providerConfig.popupOptions), window && this.oauthPopup.open(this.providerConfig.redirectUri, !0), this.getRequestToken().then(async (t) => {
+		return this.oauthPopup = new h("about:blank", this.providerConfig.name, this.providerConfig.popupOptions), this.oauthPopup.open(this.providerConfig.redirectUri, !0), this.getRequestToken().then(async (t) => {
 			let n = this.openPopup(t);
 			return this.exchangeForToken(n, e);
 		});
@@ -247,11 +242,11 @@ var h = class {
 		let e = {};
 		e.method = "POST";
 		let t = this.options.requestDataKey;
-		return e[t] = { ...this.providerConfig }, e.withCredentials = this.options.withCredentials, this.options.baseUrl ? e.url = i(this.options.baseUrl, this.providerConfig.url) : e.url = this.providerConfig.url, this.$http(e);
+		return e[t] = { ...this.providerConfig }, e.withCredentials = this.options.withCredentials, e.url = this.options.baseUrl ? i(this.options.baseUrl, this.providerConfig.url) : this.providerConfig.url, this.$http(e);
 	}
 	openPopup(e) {
-		let t = e[this.options.responseDataKey], n = [this.providerConfig.authorizationEndpoint, this.buildQueryString(t)].join("?"), r = this.oauthPopup, i = r.popup;
-		return i.location = n, window ? r.open(this.providerConfig.redirectUri, this.providerConfig.skipPooling) : r.pooling(this.providerConfig.redirectUri);
+		let t = e[this.options.responseDataKey], n = [this.providerConfig.authorizationEndpoint, this.buildQueryString(t)].join("?"), r = this.oauthPopup;
+		return r.popup ? (r.popup.location.href = n, this.providerConfig.skipPooling ? Promise.resolve() : r.pooling(this.providerConfig.redirectUri)) : Promise.reject(/* @__PURE__ */ Error("OAuth popup error occurred"));
 	}
 	exchangeForToken(e, t) {
 		let n = {
@@ -260,7 +255,7 @@ var h = class {
 		}, r = {};
 		r.method = "POST";
 		let a = this.options.requestDataKey;
-		return r[a] = n, r.withCredentials = this.options.withCredentials, this.options.baseUrl ? r.url = i(this.options.baseUrl, this.providerConfig.url) : r.url = this.providerConfig.url, this.$http(r);
+		return r[a] = n, r.withCredentials = this.options.withCredentials, r.url = this.options.baseUrl ? i(this.options.baseUrl, this.providerConfig.url) : this.providerConfig.url, this.$http(r);
 	}
 	buildQueryString(e) {
 		let t = [];
@@ -323,7 +318,7 @@ var h = class {
 		].forEach((n) => {
 			this.providerConfig[n] && Array.isArray(this.providerConfig[n]) && this.providerConfig[n].forEach((n) => {
 				let r = t(n), i = this.providerConfig[n], a = typeof i == "function" ? i() : this.providerConfig[r];
-				if (!(n === "redirect_uri" && !a)) {
+				if (n !== "redirect_uri" || a) {
 					if (n === "state") {
 						let e = this.providerConfig.name + "_state";
 						a = encodeURIComponent(this.storage.getItem(e));
@@ -333,9 +328,25 @@ var h = class {
 			});
 		}), e.map((e) => e.join("=")).join("&");
 	}
-}, b = class {
+};
+// src/authenticate.ts
+function b(e, t) {
+	let n = e.use;
+	return {
+		use: (...r) => {
+			let i = n.apply(e, r);
+			return t.push(i), i;
+		},
+		eject: (t) => e.eject(t),
+		clear: () => e.clear()
+	};
+}
+var x = class {
 	constructor(t, n) {
-		t.interceptors.response.use((e) => e), Object.defineProperties(this, {
+		this.interceptorIds = {
+			request: [],
+			response: []
+		}, Object.defineProperties(this, {
 			$http: { get() {
 				return t;
 			} },
@@ -347,8 +358,15 @@ var h = class {
 			} }
 		});
 	}
+	ejectInterceptors() {
+		let e = this.$http;
+		this.interceptorIds.request.forEach((t) => e.interceptors.request.eject(t)), this.interceptorIds.response.forEach((t) => e.interceptors.response.eject(t)), this.interceptorIds = {
+			request: [],
+			response: []
+		};
+	}
 	async authenticate(e, t, n = {}) {
-		let r = this.OverrideOptions.providers[e], i = { provider: {
+		let r = (this.OverrideOptions?.providers ?? {})[e], i = { provider: {
 			...t,
 			...r
 		} }, a = {
@@ -358,13 +376,17 @@ var h = class {
 		this.options = a, this.storage = m(a);
 		let o = a, s = o.provider, c = s;
 		if (o.bindRequestInterceptor && typeof o.bindRequestInterceptor == "function" && o.bindResponseInterceptor && typeof o.bindResponseInterceptor == "function") {
-			let e = {
+			this.ejectInterceptors();
+			let e = this.$http, t = Object.assign(Object.create(e), { interceptors: {
+				request: b(e.interceptors.request, this.interceptorIds.request),
+				response: b(e.interceptors.response, this.interceptorIds.response)
+			} }), n = {
 				options: this.options,
 				storage: this.storage,
-				$http: this.$http,
+				$http: t,
 				providerConfig: s
 			};
-			o.bindRequestInterceptor.call(this, e), o.bindResponseInterceptor.call(this, e);
+			o.bindRequestInterceptor.call(this, n), o.bindResponseInterceptor.call(this, n);
 		} else throw Error("Both request and response interceptors must be functions");
 		if (!s) return Promise.reject("Unknown provider");
 		try {
@@ -383,13 +405,16 @@ var h = class {
 			return e;
 		}
 	}
-}, x = {
+}, S = typeof window < "u" ? window.location.origin : "", C = {
 	apple: {
 		name: "apple",
 		url: "",
 		authorizationEndpoint: "https://appleid.apple.com/auth/authorize",
-		redirectUri: window.location.origin + "/",
+		redirectUri: S + "/",
 		requiredUrlParams: ["scope"],
+		optionalUrlParams: ["response_mode"],
+		responseType: "code id_token",
+		responseMode: "form_post",
 		scope: ["name", "email"],
 		scopeDelimiter: "%20",
 		display: "popup",
@@ -403,7 +428,7 @@ var h = class {
 		name: "facebook",
 		url: "/auth/facebook",
 		authorizationEndpoint: "https://www.facebook.com/v2.5/dialog/oauth",
-		redirectUri: window.location.origin + "/",
+		redirectUri: S + "/",
 		responseMode: ["form_post"],
 		requiredUrlParams: ["scope"],
 		scope: ["email"],
@@ -419,7 +444,7 @@ var h = class {
 		name: "google",
 		url: "/auth/google",
 		authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
-		redirectUri: window.location.origin,
+		redirectUri: S,
 		requiredUrlParams: ["scope"],
 		optionalUrlParams: ["display"],
 		scope: ["profile", "email"],
@@ -436,7 +461,7 @@ var h = class {
 		name: "github",
 		url: "/auth/github",
 		authorizationEndpoint: "https://github.com/login/oauth/authorize",
-		redirectUri: window.location.origin,
+		redirectUri: S,
 		optionalUrlParams: ["scope"],
 		scope: ["user:email"],
 		scopeDelimiter: " ",
@@ -450,7 +475,7 @@ var h = class {
 		name: "instagram",
 		url: "/auth/instagram",
 		authorizationEndpoint: "https://api.instagram.com/oauth/authorize",
-		redirectUri: window.location.origin,
+		redirectUri: S,
 		requiredUrlParams: ["scope"],
 		scope: ["basic"],
 		scopeDelimiter: "+",
@@ -464,23 +489,8 @@ var h = class {
 		name: "twitter",
 		url: "/auth/twitter",
 		authorizationEndpoint: "https://api.twitter.com/oauth/authenticate",
-		redirectUri: window.location.origin,
-		oauthType: "2.0",
-		popupOptions: {
-			width: 495,
-			height: 645
-		}
-	},
-	twitter2: {
-		name: "twitter",
-		url: "/auth/twitter",
-		authorizationEndpoint: "https://api.twitter.com/oauth/authenticate",
-		tokenURL: "https://api.twitter.com/oauth2/token",
-		redirectUri: window.location.origin,
-		scopeDelimiter: ",",
-		sessionKey: "oauth:twitter",
-		userProfileURL: "https://api.twitter.com/1.1/account/verify_credentials.json",
-		oauthType: "2.0",
+		redirectUri: S,
+		oauthType: "1.0",
 		popupOptions: {
 			width: 495,
 			height: 645
@@ -490,7 +500,7 @@ var h = class {
 		name: "bitbucket",
 		url: "/auth/bitbucket",
 		authorizationEndpoint: "https://bitbucket.org/site/oauth2/authorize",
-		redirectUri: window.location.origin + "/",
+		redirectUri: S + "/",
 		optionalUrlParams: ["scope"],
 		scope: ["email"],
 		scopeDelimiter: " ",
@@ -504,7 +514,7 @@ var h = class {
 		name: "linkedin",
 		url: "/auth/linkedin",
 		authorizationEndpoint: "https://www.linkedin.com/oauth/v2/authorization",
-		redirectUri: window.location.origin,
+		redirectUri: S,
 		requiredUrlParams: ["state", "scope"],
 		scope: ["r_emailaddress"],
 		scopeDelimiter: " ",
@@ -519,7 +529,7 @@ var h = class {
 		name: "vkontakte",
 		url: "/auth/vkontakte",
 		authorizationEndpoint: "https://oauth.vk.com/authorize",
-		redirectUri: window.location.origin + "/",
+		redirectUri: S + "/",
 		requiredUrlParams: ["scope"],
 		scope: ["email"],
 		scopeDelimiter: ",",
@@ -534,7 +544,7 @@ var h = class {
 		name: "live",
 		url: "/auth/live",
 		authorizationEndpoint: "https://login.live.com/oauth20_authorize.srf",
-		redirectUri: window.location.origin,
+		redirectUri: S,
 		requiredUrlParams: ["display", "scope"],
 		scope: ["wl.emails"],
 		scopeDelimiter: " ",
@@ -545,11 +555,143 @@ var h = class {
 			height: 560
 		}
 	},
+	discord: {
+		name: "discord",
+		url: "/auth/discord",
+		authorizationEndpoint: "https://discord.com/oauth2/authorize",
+		redirectUri: S,
+		requiredUrlParams: ["scope"],
+		scope: ["identify", "email"],
+		scopeDelimiter: " ",
+		oauthType: "2.0",
+		popupOptions: {
+			width: 500,
+			height: 750
+		}
+	},
+	twitch: {
+		name: "twitch",
+		url: "/auth/twitch",
+		authorizationEndpoint: "https://id.twitch.tv/oauth2/authorize",
+		redirectUri: S,
+		requiredUrlParams: ["scope"],
+		scope: ["user:read:email"],
+		scopeDelimiter: " ",
+		oauthType: "2.0",
+		popupOptions: {
+			width: 500,
+			height: 700
+		}
+	},
+	microsoft: {
+		name: "microsoft",
+		url: "/auth/microsoft",
+		authorizationEndpoint: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+		redirectUri: S,
+		requiredUrlParams: ["scope"],
+		scope: [
+			"openid",
+			"profile",
+			"email"
+		],
+		scopeDelimiter: " ",
+		oauthType: "2.0",
+		popupOptions: {
+			width: 500,
+			height: 600
+		}
+	},
+	gitlab: {
+		name: "gitlab",
+		url: "/auth/gitlab",
+		authorizationEndpoint: "https://gitlab.com/oauth/authorize",
+		redirectUri: S,
+		requiredUrlParams: ["scope"],
+		scope: ["read_user"],
+		scopeDelimiter: " ",
+		oauthType: "2.0",
+		popupOptions: {
+			width: 1020,
+			height: 618
+		}
+	},
+	slack: {
+		name: "slack",
+		url: "/auth/slack",
+		authorizationEndpoint: "https://slack.com/openid/connect/authorize",
+		redirectUri: S,
+		requiredUrlParams: ["scope"],
+		scope: [
+			"openid",
+			"profile",
+			"email"
+		],
+		scopeDelimiter: " ",
+		oauthType: "2.0",
+		popupOptions: {
+			width: 600,
+			height: 700
+		}
+	},
+	spotify: {
+		name: "spotify",
+		url: "/auth/spotify",
+		authorizationEndpoint: "https://accounts.spotify.com/authorize",
+		redirectUri: S,
+		requiredUrlParams: ["scope"],
+		scope: ["user-read-email"],
+		scopeDelimiter: " ",
+		oauthType: "2.0",
+		popupOptions: {
+			width: 500,
+			height: 700
+		}
+	},
+	reddit: {
+		name: "reddit",
+		url: "/auth/reddit",
+		authorizationEndpoint: "https://www.reddit.com/api/v1/authorize",
+		redirectUri: S,
+		requiredUrlParams: ["state", "scope"],
+		scope: ["identity"],
+		scopeDelimiter: " ",
+		state: "STATE",
+		oauthType: "2.0",
+		popupOptions: {
+			width: 600,
+			height: 700
+		}
+	},
+	dropbox: {
+		name: "dropbox",
+		url: "/auth/dropbox",
+		authorizationEndpoint: "https://www.dropbox.com/oauth2/authorize",
+		redirectUri: S,
+		oauthType: "2.0",
+		popupOptions: {
+			width: 600,
+			height: 700
+		}
+	},
+	amazon: {
+		name: "amazon",
+		url: "/auth/amazon",
+		authorizationEndpoint: "https://www.amazon.com/ap/oa",
+		redirectUri: S,
+		requiredUrlParams: ["scope"],
+		scope: ["profile"],
+		scopeDelimiter: " ",
+		oauthType: "2.0",
+		popupOptions: {
+			width: 600,
+			height: 700
+		}
+	},
 	oauth1: {
 		name: null,
 		url: "/auth/oauth1",
 		authorizationEndpoint: null,
-		redirectUri: window.location.origin,
+		redirectUri: S,
 		oauthType: "1.0",
 		popupOptions: null
 	},
@@ -557,7 +699,7 @@ var h = class {
 		name: null,
 		url: "/auth/oauth2",
 		clientId: null,
-		redirectUri: window.location.origin,
+		redirectUri: S,
 		authorizationEndpoint: null,
 		defaultUrlParams: [
 			"response_type",
@@ -579,8 +721,7 @@ var h = class {
 			redirectUri: "redirectUri"
 		}
 	}
-}, S = x.apple, C = x.facebook, w = x.google, T = x.github, E = x.instagram, D = x.twitter, O = x.bitbucket, k = x.linkedin, A = x.vkontakte, j = x.live, M = x.oauth1, N = x.oauth2, P = b;
-//#endregion
-export { S as Apple, O as Bitbucket, C as Facebook, T as Github, w as Google, E as Instagram, k as Linkedin, j as Live, M as Oauth1, N as Oauth2, x as Providers, D as Twitter, b as UniversalSocialauth, A as Vkontakte, P as default };
+}, w = C.apple, T = C.facebook, E = C.google, D = C.github, O = C.instagram, k = C.twitter, A = C.bitbucket, j = C.linkedin, M = C.vkontakte, N = C.live, P = C.discord, F = C.twitch, I = C.microsoft, L = C.gitlab, R = C.slack, z = C.spotify, B = C.reddit, V = C.dropbox, H = C.amazon, U = C.oauth1, W = C.oauth2, G = x;
+export { H as Amazon, w as Apple, A as Bitbucket, P as Discord, V as Dropbox, T as Facebook, D as Github, L as Gitlab, E as Google, O as Instagram, j as Linkedin, N as Live, I as Microsoft, U as Oauth1, W as Oauth2, C as Providers, B as Reddit, R as Slack, z as Spotify, F as Twitch, k as Twitter, x as UniversalSocialauth, M as Vkontakte, G as default };
 
 //# sourceMappingURL=index.mjs.map
