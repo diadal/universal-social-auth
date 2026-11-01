@@ -10,6 +10,7 @@
     "dist"
   ],
   "scripts": {
+    "check-up": "npx npm-check-updates -u && npm install",
     "build": "vite build && npm run build:providers",
     "build:dev": "vite build --mode development && npm run build:providers:dev",
     "build:providers": "vite build --config vite.providers.config.ts",
@@ -92,7 +93,7 @@
     "@typescript-eslint/parser": "^8.72.1",
     "eslint": "^10.14.0",
     "globals": "^17.14.0",
-    "typescript": "~6.0.0",
+    "typescript": "~7.0.2",
     "vite": "^8.3.5"
   }
 }
