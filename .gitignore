@@ -12,3 +12,4 @@ package-lock.json
 plans/
 .env
 mcp/node_modules
+.wrangler/

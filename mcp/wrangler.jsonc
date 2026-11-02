@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "usa-mcp",
+  "main": "./worker.mjs",
+  "compatibility_date": "2026-11-02",
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "usa-mcp.diadal.com.ng",
+      "custom_domain": true,
+      "zone_name": "diadal.com.ng"
+    }
+  ],
+  "rules": [
+    {
+      "type": "Text",
+      "globs": ["**/SKILL.md"],
+      "fallthrough": false
+    }
+  ],
+  "observability": {
+    "enabled": false,
+    "logs": {
+      "enabled": false,
+      "head_sampling_rate": 0.1
+    },
+    "traces": {
+      "enabled": false,
+      "head_sampling_rate": 0.1
+    }
+  }
+}

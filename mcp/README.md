@@ -1,13 +1,22 @@
 # MCP server
 
-This standalone MCP server helps AI clients inspect built-in provider metadata
-and retrieve integration guidance. It does not run OAuth flows, handle user
-sessions, exchange authorization codes, or read application credentials.
+This MCP server helps AI clients inspect built-in provider metadata and retrieve
+integration guidance. It does not run OAuth flows, handle user sessions,
+exchange authorization codes, or read application credentials.
 
 ## Requirements
 
 - Node.js 18 or newer
 - A compatible MCP client
+
+## Install from npm
+
+```sh
+npm install --global universal-social-auth-mcp
+```
+
+Configure an MCP client to launch `universal-social-auth-mcp` as a stdio
+server. The package includes the skill resource and requires no credentials.
 
 ## Run from this repository
 
@@ -34,6 +43,29 @@ to this repository's `mcp/server.mjs`:
 The server resolves its dependencies relative to the `mcp` directory. Run
 `npm install` there before starting it. No provider secrets or environment
 variables are needed.
+
+## Cloudflare Worker
+
+The Streamable HTTP endpoint is deployed to `https://usa-mcp.diadal.com.ng/mcp`.
+The server is stateless and read-only; it requires no Durable Object or secret.
+The custom domain must be an active Cloudflare zone with no conflicting DNS
+record. Wrangler manages the DNS record and certificate for the custom domain.
+
+Use Node.js 22 or newer for the Wrangler deployment toolchain. From the
+repository's `mcp` directory, install dependencies, validate the Worker bundle,
+then deploy:
+
+```sh
+npm install
+npm run deploy:dry-run
+npm run deploy
+```
+
+The same MCP tools and skill resource are available on the HTTP endpoint and
+the stdio server. `GET /health` is a lightweight health check. MCP clients
+should connect to `https://usa-mcp.diadal.com.ng/mcp` using Streamable HTTP.
+This endpoint is intentionally public and unauthenticated because its tools
+only return public package metadata and documentation.
 
 ## Tools and resources
 

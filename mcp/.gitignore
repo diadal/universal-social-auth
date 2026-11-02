@@ -1,0 +1,15 @@
+# IDEA
+.idea
+.DS_Store
+.env
+# npm modules
+/node_modules
+/.wrangler
+.DS_Store
+package-lock.json
+
+.DS_Store
+*.log
+plans/
+.env
+mcp/node_modules

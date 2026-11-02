@@ -1,11 +1,26 @@
 {
   "name": "universal-social-auth-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server that helps AI assistants integrate universal-social-auth",
-  "private": true,
   "type": "module",
+  "bin": "bin/universal-social-auth-mcp",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "bin/universal-social-auth-mcp",
+    "create-server.mjs",
+    "server.mjs",
+    "worker.mjs",
+    "wrangler.jsonc"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "dev": "wrangler dev",
+    "deploy:dry-run": "wrangler deploy --dry-run",
+    "deploy": "wrangler deploy"
   },
   "engines": {
     "node": ">=18"
@@ -14,5 +29,8 @@
     "@modelcontextprotocol/sdk": "^1.32.2",
     "universal-social-auth": "^0.2.9",
     "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "wrangler": "^4.156.0"
   }
 }
