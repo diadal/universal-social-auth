@@ -128,10 +128,8 @@ export default class OAuth {
       this.providerConfig.popupOptions
     );
 
-    if (window) {
-      //
-      void this.oauthPopup.open(this.providerConfig.redirectUri, true);
-    }
+    // Open the popup synchronously on the user gesture; the URL is set later in openPopup.
+    void this.oauthPopup.open(this.providerConfig.redirectUri, true);
 
     return this.getRequestToken().then(async response => {
       const popupResponse = this.openPopup(<Keyc>(<unknown>response));
@@ -169,25 +167,21 @@ export default class OAuth {
     const rep = response;
 
     const rep2 = <KeyD>(<unknown>rep[this.options.responseDataKey]);
-    const url: Location = <Location>(
-      (<unknown>(
-        [
-          this.providerConfig.authorizationEndpoint,
-          this.buildQueryString(rep2)
-        ].join('?')
-      ))
-    );
+    const url: string = [
+      this.providerConfig.authorizationEndpoint,
+      this.buildQueryString(rep2)
+    ].join('?');
     const OauthP = <OAuthPopup>this.oauthPopup;
-    const location = <Window>OauthP.popup;
-    location.location = url;
-    if (window) {
-      return OauthP.open(
-        this.providerConfig.redirectUri,
-        this.providerConfig.skipPooling
-      );
-    } else {
-      return OauthP.pooling(this.providerConfig.redirectUri);
+    if (!OauthP.popup) {
+      return Promise.reject(new Error('OAuth popup error occurred'));
     }
+    // Navigate the already-open popup. Calling OauthP.open() here would call
+    // window.open('about:blank') again and wipe the authorization URL.
+    OauthP.popup.location.href = url;
+    if (this.providerConfig.skipPooling) {
+      return Promise.resolve();
+    }
+    return OauthP.pooling(this.providerConfig.redirectUri);
   }
 
   exchangeForToken(

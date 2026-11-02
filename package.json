@@ -1,6 +1,6 @@
 {
   "name": "universal-social-auth",
-  "version": "0.2.6",
+  "version": "0.2.9",
   "description": "Social Authentication library for (SPA, PWA & App)",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -10,8 +10,12 @@
     "dist"
   ],
   "scripts": {
-    "build": "webpack --mode=production --config webpack.config.build.js",
-    "build:dev": "webpack --mode=development --config webpack.config.build.js"
+    "check-up": "npx npm-check-updates -u && npm install",
+    "build": "vite build && npm run build:providers",
+    "build:dev": "vite build --mode development && npm run build:providers:dev",
+    "build:providers": "vite build --config vite.providers.config.ts",
+    "build:providers:dev": "vite build --config vite.providers.config.ts --mode development",
+    "preview": "vite preview"
   },
   "keywords": [
     "vue",
@@ -83,11 +87,13 @@
     "axios": "^1.6.8"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.10.1",
-    "clean-webpack-plugin": "^4.0.0",
-    "copy-webpack-plugin": "^10.2.1",
-    "eslint-plugin-ts": "^1.0.0",
-    "ts-loader": "^9.2.6",
-    "webpack-cli": "^4.5.0"
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.6",
+    "@typescript-eslint/eslint-plugin": "^8.72.1",
+    "@typescript-eslint/parser": "^8.72.1",
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0",
+    "typescript": "~7.0.2",
+    "vite": "^8.3.5"
   }
 }

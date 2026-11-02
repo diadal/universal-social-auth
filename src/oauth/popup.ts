@@ -58,29 +58,31 @@ export default class OAuthPopup {
           if (popupWindowPath === redirectUriPath) {
             if (location.location.search || location.location.hash) {
               const query = parseQueryString(
-                location.location.search.substring(1).replace(/\/$/, '')
+                location.location.search.substring(1)
               );
               const hash = parseQueryString(
-                location.location.hash.substring(1).replace(/[/$]/, '')
+                location.location.hash.substring(1)
               );
               const params = {
                 ...query,
                 ...hash
               };
+              clearInterval(poolingInterval);
+              poolingInterval = 0;
+              location.close();
               if (params.error) {
                 reject(<string>params.error);
               } else {
                 resolve(params);
               }
             } else {
+              clearInterval(poolingInterval);
+              poolingInterval = 0;
+              location.close();
               reject(
                 'OAuth redirect has occurred but no query or hash parameters were found.'
               );
             }
-
-            clearInterval(poolingInterval);
-            poolingInterval = 0;
-            location.close();
           }
         } catch (e) {
           // Ignore DOMException: Blocked a frame with origin from accessing a cross-origin frame.

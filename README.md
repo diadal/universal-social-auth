@@ -46,7 +46,7 @@ backend frameworks [Laravel](https://laravel.com/) and [Other Php Frameworks](ht
 
 **5:**  Support for Native App framework [Capacitorjs](https://capacitorjs.com/), [Ionic](https://ionicframework.com/), [Cordova](https://cordova.apache.org/), [Nativescript](https://nativescript.org/) & `More`
 
-**Default Provider:** `Apple` `Facebook` `Google` `Github` `Instagram` `Twitter` `Bitbucket` `Linkedin` `Vkontakte` `Live` `Oauth1`, `Oauth2` & `Twitch`
+**Default Provider:** `Apple` `Facebook` `Google` `Github` `Instagram` `Twitter` `Bitbucket` `Linkedin` `Vkontakte` `Live` `Discord` `Twitch` `Microsoft` `Gitlab` `Slack` `Spotify` `Reddit` `Dropbox` `Amazon` `Oauth1`, `Oauth2`
 
 **NOTE:** PR of New Provider can be submitted default location `src/providers/index.ts`(https://github.com/diadal/universal-social-auth/src/providers/index.ts)
 
@@ -76,6 +76,49 @@ npm install universal-social-auth
 
 
 ## Usage
+
+### Vue 3 example
+
+```ts
+// main.ts
+import { createApp } from 'vue';
+import axios from 'axios';
+import UniversalSocialauth from 'universal-social-auth';
+import App from './App.vue';
+
+const app = createApp(App);
+const Oauth = new UniversalSocialauth(axios, {
+  providers: {
+    twitter: { url: 'https://myapp.com/auth/twitter', clientId: 'ID' }
+  }
+});
+app.config.globalProperties.$Oauth = Oauth;
+app.provide('$Oauth', Oauth);
+app.mount('#app');
+```
+
+```ts
+// Login.vue
+import { inject } from 'vue';
+import type UniversalSocialauth from 'universal-social-auth';
+import { Google, Twitter } from 'universal-social-auth';
+
+const Oauth = inject<UniversalSocialauth>('$Oauth');
+
+async function login(provider: string, providerConfig: Record<string, unknown>) {
+  const response = await Oauth!.authenticate(provider, providerConfig);
+  console.log(response);
+}
+```
+
+```html
+<button @click="login('google', Google)">Google</button>
+<button @click="login('twitter', Twitter)">Twitter</button>
+```
+
+### Nuxt 3 / SSR
+
+The library only touches `window`, `document` and `localStorage` at call time, so it is safe to import on the server. Create the instance in a client-only plugin (e.g. `plugins/social-auth.client.ts`) and call `authenticate` only in the browser, since the OAuth popup requires `window`.
 
 for Native App Frameworks config your APp to support Deep Link I used [capacitorjs](https://capacitorjs.com/docs/guides/deep-links) as an example and use [Emitter](https://github.com/developit/mitt) to pass data to page component
 
