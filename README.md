@@ -21,7 +21,7 @@
 
 `More`
 
-*if you wish you can buy me a coffee @ [Patreon](https://www.patreon.com/diadal)*
+Support this project through [GitHub Sponsors](https://github.com/sponsors/diadal) or [Patreon](https://www.patreon.com/diadal).
 
 **universal-social-auth** is easily configurable solution for frontend frameworks [Vue2.js](https://vuejs.org/), [Vue3.js](https://v3.vuejs.org/), [Nuxtjs](https://nuxtjs.org/), [React](https://reactjs.org/), [Angularjs](https://angularjs.org/), [Otherjs Framework that support TypeScript & JavaScript](https://www.typescriptlang.org/) &
 backend frameworks [Laravel](https://laravel.com/) and [Other Php Frameworks](https://www.php.net/) with Socialite that provides Social login using Github, Facebook, Google, Vkontakte and other OAuth providers can also work with [Nodejs](https://nodejs.org/en/) backend App.
@@ -51,6 +51,17 @@ backend frameworks [Laravel](https://laravel.com/) and [Other Php Frameworks](ht
 **NOTE:** PR of New Provider can be submitted default location `src/providers/index.ts`(https://github.com/diadal/universal-social-auth/src/providers/index.ts)
 
 ## Supported OAuth providers and configurations
+
+## AI assistant support
+
+This repository includes an MCP server for AI clients and a detailed agent skill:
+
+- [MCP server setup and tools](mcp/README.md)
+- [Universal Social Auth agent skill](skills/universal-social-auth/SKILL.md)
+- [Feature roadmap](plans/feature-roadmap.md)
+
+The MCP server exposes provider metadata and integration guidance. It does not
+start OAuth flows, access credentials, or perform backend token exchange.
 
 ## Installation
 
@@ -273,7 +284,7 @@ async function useLoginFirst (e: User) {
     // this sample of how to pust user data to my store
       const firstlogin: boolean = await box.$auth.firstlogin(e)
       if (firstlogin) {
-        
+
        const msg = `Welcome To My App`
         alert(msg)
         await box.$router.push({ name: 'dashboard' })

@@ -8,3 +8,7 @@
 package-lock.json
 
 .DS_Store
+*.log
+plans/
+.env
+mcp/node_modules
