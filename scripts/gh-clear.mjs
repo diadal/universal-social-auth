@@ -26,16 +26,29 @@ function resolveGhPath() {
 
 const GH_PATH = resolveGhPath();
 
-function runGh(args) {
+function isTransientApiFailure(message) {
+  const marker = message.indexOf("HTTP ");
+  if (marker === -1) return false;
+  const status = Number(message.slice(marker + 5, marker + 8));
+  return status >= 500 && status < 600;
+}
+
+function runGh(args, attempt = 1) {
   const result = spawnSync(GH_PATH, args, { encoding: "utf8" });
   if (result.error) {
     throw new Error(`Unable to run GitHub CLI: ${result.error.message}`);
   }
-  if (result.status !== 0) {
-    const details = result.stderr?.trim() ?? "";
-    throw new Error(details || `GitHub CLI exited with code ${result.status}`);
+  if (result.status === 0) return Promise.resolve(result.stdout.trim());
+
+  const details = result.stderr?.trim() ?? "";
+  const message = details || `GitHub CLI exited with code ${result.status}`;
+  if (!isTransientApiFailure(message) || attempt === 3) {
+    throw new Error(message);
   }
-  return result.stdout.trim();
+  const delayMs = 1000 * attempt;
+  console.warn(`Transient GitHub API error; retrying in ${delayMs / 1000}s.`);
+  return new Promise((resolve) => setTimeout(resolve, delayMs))
+    .then(() => runGh(args, attempt + 1));
 }
 
 function parseArguments(args) {
@@ -46,8 +59,8 @@ function parseArguments(args) {
   return { apply: args.includes("--apply"), help: args.includes("--help") };
 }
 
-function readRepository() {
-  const repository = runGh(["repo", "view", "--json", "nameWithOwner", "--jq", ".nameWithOwner"]);
+async function readRepository() {
+  const repository = await runGh(["repo", "view", "--json", "nameWithOwner", "--jq", ".nameWithOwner"]);
   const parts = repository.split("/");
   if (parts.length !== 2 || parts.some((part) => part.length === 0)) {
     throw new TypeError(`Could not determine the current GitHub repository: ${repository}`);
@@ -55,9 +68,9 @@ function readRepository() {
   return repository;
 }
 
-function readWorkflowRuns(repository) {
+async function readWorkflowRuns(repository) {
   const endpoint = `repos/${repository}/actions/runs?per_page=100`;
-  const output = runGh(["api", "--paginate", "--slurp", endpoint]);
+  const output = await runGh(["api", "--paginate", "--slurp", endpoint]);
   let pages;
   try {
     pages = JSON.parse(output);
@@ -149,15 +162,23 @@ function printUsage() {
   console.log("Set GH_CLI_PATH if gh is installed outside a standard location.");
 }
 
-function main() {
+async function deleteSelectedRuns(runs, repository, index = 0) {
+  if (index >= runs.length) return;
+  const run = runs[index];
+  await runGh(["run", "delete", String(run.id), "--repo", repository]);
+  console.log(`Deleted run ${run.id}.`);
+  await deleteSelectedRuns(runs, repository, index + 1);
+}
+
+async function main() {
   const options = parseArguments(process.argv.slice(2));
   if (options.help) {
     printUsage();
     return;
   }
 
-  const repository = readRepository();
-  const runs = readWorkflowRuns(repository);
+  const repository = await readRepository();
+  const runs = await readWorkflowRuns(repository);
   const plan = planRuns(runs);
   console.log(`Repository: ${repository}`);
   console.log(`Found ${runs.length} workflow runs.`);
@@ -171,11 +192,15 @@ function main() {
     console.log("Dry run only. Use npm run gh:clear -- --apply to delete these runs.");
     return;
   }
-
-  for (const run of plan.deleteRuns) {
-    runGh(["run", "delete", String(run.id), "--repo", repository]);
-  }
+  console.log(`Deleting ${plan.deleteRuns.length} run(s).`);
+  await deleteSelectedRuns(plan.deleteRuns, repository);
   console.log(`Deleted ${plan.deleteRuns.length} workflow run(s).`);
 }
 
-main();
+try {
+  await main();
+} catch (error) {
+  const detail = error instanceof Error ? error.message : String(error);
+  console.error(`gh:clear failed: ${detail}`);
+  process.exitCode = 1;
+}
