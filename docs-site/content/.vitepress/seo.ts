@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import type { SiteConfig } from "vitepress";
+import type { HeadConfig, SiteConfig } from "vitepress";
 
 export const SITE_URL = "https://usa.ZinTrust.com";
 export const SITE_NAME = "Universal Social Auth";
@@ -8,16 +8,20 @@ export const SITE_DESCRIPTION =
   "Universal social login for the browser: OAuth 1.0, OAuth 2.0, and OIDC with PKCE, state checks, and lifecycle hooks. Your backend keeps the client secret.";
 export const BRAND_COLOR = "#6b3dff";
 export const OG_IMAGE = `${SITE_URL}/og-image.png`;
+const IMAGE_RE = /!\[[^\]]*\]\([^)\s]+\)/g;
+const LINK_RE = /\[([^\]]*)\]\([^)\s]+\)/g;
 
 type Frontmatter = { title?: string; description?: string };
 
 export function parseFrontmatter(source: string): { data: Frontmatter; body: string } {
-  const match = new RegExp(/^---\n([\s\S]*?)\n---\n?/).exec(source);
+  const match = /^---\n([\s\S]*?)\n---\n?/.exec(source);
   if (!match) return { data: {}, body: source };
   const data: Frontmatter = {};
   for (const line of match[1].split("\n")) {
-    const kv =  new RegExp(/^(title|description):\s*(.*)$/).exec(line);
-    if (kv) data[kv[1] as keyof Frontmatter] = kv[2].replace(/^["']|["']$/g, "");
+    const key = line.slice(0, line.indexOf(":"));
+    if (key === "title" || key === "description") {
+      data[key] = line.slice(key.length + 1).trim().replace(/^["']|["']$/g, "");
+    }
   }
   return { data, body: source.slice(match[0].length) };
 }
@@ -25,13 +29,16 @@ export function parseFrontmatter(source: string): { data: Frontmatter; body: str
 export function describePage(data: Frontmatter, body: string): string {
   if (data.description) return data.description;
   const blocks = body.replace(/```[\s\S]*?```/g, "").split(/\n\s*\n/);
-  const paragraph = blocks
+  const plain = blocks
     .map((block) => block.split("\n").map((line) => line.trim()).join(" ").trim())
-    .find((block) => block && !/^(#|\||[-*>]|\d+\.|<|---)/.test(block));
-  if (!paragraph) return SITE_DESCRIPTION;
-  const plain = paragraph.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/[`*_]/g, "").replace(/\s+/g, " ");
+    .filter((block) => block && !/^(#|\||[-*>:]|\d+\.|<|---)/.test(block))
+    .map((block) => block.replace(IMAGE_RE, "").replace(LINK_RE, "$1").replace(/[`*_]/g, "").replace(/\s+/g, " ").trim())
+    .find((block) => block.length > 0);
+  if (!plain) return SITE_DESCRIPTION;
   if (plain.length <= 160) return plain;
-  return `${plain.slice(0, 157).replace(/\s+\S*$/, "")}...`;
+  const cut = plain.slice(0, 157);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${lastSpace > 0 ? cut.slice(0, lastSpace) : cut}...`;
 }
 
 export function pageUrl(relativePath: string): string {
@@ -39,7 +46,7 @@ export function pageUrl(relativePath: string): string {
   return `${SITE_URL}/${clean}`.replace(/\/$/, "") || SITE_URL;
 }
 
-export function buildPageHead(relativePath: string, frontmatter: Frontmatter) {
+export function buildPageHead(relativePath: string, frontmatter: Frontmatter): HeadConfig[] {
   const title = frontmatter.title ? `${frontmatter.title} | ${SITE_NAME}` : `${SITE_NAME} | Social login for the browser`;
   const description = frontmatter.description ?? SITE_DESCRIPTION;
   const url = pageUrl(relativePath);
@@ -58,10 +65,10 @@ export function buildPageHead(relativePath: string, frontmatter: Frontmatter) {
     ["meta", { name: "twitter:title", content: title }],
     ["meta", { name: "twitter:description", content: description }],
     ["meta", { name: "twitter:image", content: OG_IMAGE }],
-  ] as const;
+  ];
 }
 
-export const siteHead = [
+export const siteHead: HeadConfig[] = [
   ["link", { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32.png" }],
   ["link", { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16.png" }],
   ["link", { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" }],
@@ -71,7 +78,7 @@ export const siteHead = [
   ["meta", { name: "keywords", content: "OAuth, OAuth 2.0, OAuth 1.0, OpenID Connect, OIDC, PKCE, social login, Google login, GitHub login, Laravel, Express, ZinTrust, Keycloak, Okta, Entra ID" }],
   ["script", { type: "application/ld+json" }, JSON.stringify(organizationJsonLd())],
   ["script", { type: "application/ld+json" }, JSON.stringify(softwareJsonLd())],
-] as const;
+];
 
 export function organizationJsonLd() {
   return {
@@ -108,8 +115,8 @@ export function faqItemsFromBody(body: string): { question: string; answer: stri
     const [question, ...rest] = section.split("\n");
     const answer = rest
       .join(" ")
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-      .replace(/`/g, "")
+      .replace(LINK_RE, "$1")
+      .replaceAll("`", "")
       .replace(/\s+/g, " ")
       .trim();
     if (question && answer) items.push({ question: question.trim(), answer });
@@ -135,7 +142,7 @@ function collectPages(siteConfig: SiteConfig) {
     .map((relativePath) => {
       const source = readFileSync(join(siteConfig.srcDir, relativePath), "utf8");
       const { data, body } = parseFrontmatter(source);
-      const title = data.title ?? body.match(/^#\s+(.+)$/m)?.[1] ?? relativePath;
+      const title = data.title ?? /^#[ \t]+(.+)$/m.exec(body)?.[1] ?? relativePath;
       return { relativePath, title, description: describePage(data, body), body, url: pageUrl(relativePath) };
     })
     .sort((a, b) => a.url.localeCompare(b.url));

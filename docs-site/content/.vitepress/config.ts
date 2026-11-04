@@ -30,7 +30,7 @@ export default defineConfig({
     pageData.description = description;
     const head = [...buildPageHead(pageData.relativePath, { ...pageData.frontmatter, description })];
     if (pageData.relativePath === "faq.md") {
-      head.push(["script", { type: "application/ld+json" }, JSON.stringify(faqJsonLd(faqItemsFromBody(body)))] as const);
+      head.push(["script", { type: "application/ld+json" }, JSON.stringify(faqJsonLd(faqItemsFromBody(body)))]);
     }
     pageData.frontmatter.head = [...(pageData.frontmatter.head ?? []), ...head];
   },
