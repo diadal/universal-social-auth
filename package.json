@@ -1,6 +1,6 @@
 {
   "name": "universal-social-auth",
-  "version": "0.2.9",
+  "version": "0.3.0",
   "description": "Social Authentication library for (SPA, PWA & App)",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -34,10 +34,10 @@
     "preview": "vite preview",
     "catalog:generate": "node scripts/generate-provider-catalog.mjs",
     "catalog:check": "node scripts/generate-provider-catalog.mjs --check",
-  "compat:check": "node scripts/compat-check.mjs",
-  "dev": "npm --prefix docs-site run dev",
-  "d:doc": "npm --prefix docs-site run build && npm --prefix docs-site run deploy",
-  "d:mcp": "npm --prefix mcp run deploy",
+    "compat:check": "node scripts/compat-check.mjs",
+    "dev": "npm --prefix docs-site run dev",
+    "d:doc": "npm --prefix docs-site run build && npm --prefix docs-site run deploy",
+    "d:mcp": "npm --prefix mcp run deploy",
     "test": "jest"
   },
   "keywords": [
