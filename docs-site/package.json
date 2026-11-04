@@ -1,0 +1,17 @@
+{
+  "name": "universal-social-auth-docs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sync": "node ../scripts/sync-docs.mjs",
+    "dev": "npm run sync && vitepress dev content",
+    "build": "npm run sync && vitepress build content",
+    "preview": "vitepress preview content",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4",
+    "wrangler": "^4.157.0"
+  }
+}

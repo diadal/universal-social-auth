@@ -23,4 +23,24 @@ describe('provider schema', () => {
       ['authorizationEndpoint', 'name', 'oauthType', 'scope'].sort()
     );
   });
+
+  it('requires a backend url for OAuth 1.0 providers', () => {
+    const issues = validateProviderDefinition('legacy', {
+      name: 'legacy',
+      oauthType: '1.0',
+      authorizationEndpoint: 'https://example.com/authorize'
+    });
+    expect(issues.map(issue => issue.field)).toEqual(['url']);
+  });
+
+  it('requires form_post or fragment when id_token is requested', () => {
+    const issues = validateProviderDefinition('oidc', {
+      name: 'oidc',
+      oauthType: '2.0',
+      authorizationEndpoint: 'https://example.com/authorize',
+      responseType: 'code id_token',
+      responseMode: 'query'
+    });
+    expect(issues.map(issue => issue.field)).toEqual(['responseMode']);
+  });
 });

@@ -66,5 +66,20 @@ export function validateProviderDefinition(
     if (scopeError) report('scope', scopeError);
   }
 
+  // OAuth 1.0 needs the backend request-token route (`url`) for the callback.
+  if (definition.oauthType === '1.0' && (typeof definition.url !== 'string' || !definition.url)) {
+    report('url', 'OAuth 1.0 providers need a backend url for the request-token step');
+  }
+
+  // An id_token in the response type must come back via form_post or fragment.
+  if (
+    typeof definition.responseType === 'string' &&
+    definition.responseType.split(' ').includes('id_token') &&
+    definition.responseMode !== 'form_post' &&
+    definition.responseMode !== 'fragment'
+  ) {
+    report('responseMode', "responseType 'id_token' requires responseMode 'form_post' or 'fragment'");
+  }
+
   return issues;
 }

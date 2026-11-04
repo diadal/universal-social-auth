@@ -1,6 +1,18 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { Providers } from "universal-social-auth/dist/providers/index.mjs";
 import { z } from "zod";
+import catalog from "./provider-catalog.json" with { type: "json" };
+
+const DOCS_BASE = "https://universal-social-auth-docs.zupago.workers.dev/docs";
+
+const RECIPES = {
+  express: { title: "Express", path: "/recipes/express", summary: "Exchange the code in an Express route; keep the client secret server-side." },
+  laravel: { title: "Laravel", path: "/recipes/laravel", summary: "POST the code to a controller and exchange it with Laravel's HTTP client." },
+  zintrust: { title: "Zintrust", path: "/recipes/zintrust", summary: "Use router.post and a sealed controller to exchange the code." },
+  "other-backends": { title: "Other backends", path: "/recipes/other-backends", summary: "The request contract and server checklist for any backend." },
+  "okta-entra-keycloak": { title: "Okta, Entra ID, Keycloak", path: "/recipes/okta-entra-keycloak", summary: "OIDC issuer settings and ID-token checks for each provider." },
+  saml: { title: "SAML", path: "/recipes/saml", summary: "SAML is not supported in the browser. Server-side evaluation only." }
+};
 
 export function createMcpServer(skillText) {
   const server = new McpServer({
@@ -148,6 +160,59 @@ export function createMcpServer(skillText) {
       }
 
       const result = { provider: name, valid: issues.length === 0, issues };
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.registerTool(
+    "get_recipe",
+    {
+      description:
+        "Get the backend recipe summary and docs link for a server framework (read-only).",
+      inputSchema: { recipe: z.enum(Object.keys(RECIPES)) }
+    },
+    async ({ recipe }) => {
+      const entry = RECIPES[recipe];
+      const text = [`# ${entry.title}`, "", entry.summary, "", `Docs: ${DOCS_BASE}${entry.path}`].join("\n");
+      return { content: [{ type: "text", text }] };
+    }
+  );
+
+  server.registerTool(
+    "get_catalog_entry",
+    {
+      description:
+        "Get a provider entry from the generated catalog (static fields only, no secrets). Read-only.",
+      inputSchema: { provider: z.string().min(1) }
+    },
+    async ({ provider }) => {
+      const entry = catalog.providers?.[provider.toLowerCase()];
+      if (!entry) {
+        return { isError: true, content: [{ type: "text", text: `No catalog entry for: ${provider}` }] };
+      }
+      return { content: [{ type: "text", text: JSON.stringify(entry, null, 2) }] };
+    }
+  );
+
+  server.registerTool(
+    "check_setup_keys",
+    {
+      description:
+        "Given the names of environment variables you have set (never their values), report which required ones are missing for a backend recipe. Read-only.",
+      inputSchema: {
+        recipe: z.enum(["laravel", "zintrust", "express"]),
+        presentKeys: z.array(z.string().min(1)).max(100)
+      }
+    },
+    async ({ recipe, presentKeys }) => {
+      const required = {
+        laravel: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GOOGLE_REDIRECT_URI"],
+        zintrust: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"],
+        express: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"]
+      }[recipe];
+      const present = new Set(presentKeys);
+      const missing = required.filter((key) => !present.has(key));
+      const result = { recipe, complete: missing.length === 0, missing };
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }
   );

@@ -9,6 +9,7 @@
     "SKILL.md",
     "bin/universal-social-auth-mcp",
     "create-server.mjs",
+    "provider-catalog.json",
     "server.mjs",
     "worker.mjs",
     "wrangler.jsonc"

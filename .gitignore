@@ -14,3 +14,12 @@ plans/
 mcp/node_modules
 .wrangler/
 coverage/
+
+# examples and docs build output
+examples/*/node_modules
+examples/*/dist
+docs-site/node_modules
+docs-site/dist
+
+# docs site generated copy
+docs-site/content/docs

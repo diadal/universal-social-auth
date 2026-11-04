@@ -41,5 +41,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Provider catalog is up to date
+        run: npm run catalog:check
+
+      - name: Compatibility (ESM, CJS, SSR, package contents)
+        run: npm run compat:check
+
       - name: Audit (moderate and above)
         run: npm audit --audit-level=moderate

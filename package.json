@@ -32,6 +32,10 @@
     "build:providers": "vite build --config vite.providers.config.ts",
     "build:providers:dev": "vite build --config vite.providers.config.ts --mode development",
     "preview": "vite preview",
+    "catalog:generate": "node scripts/generate-provider-catalog.mjs",
+    "catalog:check": "node scripts/generate-provider-catalog.mjs --check",
+  "compat:check": "node scripts/compat-check.mjs",
+  "d:doc": "npm --prefix docs-site run build && npm --prefix docs-site run deploy",
     "test": "jest"
   },
   "keywords": [

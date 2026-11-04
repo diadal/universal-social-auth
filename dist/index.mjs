@@ -554,7 +554,7 @@ function B(e, t) {
 		let e = z(t.scope);
 		e && r("scope", e);
 	}
-	return n;
+	return t.oauthType !== "1.0" || typeof t.url == "string" && t.url || r("url", "OAuth 1.0 providers need a backend url for the request-token step"), typeof t.responseType == "string" && t.responseType.split(" ").includes("id_token") && t.responseMode !== "form_post" && t.responseMode !== "fragment" && r("responseMode", "responseType 'id_token' requires responseMode 'form_post' or 'fragment'"), n;
 }
 // src/providers/index.ts
 var V = typeof window < "u" ? window.location.origin : "", H = {

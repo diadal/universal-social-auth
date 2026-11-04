@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 1,
+  "providers": {
+    "amazon": {
+      "name": "amazon",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://www.amazon.com/ap/oa",
+      "url": "/auth/amazon",
+      "scope": [
+        "profile"
+      ],
+      "scopeDelimiter": " ",
+      "requiredUrlParams": [
+        "scope"
+      ]
+    },
+    "apple": {
+      "name": "apple",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://appleid.apple.com/auth/authorize",
+      "url": "",
+      "responseType": "code id_token",
+      "responseMode": "form_post",
+      "scope": [
+        "name",
+        "email"
+      ],
+      "scopeDelimiter": "%20",
+      "requiredUrlParams": [
+        "scope"
+      ],
+      "optionalUrlParams": [
+        "response_mode"
+      ],
+      "display": "popup"
+    },
+    "bitbucket": {
+      "name": "bitbucket",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://bitbucket.org/site/oauth2/authorize",
+      "url": "/auth/bitbucket",
+      "scope": [
+        "email"
+      ],
+      "scopeDelimiter": " ",
+      "optionalUrlParams": [
+        "scope"
+      ]
+    },
+    "discord": {
+      "name": "discord",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://discord.com/oauth2/authorize",
+      "url": "/auth/discord",
+      "scope": [
+        "identify",
+        "email"
+      ],
+      "scopeDelimiter": " ",
+      "requiredUrlParams": [
+        "scope"
+      ]
+    },
+    "dropbox": {
+      "name": "dropbox",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://www.dropbox.com/oauth2/authorize",
+      "url": "/auth/dropbox"
+    },
+    "facebook": {
+      "name": "facebook",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://www.facebook.com/v2.5/dialog/oauth",
+      "url": "/auth/facebook",
+      "responseMode": [
+        "form_post"
+      ],
+      "scope": [
+        "email"
+      ],
+      "scopeDelimiter": ",",
+      "requiredUrlParams": [
+        "scope"
+      ],
+      "display": "popup"
+    },
+    "github": {
+      "name": "github",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://github.com/login/oauth/authorize",
+      "url": "/auth/github",
+      "scope": [
+        "user:email"
+      ],
+      "scopeDelimiter": " ",
+      "optionalUrlParams": [
+        "scope"
+      ]
+    },
+    "gitlab": {
+      "name": "gitlab",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://gitlab.com/oauth/authorize",
+      "url": "/auth/gitlab",
+      "scope": [
+        "read_user"
+      ],
+      "scopeDelimiter": " ",
+      "requiredUrlParams": [
+        "scope"
+      ]
+    },
+    "google": {
+      "name": "google",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://accounts.google.com/o/oauth2/auth",
+      "url": "/auth/google",
+      "scope": [
+        "profile",
+        "email"
+      ],
+      "scopeDelimiter": " ",
+      "requiredUrlParams": [
+        "scope"
+      ],
+      "optionalUrlParams": [
+        "display"
+      ],
+      "display": "popup"
+    },
+    "instagram": {
+      "name": "instagram",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://api.instagram.com/oauth/authorize",
+      "url": "/auth/instagram",
+      "scope": [
+        "basic"
+      ],
+      "scopeDelimiter": "+",
+      "requiredUrlParams": [
+        "scope"
+      ]
+    },
+    "linkedin": {
+      "name": "linkedin",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://www.linkedin.com/oauth/v2/authorization",
+      "url": "/auth/linkedin",
+      "scope": [
+        "r_emailaddress"
+      ],
+      "scopeDelimiter": " ",
+      "requiredUrlParams": [
+        "state",
+        "scope"
+      ]
+    },
+    "live": {
+      "name": "live",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://login.live.com/oauth20_authorize.srf",
+      "url": "/auth/live",
+      "scope": [
+        "wl.emails"
+      ],
+      "scopeDelimiter": " ",
+      "requiredUrlParams": [
+        "display",
+        "scope"
+      ],
+      "display": "popup"
+    },
+    "microsoft": {
+      "name": "microsoft",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+      "url": "/auth/microsoft",
+      "scope": [
+        "openid",
+        "profile",
+        "email"
+      ],
+      "scopeDelimiter": " ",
+      "requiredUrlParams": [
+        "scope"
+      ]
+    },
+    "reddit": {
+      "name": "reddit",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://www.reddit.com/api/v1/authorize",
+      "url": "/auth/reddit",
+      "scope": [
+        "identity"
+      ],
+      "scopeDelimiter": " ",
+      "requiredUrlParams": [
+        "state",
+        "scope"
+      ]
+    },
+    "slack": {
+      "name": "slack",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://slack.com/openid/connect/authorize",
+      "url": "/auth/slack",
+      "scope": [
+        "openid",
+        "profile",
+        "email"
+      ],
+      "scopeDelimiter": " ",
+      "requiredUrlParams": [
+        "scope"
+      ]
+    },
+    "spotify": {
+      "name": "spotify",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://accounts.spotify.com/authorize",
+      "url": "/auth/spotify",
+      "scope": [
+        "user-read-email"
+      ],
+      "scopeDelimiter": " ",
+      "requiredUrlParams": [
+        "scope"
+      ]
+    },
+    "twitch": {
+      "name": "twitch",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://id.twitch.tv/oauth2/authorize",
+      "url": "/auth/twitch",
+      "scope": [
+        "user:read:email"
+      ],
+      "scopeDelimiter": " ",
+      "requiredUrlParams": [
+        "scope"
+      ]
+    },
+    "twitter": {
+      "name": "twitter",
+      "oauthType": "1.0",
+      "authorizationEndpoint": "https://api.twitter.com/oauth/authenticate",
+      "url": "/auth/twitter"
+    },
+    "vkontakte": {
+      "name": "vkontakte",
+      "oauthType": "2.0",
+      "authorizationEndpoint": "https://oauth.vk.com/authorize",
+      "url": "/auth/vkontakte",
+      "scope": [
+        "email"
+      ],
+      "scopeDelimiter": ",",
+      "requiredUrlParams": [
+        "scope"
+      ],
+      "display": "popup"
+    }
+  },
+  "issues": []
+}
