@@ -50,7 +50,13 @@ setPlatform(createCapacitorAdapter(options));
 void UniversalSocialauth;
 void Providers;
 `);
-  writeFileSync(join(consumerRoot, "tsconfig.json"), JSON.stringify({
+ writeFileSync(join(consumerRoot, "consumer.mts"), `
+import UniversalSocialauth from "universal-social-auth";
+
+const auth = new UniversalSocialauth({} as never, {});
+void auth;
+`);
+ writeFileSync(join(consumerRoot, "tsconfig.json"), JSON.stringify({
     compilerOptions: {
       module: "NodeNext",
       moduleResolution: "NodeNext",
@@ -59,7 +65,7 @@ void Providers;
       target: "ES2022",
       types: []
     },
-    files: ["consumer.ts"]
+    files: ["consumer.ts", "consumer.mts"]
   }));
   execFileSync(process.execPath, [
     join(root, "node_modules/typescript/bin/tsc"),
