@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 const srcDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 export default defineConfig({
-  title: "universal-social-auth",
+  title: "Universal Social Auth",
   description: SITE_DESCRIPTION,
   outDir: "../dist",
   cleanUrls: true,

@@ -2,8 +2,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { SiteConfig } from "vitepress";
 
-export const SITE_URL = "https://usa.zintrust.com";
-export const SITE_NAME = "universal-social-auth";
+export const SITE_URL = "https://usa.ZinTrust.com";
+export const SITE_NAME = "Universal Social Auth";
 export const SITE_DESCRIPTION =
   "Universal social login for the browser: OAuth 1.0, OAuth 2.0, and OIDC with PKCE, state checks, and lifecycle hooks. Your backend keeps the client secret.";
 export const BRAND_COLOR = "#6b3dff";
@@ -12,11 +12,11 @@ export const OG_IMAGE = `${SITE_URL}/og-image.png`;
 type Frontmatter = { title?: string; description?: string };
 
 export function parseFrontmatter(source: string): { data: Frontmatter; body: string } {
-  const match = source.match(/^---\n([\s\S]*?)\n---\n?/);
+  const match = new RegExp(/^---\n([\s\S]*?)\n---\n?/).exec(source);
   if (!match) return { data: {}, body: source };
   const data: Frontmatter = {};
   for (const line of match[1].split("\n")) {
-    const kv = line.match(/^(title|description):\s*(.*)$/);
+    const kv =  new RegExp(/^(title|description):\s*(.*)$/).exec(line);
     if (kv) data[kv[1] as keyof Frontmatter] = kv[2].replace(/^["']|["']$/g, "");
   }
   return { data, body: source.slice(match[0].length) };
@@ -68,7 +68,7 @@ export const siteHead = [
   ["link", { rel: "manifest", href: "/site.webmanifest" }],
   ["meta", { name: "theme-color", content: BRAND_COLOR }],
   ["meta", { name: "author", content: "Diadal Nigeria Limited" }],
-  ["meta", { name: "keywords", content: "OAuth, OAuth 2.0, OAuth 1.0, OpenID Connect, OIDC, PKCE, social login, Google login, GitHub login, Laravel, Express, Zintrust, Keycloak, Okta, Entra ID" }],
+  ["meta", { name: "keywords", content: "OAuth, OAuth 2.0, OAuth 1.0, OpenID Connect, OIDC, PKCE, social login, Google login, GitHub login, Laravel, Express, ZinTrust, Keycloak, Okta, Entra ID" }],
   ["script", { type: "application/ld+json" }, JSON.stringify(organizationJsonLd())],
   ["script", { type: "application/ld+json" }, JSON.stringify(softwareJsonLd())],
 ] as const;
@@ -78,7 +78,7 @@ export function organizationJsonLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Diadal Nigeria Limited",
-    url: "https://zintrust.com",
+    url: "https://ZinTrust.com",
     logo: `${SITE_URL}/logo.png`,
     sameAs: ["https://github.com/diadal", "https://github.com/sponsors/diadal", "https://patreon.com/diadal"],
   };
@@ -98,7 +98,7 @@ export function softwareJsonLd() {
     downloadUrl: "https://www.npmjs.com/package/universal-social-auth",
     programmingLanguage: "TypeScript",
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-    author: { "@type": "Organization", name: "Diadal Nigeria Limited", url: "https://zintrust.com" },
+    author: { "@type": "Organization", name: "Diadal Nigeria Limited", url: "https://ZinTrust.com" },
   };
 }
 

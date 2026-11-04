@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: universal-social-auth
+  name: Universal Social Auth
   text: Social login for the browser
   tagline: OAuth 1.0, OAuth 2.0, and OIDC with PKCE, state checks, and lifecycle hooks. Your backend keeps the client secret.
   image:
