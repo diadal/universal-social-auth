@@ -37,6 +37,7 @@
   "compat:check": "node scripts/compat-check.mjs",
   "dev": "npm --prefix docs-site run dev",
   "d:doc": "npm --prefix docs-site run build && npm --prefix docs-site run deploy",
+  "d:mcp": "npm --prefix mcp run deploy",
     "test": "jest"
   },
   "keywords": [
