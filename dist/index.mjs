@@ -113,7 +113,7 @@ var d = class {
 	_setCookie(e) {
 		document.cookie = e;
 	}
-}, f = class {
+}, ee = class {
 	constructor(e) {
 		this.namespace = e ?? null;
 	}
@@ -129,7 +129,7 @@ var d = class {
 	_getStorageKey(e) {
 		return this.namespace ? [this.namespace, e].join(".") : e;
 	}
-}, p = class {
+}, f = class {
 	constructor(e) {
 		this.namespace = e ?? null, this._storage = {};
 	}
@@ -145,7 +145,7 @@ var d = class {
 	_getStorageKey(e) {
 		return this.namespace ? [this.namespace, e].join(".") : e;
 	}
-}, m = class {
+}, p = class {
 	constructor(e) {
 		this.namespace = e ?? null;
 	}
@@ -163,7 +163,7 @@ var d = class {
 	}
 };
 // src/storage.ts
-function h(e) {
+function m(e) {
 	try {
 		let t = e();
 		return t.setItem("testKey", "test"), t.removeItem("testKey"), !0;
@@ -171,29 +171,29 @@ function h(e) {
 		return !1;
 	}
 }
-function g(e) {
+function h(e) {
 	switch (e.storageType) {
-		case "localStorage": return h(() => window.localStorage) ? new f(e.storageNamespace) : h(() => window.sessionStorage) ? new m(e.storageNamespace) : new d(e.cookieStorage);
-		case "sessionStorage": return h(() => window.sessionStorage) ? new m(e.storageNamespace) : new d(e.cookieStorage);
+		case "localStorage": return m(() => window.localStorage) ? new ee(e.storageNamespace) : m(() => window.sessionStorage) ? new p(e.storageNamespace) : new d(e.cookieStorage);
+		case "sessionStorage": return m(() => window.sessionStorage) ? new p(e.storageNamespace) : new d(e.cookieStorage);
 		case "cookieStorage": return new d(e.cookieStorage);
-		default: return new p(e.storageNamespace);
+		default: return new f(e.storageNamespace);
 	}
 }
 // src/errors.ts
-var _ = class extends Error {
+var g = class extends Error {
 	constructor(e, t) {
 		super(t), this.name = "AuthError", this.kind = e;
 	}
 };
-function v(e) {
-	return e instanceof _ ? e.kind : "unknown";
+function _(e) {
+	return e instanceof g ? e.kind : "unknown";
 }
-async function y(e) {
+async function v(e) {
 	try {
 		let t = await e;
 		return t instanceof Error ? {
 			ok: !1,
-			kind: v(t),
+			kind: _(t),
 			error: t
 		} : {
 			ok: !0,
@@ -202,29 +202,29 @@ async function y(e) {
 	} catch (e) {
 		return {
 			ok: !1,
-			kind: v(e),
+			kind: _(e),
 			error: e instanceof Error ? e : Error(String(e))
 		};
 	}
 }
 // src/oauth/popup.ts
-function b(e) {
-	if (!e.search && !e.hash) return new _("provider", "OAuth redirect has occurred but no query or hash parameters were found.");
+function y(e) {
+	if (!e.search && !e.hash) return new g("provider", "OAuth redirect has occurred but no query or hash parameters were found.");
 	let t = {
 		...s(e.search.substring(1)),
 		...s(e.hash.substring(1))
 	};
-	return t.error ? t.error === "access_denied" ? new _("cancelled", "Authorization was denied") : new _("provider", "OAuth provider returned an error") : t;
+	return t.error ? t.error === "access_denied" ? new g("cancelled", "Authorization was denied") : new g("provider", "OAuth provider returned an error") : t;
 }
-var x = class {
+var b = class {
 	constructor(e, t, n) {
 		this.popup = null, this.url = e, this.name = t, this.popupOptions = n;
 	}
 	open(e, t, n) {
 		try {
-			return this.popup = window.open(this.url, this.name, this._stringifyOptions()), this.popup ? (this.popup.focus && this.popup.focus(), t ? Promise.resolve() : this.pooling(e, n)) : Promise.reject(new _("popup_blocked", "Auth popup was blocked by the browser"));
+			return this.popup = window.open(this.url, this.name, this._stringifyOptions()), this.popup ? (this.popup.focus && this.popup.focus(), t ? Promise.resolve() : this.pooling(e, n)) : Promise.reject(new g("popup_blocked", "Auth popup was blocked by the browser"));
 		} catch {
-			return Promise.reject(new _("unknown", "OAuth popup error occurred"));
+			return Promise.reject(new g("unknown", "OAuth popup error occurred"));
 		}
 	}
 	pooling(e, t) {
@@ -232,15 +232,15 @@ var x = class {
 			let i = document.createElement("a");
 			i.href = e;
 			let a = o(i), s = t ? Date.now() + t : 0, c = 0, l = (e) => {
-				window.clearInterval(c), c = 0, e instanceof _ ? r(e) : n(e);
+				window.clearInterval(c), c = 0, e instanceof g ? r(e) : n(e);
 			};
 			c = window.setInterval(() => {
 				let e = this.popup;
-				if (!e || e.closed || e.closed === void 0) l(new _("cancelled", "Auth popup window closed"));
-				else if (s && Date.now() > s) e.close(), l(new _("timeout", "Auth popup timed out"));
+				if (!e || e.closed || e.closed === void 0) l(new g("cancelled", "Auth popup window closed"));
+				else if (s && Date.now() > s) e.close(), l(new g("timeout", "Auth popup timed out"));
 				else try {
 					if (o(e.location) !== a) return;
-					let t = b(e.location);
+					let t = y(e.location);
 					e.close(), l(t);
 				} catch {}
 			}, 250);
@@ -251,7 +251,36 @@ var x = class {
 		for (let r in t) n(t[r]) || e.push(`${r}=${t[r]}`);
 		return e.join(",");
 	}
+}, x = class {
+	constructor(e, t, n) {
+		this.popup = new b(e, t, n);
+	}
+	open(e, t, n) {
+		return this.popup.open(e, t, n);
+	}
+	navigate(e) {
+		let t = this.popup.popup;
+		return t ? (t.location.href = e, Promise.resolve(!0)) : Promise.resolve(!1);
+	}
+	waitForCallback(e, t) {
+		return this.popup.pooling(e, t);
+	}
+	close() {
+		this.popup.popup?.close();
+	}
 }, S = {
+	kind: "web",
+	platform: "web",
+	createSession: (e, t, n) => new x(e, t, n)
+}, C = S;
+function te(e) {
+	C = e;
+}
+function w() {
+	return C;
+}
+// src/oauth/oauth1.ts
+var ne = {
 	name: null,
 	url: null,
 	authorizationEndpoint: null,
@@ -263,17 +292,17 @@ var x = class {
 	defaultUrlParams: null,
 	oauthType: "1.0",
 	popupOptions: void 0
-}, ee = class {
+}, re = class {
 	constructor(e, t, n, r) {
 		this.$http = e, this.storage = t, this.providerConfig = {
-			...S,
+			...ne,
 			...n
 		}, this.options = r;
 	}
 	async init(e) {
-		return this.oauthPopup = new x("about:blank", this.providerConfig.name, this.providerConfig.popupOptions), this.oauthPopup.open(this.providerConfig.redirectUri, !0), this.getRequestToken().then(async (t) => {
-			let n = this.openPopup(t);
-			return this.exchangeForToken(n, e);
+		return this.oauthPopup = w().createSession("about:blank", this.providerConfig.name, this.providerConfig.popupOptions), this.oauthPopup.open(this.providerConfig.redirectUri, !0), this.getRequestToken().then(async (t) => {
+			let n = await this.openPopup(t);
+			if (n) return this.exchangeForToken(n, e);
 		});
 	}
 	async getRequestToken() {
@@ -282,9 +311,36 @@ var x = class {
 		let t = this.options.requestDataKey;
 		return e[t] = { ...this.providerConfig }, e.withCredentials = this.options.withCredentials, e.url = this.options.baseUrl ? a(this.options.baseUrl, this.providerConfig.url) : this.providerConfig.url, this.$http(e);
 	}
-	openPopup(e) {
-		let t = e[this.options.responseDataKey], n = [this.providerConfig.authorizationEndpoint, this.buildQueryString(t)].join("?"), r = this.oauthPopup;
-		return r.popup ? (r.popup.location.href = n, this.providerConfig.skipPooling ? Promise.resolve() : r.pooling(this.providerConfig.redirectUri)) : Promise.reject(/* @__PURE__ */ Error("OAuth popup error occurred"));
+	async openPopup(e) {
+		let t = e[this.options.responseDataKey], n = w().native;
+		if (n) return this.openNative(t, n);
+		let r = [this.providerConfig.authorizationEndpoint, this.buildQueryString(t)].join("?"), i = this.oauthPopup;
+		if (!await i.navigate(r)) throw Error("OAuth popup error occurred");
+		if (!this.providerConfig.skipPooling) return i.waitForCallback(this.providerConfig.redirectUri);
+	}
+	async openNative(e, t) {
+		let { oauth_token_secret: n, ...r } = e, i = typeof e.oauth_token == "string" ? e.oauth_token : "";
+		if (!i) throw new g("invalid_token", "OAuth request token is missing");
+		let a = [this.providerConfig.authorizationEndpoint, this.buildQueryString(r)].join("?");
+		await t.transactions.save(i, {
+			provider: this.providerConfig.name ?? "",
+			oauth1RequestTokenSecret: typeof n == "string" ? n : ""
+		});
+		let o = this.oauthPopup;
+		if (!await o.navigate(a)) throw await t.transactions.discard(i), Error("OAuth popup error occurred");
+		if (this.providerConfig.skipPooling) return;
+		let s;
+		try {
+			s = await o.waitForCallback(this.providerConfig.redirectUri, void 0, void 0, i);
+		} catch (e) {
+			throw await t.transactions.discard(i), e;
+		}
+		let c = await t.transactions.consume(typeof s.oauth_token == "string" ? s.oauth_token : i);
+		if (!c) throw new g("state_mismatch", "OAuth request token mismatch");
+		return {
+			...s,
+			oauth_token_secret: c.oauth1RequestTokenSecret
+		};
 	}
 	exchangeForToken(e, t) {
 		let n = {
@@ -305,56 +361,59 @@ var x = class {
 	}
 };
 // src/pkce.ts
-function C(e) {
+function T(e) {
 	let t = "";
 	return e.forEach((e) => {
 		t += String.fromCodePoint(e);
 	}), btoa(t).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
-function w() {
+function E() {
 	if (!globalThis.crypto?.subtle) throw Error("Web Crypto (crypto.subtle) is required for PKCE");
 	return globalThis.crypto;
 }
-function T(e = 32) {
+function D(e = 32) {
 	let t = new Uint8Array(e);
-	return w().getRandomValues(t), C(t);
+	return E().getRandomValues(t), T(t);
 }
-function E() {
-	return T(64);
+function O() {
+	return D(64);
 }
-async function D(e) {
-	let t = await w().subtle.digest("SHA-256", new TextEncoder().encode(e));
-	return C(new Uint8Array(t));
+async function k(e) {
+	let t = await E().subtle.digest("SHA-256", new TextEncoder().encode(e));
+	return T(new Uint8Array(t));
 }
 // src/oidc.ts
-function O(e) {
+function A(e) {
 	let t = e.length;
 	for (; t > 0 && e.charAt(t - 1) === "/";) t--;
 	return e.slice(0, t);
 }
-function k(e, t) {
-	if (typeof e != "string") throw new _("config", `OIDC ${t} is missing`);
+function j(e, t) {
+	if (typeof e != "string") throw new g("config", `OIDC ${t} is missing`);
 	let n = new URL(e), r = n.hostname === "localhost" || n.hostname === "127.0.0.1";
-	if (n.protocol !== "https:" && !(n.protocol === "http:" && r)) throw new _("config", `OIDC ${t} must use https`);
+	if (n.protocol !== "https:" && !(n.protocol === "http:" && r)) throw new g("config", `OIDC ${t} must use https`);
 	return e;
 }
-async function A(e, t) {
-	let n = O(k(e, "issuer")), r = (await t.get(`${n}/.well-known/openid-configuration`)).data;
-	if (!r || typeof r != "object") throw new _("config", "OIDC discovery document is invalid");
-	if (typeof r.issuer != "string" || O(r.issuer) !== n) throw new _("invalid_token", "OIDC discovery issuer does not match");
-	return k(r.authorization_endpoint, "authorization_endpoint"), r;
+async function M(e, t) {
+	let n = A(j(e, "issuer")), r = (await t.get(`${n}/.well-known/openid-configuration`)).data;
+	if (!r || typeof r != "object") throw new g("config", "OIDC discovery document is invalid");
+	if (typeof r.issuer != "string" || A(r.issuer) !== n) throw new g("invalid_token", "OIDC discovery issuer does not match");
+	return j(r.authorization_endpoint, "authorization_endpoint"), r;
 }
-function j(e, t) {
-	if (O(typeof e.iss == "string" ? e.iss : "") !== O(t.issuer)) throw new _("invalid_token", "ID token issuer mismatch");
+function N(e, t) {
+	if (A(typeof e.iss == "string" ? e.iss : "") !== A(t.issuer)) throw new g("invalid_token", "ID token issuer mismatch");
 	let n = Array.isArray(e.aud) ? e.aud : [e.aud];
-	if (!n.includes(t.audience)) throw new _("invalid_token", "ID token audience mismatch");
-	if (n.length > 1 && e.azp !== t.audience) throw new _("invalid_token", "ID token authorized party mismatch");
+	if (!n.includes(t.audience)) throw new g("invalid_token", "ID token audience mismatch");
+	if (n.length > 1 && e.azp !== t.audience) throw new g("invalid_token", "ID token authorized party mismatch");
 	let r = t.now ?? Math.floor(Date.now() / 1e3), i = t.clockSkewSeconds ?? 60;
-	if (typeof e.exp != "number" || e.exp + i < r) throw new _("invalid_token", "ID token has expired");
-	if (t.nonce !== void 0 && e.nonce !== t.nonce) throw new _("invalid_token", "ID token nonce mismatch");
+	if (typeof e.exp != "number" || e.exp + i < r) throw new g("invalid_token", "ID token has expired");
+	if (t.nonce !== void 0 && e.nonce !== t.nonce) throw new g("invalid_token", "ID token nonce mismatch");
 }
 // src/oauth/oauth2.ts
-var M = {
+function ie(e, t) {
+	return !t || /[?&]state=/.test(e) ? e : `${e}${e.includes("?") ? "&" : "?"}state=${encodeURIComponent(t)}`;
+}
+var ae = {
 	name: null,
 	url: null,
 	clientId: null,
@@ -378,39 +437,71 @@ var M = {
 	},
 	oauthType: "2.0",
 	popupOptions: {}
-}, N = class {
+}, P = class {
 	constructor(e, t, n, r) {
 		this.$http = e, this.storage = t, this.providerConfig = {
-			...M,
+			...ae,
 			...n
 		}, this.options = r;
 	}
 	async init() {
-		let e = this.providerConfig.name + "_state", t = this.providerConfig.state, n = this.providerConfig.state;
-		typeof t == "function" ? this.storage.setItem(e, t()) : r(n) && this.storage.setItem(e, n);
-		let i = this.providerConfig, a = {}, o = Array.isArray(i.optionalUrlParams) ? [...i.optionalUrlParams] : [];
-		if (typeof i.issuer == "string" && i.issuer && (i.authorizationEndpoint = (await A(i.issuer, this.$http)).authorization_endpoint), i.pkce) {
-			let e = E();
-			this.storage.setItem(i.name + "_pkce_verifier", e), i.codeChallenge = await D(e), i.codeChallengeMethod = "S256", a.codeVerifier = e, o.push("code_challenge", "code_challenge_method");
+		let e = w();
+		this.resolveTransactionState(e.kind === "native");
+		let t = this.providerConfig, n = {}, r = Array.isArray(t.optionalUrlParams) ? [...t.optionalUrlParams] : [];
+		typeof t.issuer == "string" && t.issuer && (t.authorizationEndpoint = (await M(t.issuer, this.$http)).authorization_endpoint), await this.addPkceAndNonce(n, r), r.length && (t.optionalUrlParams = r);
+		let i = typeof t.callbackTimeout == "number" ? t.callbackTimeout : void 0, a = [t.authorizationEndpoint, this._stringifyRequestParams()].join("?");
+		if (e.kind === "native" && e.native) return this.initNative(e, ie(a, this.transactionState), n, i);
+		let o = S.createSession(a, t.name, t.popupOptions);
+		this.oauthPopup = o;
+		let s = await o.open(t.redirectUri, t.skipPooling, i);
+		if (s) return this.assertState(s), {
+			...s,
+			...n
+		};
+	}
+	resolveTransactionState(e) {
+		let t = this.providerConfig.state, n = this.providerConfig.state;
+		typeof t == "function" ? this.transactionState = t() : r(n) && (this.transactionState = n), e && !this.transactionState && (this.transactionState = D(32));
+	}
+	async addPkceAndNonce(e, t) {
+		let n = this.providerConfig;
+		if (n.pkce) {
+			let r = O();
+			n.codeChallenge = await k(r), n.codeChallengeMethod = "S256", e.codeVerifier = r, t.push("code_challenge", "code_challenge_method");
 		}
-		if (i.oidc) {
-			let e = T(16);
-			this.storage.setItem(i.name + "_nonce", e), i.nonce = e, a.nonce = e, o.push("nonce");
+		if (n.oidc) {
+			let r = D(16);
+			n.nonce = r, e.nonce = r, t.push("nonce");
 		}
-		o.length && (i.optionalUrlParams = o);
-		let s = [i.authorizationEndpoint, this._stringifyRequestParams()].join("?");
-		this.oauthPopup = new x(s, i.name, i.popupOptions);
-		let c = this.oauthPopup, l = typeof i.callbackTimeout == "number" ? i.callbackTimeout : void 0, u = await c.open(i.redirectUri, i.skipPooling, l);
-		if (u) {
-			if (i.state) {
-				let e = this.storage.getItem(i.name + "_state");
-				if (!e || u.state !== e) throw new _("state_mismatch", "OAuth state mismatch");
-			}
-			return {
-				...u,
-				...a
-			};
+	}
+	assertState(e) {
+		if (!this.providerConfig.state) return;
+		let t = this.transactionState;
+		if (!t || e.state !== t) throw new g("state_mismatch", "OAuth state mismatch");
+	}
+	async initNative(e, t, n, r) {
+		let i = this.providerConfig, a = e.native, o = this.transactionState;
+		await a.transactions.save(o, {
+			provider: i.name,
+			codeVerifier: n.codeVerifier,
+			nonce: n.nonce
+		});
+		let s = e.createSession(t, i.name, i.popupOptions);
+		this.oauthPopup = s;
+		let c;
+		try {
+			c = await s.open(i.redirectUri, i.skipPooling, r, o, i.responseMode);
+		} catch (e) {
+			throw await a.transactions.discard(o), e;
 		}
+		if (!c) return;
+		let l = await a.transactions.consume(o);
+		if (l?.provider !== i.name || !l) throw new g("state_mismatch", "OAuth state mismatch");
+		return {
+			...c,
+			...l.codeVerifier !== void 0 && { codeVerifier: l.codeVerifier },
+			...l.nonce !== void 0 && { nonce: l.nonce }
+		};
 	}
 	_stringifyRequestParams() {
 		let e = [];
@@ -421,26 +512,32 @@ var M = {
 		].forEach((n) => {
 			this.providerConfig[n] && Array.isArray(this.providerConfig[n]) && this.providerConfig[n].forEach((n) => {
 				let r = t(n), i = this.providerConfig[n], a = typeof i == "function" ? i() : this.providerConfig[r];
-				if (n !== "redirect_uri" || a) {
-					if (n === "state") {
-						let e = this.providerConfig.name + "_state";
-						a = encodeURIComponent(this.storage.getItem(e));
-					}
-					n === "scope" && Array.isArray(a) && (a = a.join(this.providerConfig.scopeDelimiter), this.providerConfig.scopePrefix && (a = [this.providerConfig.scopePrefix, a].join(this.providerConfig.scopeDelimiter))), e.push([n, a]);
-				}
+				(n !== "redirect_uri" || a) && (n === "state" && (a = encodeURIComponent(this.transactionState ?? "")), n === "scope" && Array.isArray(a) && (a = a.join(this.providerConfig.scopeDelimiter), this.providerConfig.scopePrefix && (a = [this.providerConfig.scopePrefix, a].join(this.providerConfig.scopeDelimiter))), e.push([n, a]));
 			});
 		}), e.map((e) => e.join("=")).join("&");
 	}
 };
 // src/lifecycle.ts
-function P(e, t, n) {
+function F(e, t, n) {
 	let r = e?.[t];
 	if (typeof r == "function") try {
 		r(n);
 	} catch {}
 }
+// src/providers/platforms.ts
+var I = [
+	"web",
+	"ios",
+	"android"
+];
+function L(e, t) {
+	let n = e.platforms?.[t];
+	if (!n) return e;
+	let r = { ...e };
+	return n.clientId !== void 0 && (r.clientId = n.clientId), n.redirectUri !== void 0 && (r.redirectUri = n.redirectUri), r;
+}
 // src/authenticate.ts
-function F(e, t) {
+function R(e, t) {
 	let n = e.use;
 	return {
 		use: (...r) => {
@@ -451,7 +548,7 @@ function F(e, t) {
 		clear: () => e.clear()
 	};
 }
-var I = class {
+var z = class {
 	constructor(t, n) {
 		this.interceptorIds = {
 			request: [],
@@ -483,13 +580,13 @@ var I = class {
 			...this.defaultOptions,
 			...i
 		};
-		this.options = a, this.storage = g(a);
+		this.options = a, this.storage = h(a);
 		let o = a, s = o.provider, c = s;
 		if (o.bindRequestInterceptor && typeof o.bindRequestInterceptor == "function" && o.bindResponseInterceptor && typeof o.bindResponseInterceptor == "function") {
 			this.ejectInterceptors();
 			let e = this.$http, t = Object.assign(Object.create(e), { interceptors: {
-				request: F(e.interceptors.request, this.interceptorIds.request),
-				response: F(e.interceptors.response, this.interceptorIds.response)
+				request: R(e.interceptors.request, this.interceptorIds.request),
+				response: R(e.interceptors.response, this.interceptorIds.response)
 			} }), n = {
 				options: this.options,
 				storage: this.storage,
@@ -501,24 +598,25 @@ var I = class {
 		if (!s) throw Error("Unknown provider");
 		let l = this.OverrideOptions ?? {}, u = l.hooks;
 		s.callbackTimeout === void 0 && typeof l.callbackTimeout == "number" && (s.callbackTimeout = l.callbackTimeout);
+		let d = L(s, w().platform);
 		try {
 			let t;
 			switch (c.oauthType) {
 				case "1.0":
-					t = new ee(this.$http, this.storage, s, a);
+					t = new re(this.$http, this.storage, d, a);
 					break;
 				case "2.0":
-					t = new N(this.$http, this.storage, s, a);
+					t = new P(this.$http, this.storage, d, a);
 					break;
-				default: throw new _("config", "Invalid OAuth type");
+				default: throw new g("config", "Invalid OAuth type");
 			}
-			P(u, "onStart", { provider: e });
+			F(u, "onStart", { provider: e });
 			try {
 				let r = await t.init(n);
-				return P(u, "onComplete", { provider: e }), r;
+				return F(u, "onComplete", { provider: e }), r;
 			} catch (t) {
-				let n = t instanceof Error ? t : Error(String(t)), r = v(n);
-				return r === "cancelled" ? P(u, "onCancel", { provider: e }) : P(u, "onError", {
+				let n = t instanceof Error ? t : Error(String(t)), r = _(n);
+				return r === "cancelled" ? F(u, "onCancel", { provider: e }) : F(u, "onError", {
 					provider: e,
 					kind: r
 				}), n;
@@ -527,8 +625,75 @@ var I = class {
 			return e;
 		}
 	}
-}, L = 1;
-function R(e) {
+}, B = /* @__PURE__ */ new Set(["localhost", "127.0.0.1"]), V = /* @__PURE__ */ new Set([
+	"javascript:",
+	"data:",
+	"vbscript:",
+	"file:",
+	"blob:"
+]);
+function H(e) {
+	try {
+		return new URL(e);
+	} catch {
+		return null;
+	}
+}
+function U(e, t = !1) {
+	let n = H(e);
+	return !n || V.has(n.protocol) ? !1 : n.protocol === "https:" || n.protocol !== "http:" || t && B.has(n.hostname);
+}
+function W(e, t) {
+	let n = H(e), r = H(t);
+	return !n || !r ? !1 : n.protocol === r.protocol && n.host.toLowerCase() === r.host.toLowerCase() && n.pathname === r.pathname;
+}
+function G(e) {
+	return e === void 0 ? /* @__PURE__ */ new Set(["query"]) : new Set(typeof e == "string" ? [e] : e);
+}
+function K(e) {
+	let t = {};
+	return e.forEach((e, n) => {
+		t[n] = e;
+	}), t;
+}
+function q(e, t) {
+	return {
+		ok: !1,
+		error: new g(e, t)
+	};
+}
+function J(e, t) {
+	if (!U(t.redirectUri, t.development)) return q("config", "Redirect URI is not allowed for this build");
+	if (!W(e, t.redirectUri)) return q("provider", "Callback URL does not match the redirect URI");
+	let n = new URL(e), r = G(t.responseMode), i = n.hash.length > 1, a = n.search.length > 1, o = r.has("query") || r.has("form_post");
+	if (i && !r.has("fragment") || a && !o) return q("provider", "Callback used a response mode the provider does not declare");
+	let s = {
+		...o ? K(n.searchParams) : {},
+		...r.has("fragment") ? K(new URLSearchParams(n.hash.slice(1))) : {}
+	};
+	return Object.keys(s).length === 0 ? q("provider", "OAuth redirect has occurred but no query or hash parameters were found.") : t.expectedState !== void 0 && s.state !== t.expectedState ? q("state_mismatch", "OAuth state mismatch") : s.error ? s.error === "access_denied" ? q("cancelled", "Authorization was denied") : q("provider", "OAuth provider returned an error") : {
+		ok: !0,
+		params: s
+	};
+}
+// src/providers/schema.ts
+function oe(e, t, n) {
+	if (typeof e != "object" || !e || Array.isArray(e)) n("platforms", "platforms must be an object keyed by web, ios, or android");
+	else for (let r of Object.keys(e)) {
+		let i = e[r];
+		I.includes(r) ? se(r, i, t, n) : n("platforms", `unknown platform "${r}"; use web, ios, or android`);
+	}
+}
+function se(e, t, n, r) {
+	if (typeof t != "object" || !t) {
+		r(`platforms.${e}`, "platform override must be an object");
+		return;
+	}
+	let { clientId: i, redirectUri: a } = t, o = typeof i == "number" || typeof i == "string" && i.length > 0;
+	i !== void 0 && !o && r(`platforms.${e}.clientId`, "clientId must be a non-empty string or a number"), a !== void 0 && (typeof a == "string" ? U(a, n.development === !0) || r(`platforms.${e}.redirectUri`, "redirectUri is not allowed for this platform") : r(`platforms.${e}.redirectUri`, "redirectUri must be a string"));
+}
+var ce = 1;
+function le(e) {
 	try {
 		let t = new URL(e);
 		return t.protocol === "https:" || t.protocol === "http:" && (t.hostname === "localhost" || t.hostname === "127.0.0.1");
@@ -536,33 +701,33 @@ function R(e) {
 		return !1;
 	}
 }
-function z(e) {
+function ue(e) {
 	let t = Array.isArray(e) ? e : [e];
 	if (typeof e != "string" && !Array.isArray(e)) return "scope must be a string or an array of strings";
 	for (let e of t) if (typeof e != "string" || e.length === 0 || /\s/.test(e)) return "scope entries must be non-empty strings without whitespace";
 	return null;
 }
-function B(e, t) {
-	let n = [], r = (t, r) => n.push({
+function de(e, t, n = {}) {
+	let r = [], i = (t, n) => r.push({
 		provider: e,
 		field: t,
-		message: r
+		message: n
 	});
-	t.name !== e && r("name", "name must match the provider key"), t.oauthType !== "1.0" && t.oauthType !== "2.0" && r("oauthType", "oauthType must be '1.0' or '2.0'");
-	let i = t.authorizationEndpoint;
-	if (typeof i == "string" && R(i) || r("authorizationEndpoint", "authorizationEndpoint must be an https URL"), t.redirectUri !== void 0 && typeof t.redirectUri != "string" && r("redirectUri", "redirectUri must be a string"), t.scope !== void 0) {
-		let e = z(t.scope);
-		e && r("scope", e);
+	t.name !== e && i("name", "name must match the provider key"), t.oauthType !== "1.0" && t.oauthType !== "2.0" && i("oauthType", "oauthType must be '1.0' or '2.0'");
+	let a = t.authorizationEndpoint;
+	if (typeof a == "string" && le(a) || i("authorizationEndpoint", "authorizationEndpoint must be an https URL"), t.redirectUri !== void 0 && typeof t.redirectUri != "string" && i("redirectUri", "redirectUri must be a string"), t.platforms !== void 0 && oe(t.platforms, n, i), t.scope !== void 0) {
+		let e = ue(t.scope);
+		e && i("scope", e);
 	}
-	return t.oauthType !== "1.0" || typeof t.url == "string" && t.url || r("url", "OAuth 1.0 providers need a backend url for the request-token step"), typeof t.responseType == "string" && t.responseType.split(" ").includes("id_token") && t.responseMode !== "form_post" && t.responseMode !== "fragment" && r("responseMode", "responseType 'id_token' requires responseMode 'form_post' or 'fragment'"), n;
+	return t.oauthType !== "1.0" || typeof t.url == "string" && t.url || i("url", "OAuth 1.0 providers need a backend url for the request-token step"), typeof t.responseType == "string" && t.responseType.split(" ").includes("id_token") && t.responseMode !== "form_post" && t.responseMode !== "fragment" && i("responseMode", "responseType 'id_token' requires responseMode 'form_post' or 'fragment'"), r;
 }
 // src/providers/index.ts
-var V = typeof window < "u" ? window.location.origin : "", H = {
+var Y = typeof window < "u" ? window.location.origin : "", X = {
 	apple: {
 		name: "apple",
 		url: "",
 		authorizationEndpoint: "https://appleid.apple.com/auth/authorize",
-		redirectUri: V + "/",
+		redirectUri: Y + "/",
 		requiredUrlParams: ["scope"],
 		optionalUrlParams: ["response_mode"],
 		responseType: "code id_token",
@@ -580,7 +745,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "facebook",
 		url: "/auth/facebook",
 		authorizationEndpoint: "https://www.facebook.com/v2.5/dialog/oauth",
-		redirectUri: V + "/",
+		redirectUri: Y + "/",
 		responseMode: ["form_post"],
 		requiredUrlParams: ["scope"],
 		scope: ["email"],
@@ -596,7 +761,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "google",
 		url: "/auth/google",
 		authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
-		redirectUri: V,
+		redirectUri: Y,
 		requiredUrlParams: ["scope"],
 		optionalUrlParams: ["display"],
 		scope: ["profile", "email"],
@@ -613,7 +778,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "github",
 		url: "/auth/github",
 		authorizationEndpoint: "https://github.com/login/oauth/authorize",
-		redirectUri: V,
+		redirectUri: Y,
 		optionalUrlParams: ["scope"],
 		scope: ["user:email"],
 		scopeDelimiter: " ",
@@ -627,7 +792,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "instagram",
 		url: "/auth/instagram",
 		authorizationEndpoint: "https://api.instagram.com/oauth/authorize",
-		redirectUri: V,
+		redirectUri: Y,
 		requiredUrlParams: ["scope"],
 		scope: ["basic"],
 		scopeDelimiter: "+",
@@ -641,7 +806,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "twitter",
 		url: "/auth/twitter",
 		authorizationEndpoint: "https://api.twitter.com/oauth/authenticate",
-		redirectUri: V,
+		redirectUri: Y,
 		oauthType: "1.0",
 		popupOptions: {
 			width: 495,
@@ -652,7 +817,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "bitbucket",
 		url: "/auth/bitbucket",
 		authorizationEndpoint: "https://bitbucket.org/site/oauth2/authorize",
-		redirectUri: V + "/",
+		redirectUri: Y + "/",
 		optionalUrlParams: ["scope"],
 		scope: ["email"],
 		scopeDelimiter: " ",
@@ -666,7 +831,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "linkedin",
 		url: "/auth/linkedin",
 		authorizationEndpoint: "https://www.linkedin.com/oauth/v2/authorization",
-		redirectUri: V,
+		redirectUri: Y,
 		requiredUrlParams: ["state", "scope"],
 		scope: ["r_emailaddress"],
 		scopeDelimiter: " ",
@@ -681,7 +846,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "vkontakte",
 		url: "/auth/vkontakte",
 		authorizationEndpoint: "https://oauth.vk.com/authorize",
-		redirectUri: V + "/",
+		redirectUri: Y + "/",
 		requiredUrlParams: ["scope"],
 		scope: ["email"],
 		scopeDelimiter: ",",
@@ -696,7 +861,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "live",
 		url: "/auth/live",
 		authorizationEndpoint: "https://login.live.com/oauth20_authorize.srf",
-		redirectUri: V,
+		redirectUri: Y,
 		requiredUrlParams: ["display", "scope"],
 		scope: ["wl.emails"],
 		scopeDelimiter: " ",
@@ -711,7 +876,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "discord",
 		url: "/auth/discord",
 		authorizationEndpoint: "https://discord.com/oauth2/authorize",
-		redirectUri: V,
+		redirectUri: Y,
 		requiredUrlParams: ["scope"],
 		scope: ["identify", "email"],
 		scopeDelimiter: " ",
@@ -725,7 +890,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "twitch",
 		url: "/auth/twitch",
 		authorizationEndpoint: "https://id.twitch.tv/oauth2/authorize",
-		redirectUri: V,
+		redirectUri: Y,
 		requiredUrlParams: ["scope"],
 		scope: ["user:read:email"],
 		scopeDelimiter: " ",
@@ -739,7 +904,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "microsoft",
 		url: "/auth/microsoft",
 		authorizationEndpoint: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
-		redirectUri: V,
+		redirectUri: Y,
 		requiredUrlParams: ["scope"],
 		scope: [
 			"openid",
@@ -757,7 +922,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "gitlab",
 		url: "/auth/gitlab",
 		authorizationEndpoint: "https://gitlab.com/oauth/authorize",
-		redirectUri: V,
+		redirectUri: Y,
 		requiredUrlParams: ["scope"],
 		scope: ["read_user"],
 		scopeDelimiter: " ",
@@ -771,7 +936,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "slack",
 		url: "/auth/slack",
 		authorizationEndpoint: "https://slack.com/openid/connect/authorize",
-		redirectUri: V,
+		redirectUri: Y,
 		requiredUrlParams: ["scope"],
 		scope: [
 			"openid",
@@ -789,7 +954,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "spotify",
 		url: "/auth/spotify",
 		authorizationEndpoint: "https://accounts.spotify.com/authorize",
-		redirectUri: V,
+		redirectUri: Y,
 		requiredUrlParams: ["scope"],
 		scope: ["user-read-email"],
 		scopeDelimiter: " ",
@@ -803,7 +968,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "reddit",
 		url: "/auth/reddit",
 		authorizationEndpoint: "https://www.reddit.com/api/v1/authorize",
-		redirectUri: V,
+		redirectUri: Y,
 		requiredUrlParams: ["state", "scope"],
 		scope: ["identity"],
 		scopeDelimiter: " ",
@@ -818,7 +983,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "dropbox",
 		url: "/auth/dropbox",
 		authorizationEndpoint: "https://www.dropbox.com/oauth2/authorize",
-		redirectUri: V,
+		redirectUri: Y,
 		oauthType: "2.0",
 		popupOptions: {
 			width: 600,
@@ -829,7 +994,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: "amazon",
 		url: "/auth/amazon",
 		authorizationEndpoint: "https://www.amazon.com/ap/oa",
-		redirectUri: V,
+		redirectUri: Y,
 		requiredUrlParams: ["scope"],
 		scope: ["profile"],
 		scopeDelimiter: " ",
@@ -843,7 +1008,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: null,
 		url: "/auth/oauth1",
 		authorizationEndpoint: null,
-		redirectUri: V,
+		redirectUri: Y,
 		oauthType: "1.0",
 		popupOptions: null
 	},
@@ -851,7 +1016,7 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 		name: null,
 		url: "/auth/oauth2",
 		clientId: null,
-		redirectUri: V,
+		redirectUri: Y,
 		authorizationEndpoint: null,
 		defaultUrlParams: [
 			"response_type",
@@ -873,7 +1038,97 @@ var V = typeof window < "u" ? window.location.origin : "", H = {
 			redirectUri: "redirectUri"
 		}
 	}
-}, U = H.apple, W = H.facebook, G = H.google, te = H.github, K = H.instagram, q = H.twitter, J = H.bitbucket, Y = H.linkedin, X = H.vkontakte, Z = H.live, Q = H.discord, ne = H.twitch, re = H.microsoft, ie = H.gitlab, ae = H.slack, oe = H.spotify, $ = H.reddit, se = H.dropbox, ce = H.amazon, le = H.oauth1, ue = H.oauth2, de = I;
-export { ce as Amazon, U as Apple, _ as AuthError, J as Bitbucket, Q as Discord, se as Dropbox, W as Facebook, te as Github, ie as Gitlab, G as Google, K as Instagram, Y as Linkedin, Z as Live, re as Microsoft, le as Oauth1, ue as Oauth2, L as PROVIDER_SCHEMA_VERSION, H as Providers, $ as Reddit, ae as Slack, oe as Spotify, ne as Twitch, q as Twitter, I as UniversalSocialauth, X as Vkontakte, v as classifyError, D as createCodeChallenge, E as createCodeVerifier, de as default, A as discoverOidc, y as toOutcome, j as validateIdTokenClaims, B as validateProviderDefinition };
+}, Z = X.apple, fe = X.facebook, pe = X.google, me = X.github, he = X.instagram, ge = X.twitter, _e = X.bitbucket, ve = X.linkedin, ye = X.vkontakte, be = X.live, xe = X.discord, Se = X.twitch, Ce = X.microsoft, we = X.gitlab, Te = X.slack, Ee = X.spotify, De = X.reddit, Oe = X.dropbox, ke = X.amazon, Ae = X.oauth1, je = X.oauth2;
+// src/platform/resume.ts
+async function Me(e, t, n) {
+	let r = J(e, {
+		redirectUri: n,
+		development: t.development
+	});
+	if (!r.ok) throw r.error;
+	let i = Ne(r.params), a = i ? await t.transactions.consume(i) : void 0;
+	if (!a) throw new g("state_mismatch", "No pending sign-in matches this callback");
+	return {
+		provider: a.provider,
+		params: Pe(r.params, a)
+	};
+}
+function Ne(e) {
+	if (typeof e.state == "string") return e.state;
+	if (typeof e.oauth_token == "string") return e.oauth_token;
+}
+function Pe(e, t) {
+	let n = { ...e };
+	return t.codeVerifier !== void 0 && (n.codeVerifier = t.codeVerifier), t.nonce !== void 0 && (n.nonce = t.nonce), t.oauth1RequestTokenSecret !== void 0 && (n.oauth_token_secret = t.oauth1RequestTokenSecret), n;
+}
+// src/platform/transaction-store.ts
+var Fe = 6e5, Q = "usa.tx.", $ = "usa.tx.index", Ie = class {
+	constructor(e, t = Fe, n = () => Date.now()) {
+		this.kv = e, this.ttlMs = t, this.now = n, this.queue = Promise.resolve();
+	}
+	save(e, t) {
+		return this.run(async () => {
+			await this.purgeExpired();
+			let n = await this.readIndex();
+			if (n.includes(e)) throw new g("state_mismatch", "OAuth state mismatch");
+			let r = {
+				...t,
+				createdAt: this.now()
+			};
+			await this.kv.set(Q + e, JSON.stringify(r)), n.push(e), await this.writeIndex(n);
+		});
+	}
+	consume(e) {
+		return this.run(async () => {
+			await this.purgeExpired();
+			let t = await this.readRecord(e);
+			if (await this.delete(e), t && !this.isExpired(t)) return t;
+		});
+	}
+	discard(e) {
+		return this.run(() => this.delete(e));
+	}
+	run(e) {
+		let t = this.queue.then(e, e);
+		return this.queue = t.catch(() => void 0), t;
+	}
+	isExpired(e) {
+		return this.now() - e.createdAt >= this.ttlMs;
+	}
+	async readRecord(e) {
+		let t = await this.kv.get(Q + e);
+		if (t) try {
+			return JSON.parse(t);
+		} catch {
+			return;
+		}
+	}
+	async delete(e) {
+		await this.kv.remove(Q + e);
+		let t = await this.readIndex();
+		t.includes(e) && await this.writeIndex(t.filter((t) => t !== e));
+	}
+	async purgeExpired() {
+		let e = await this.readIndex(), t = await Promise.all(e.map((e) => this.readRecord(e))), n = e.filter((e, n) => {
+			let r = t[n];
+			return !r || this.isExpired(r);
+		});
+		n.length !== 0 && (await Promise.all(n.map((e) => this.kv.remove(Q + e))), await this.writeIndex(e.filter((e) => !n.includes(e))));
+	}
+	async readIndex() {
+		let e = await this.kv.get($);
+		if (!e) return [];
+		try {
+			let t = JSON.parse(e);
+			return Array.isArray(t) ? t.filter((e) => typeof e == "string") : [];
+		} catch {
+			return [];
+		}
+	}
+	async writeIndex(e) {
+		e.length === 0 ? await this.kv.remove($) : await this.kv.set($, JSON.stringify(e));
+	}
+}, Le = z;
+export { ke as Amazon, Z as Apple, g as AuthError, _e as Bitbucket, xe as Discord, Oe as Dropbox, fe as Facebook, me as Github, we as Gitlab, pe as Google, he as Instagram, ve as Linkedin, be as Live, Ce as Microsoft, Ae as Oauth1, je as Oauth2, ce as PROVIDER_SCHEMA_VERSION, X as Providers, De as Reddit, Te as Slack, Ee as Spotify, Ie as TransactionStore, Se as Twitch, ge as Twitter, z as UniversalSocialauth, ye as Vkontakte, _ as classifyError, k as createCodeChallenge, O as createCodeVerifier, Le as default, M as discoverOidc, U as isAllowedRedirectUri, Me as resumePendingSignIn, te as setPlatform, v as toOutcome, N as validateIdTokenClaims, de as validateProviderDefinition };
 
 //# sourceMappingURL=index.mjs.map
