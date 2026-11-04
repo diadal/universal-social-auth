@@ -1,0 +1,27 @@
+/* Brand palette from diadal.com.ng: violet primary, navy surfaces. */
+:root {
+  --vp-c-brand-1: #6b3dff;
+  --vp-c-brand-2: #5945e6;
+  --vp-c-brand-3: #8f6bff;
+  --vp-c-brand-soft: rgba(107, 61, 255, 0.14);
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #b49dff 0%, #6b3dff 60%, #32178a 100%);
+  --vp-home-hero-image-background-image: linear-gradient(150deg, #1a1b4d 15%, #26249a 70%, #191b4d 94%);
+}
+
+.dark {
+  --vp-c-brand-1: #b49dff;
+  --vp-c-brand-2: #8f6bff;
+  --vp-c-brand-3: #6b3dff;
+  --vp-c-brand-soft: rgba(180, 157, 255, 0.16);
+}
+
+.VPButton.brand {
+  border-color: #6b3dff;
+  background-color: #6b3dff;
+}
+
+.VPButton.brand:hover {
+  border-color: #5945e6;
+  background-color: #5945e6;
+}

@@ -1,16 +1,48 @@
 import { defineConfig } from "vitepress";
+import {
+  SITE_DESCRIPTION,
+  SITE_URL,
+  buildPageHead,
+  describePage,
+  faqItemsFromBody,
+  faqJsonLd,
+  parseFrontmatter,
+  siteHead,
+  writeSeoFiles
+} from "./seo";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const srcDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 export default defineConfig({
   title: "universal-social-auth",
-  description: "Universal social login for the browser: OAuth 1.0, OAuth 2.0, and OIDC with PKCE.",
+  description: SITE_DESCRIPTION,
   outDir: "../dist",
   cleanUrls: true,
   lastUpdated: false,
+  sitemap: { hostname: SITE_URL },
+  head: [...siteHead],
+  transformPageData(pageData) {
+    const { data, body } = parseFrontmatter(readFileSync(join(srcDir, pageData.filePath), "utf8"));
+    const description = describePage(data, body);
+    pageData.description = description;
+    const head = [...buildPageHead(pageData.relativePath, { ...pageData.frontmatter, description })];
+    if (pageData.relativePath === "faq.md") {
+      head.push(["script", { type: "application/ld+json" }, JSON.stringify(faqJsonLd(faqItemsFromBody(body)))] as const);
+    }
+    pageData.frontmatter.head = [...(pageData.frontmatter.head ?? []), ...head];
+  },
+  buildEnd(siteConfig) {
+    writeSeoFiles(siteConfig);
+  },
   themeConfig: {
     nav: [
       { text: "Guide", link: "/getting-started" },
       { text: "Recipes", link: "/docs/recipes/express" },
       { text: "Frameworks", link: "/docs/frameworks/nuxt" },
+      { text: "FAQ", link: "/faq" },
       { text: "Sponsor", link: "/sponsor" }
     ],
     sidebar: [
@@ -18,6 +50,7 @@ export default defineConfig({
         text: "Guide",
         items: [
           { text: "Getting started", link: "/getting-started" },
+          { text: "FAQ", link: "/faq" },
           { text: "Lifecycle hooks", link: "/docs/lifecycle" },
           { text: "Accessibility", link: "/docs/accessibility" }
         ]
