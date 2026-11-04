@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { SiteConfig } from "vitepress";
 
-export const SITE_URL = "https://usa.diadal.com.ng";
+export const SITE_URL = "https://usa.zintrust.com";
 export const SITE_NAME = "universal-social-auth";
 export const SITE_DESCRIPTION =
   "Universal social login for the browser: OAuth 1.0, OAuth 2.0, and OIDC with PKCE, state checks, and lifecycle hooks. Your backend keeps the client secret.";
@@ -78,7 +78,7 @@ export function organizationJsonLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Diadal Nigeria Limited",
-    url: "https://diadal.com.ng",
+    url: "https://zintrust.com",
     logo: `${SITE_URL}/logo.png`,
     sameAs: ["https://github.com/diadal", "https://github.com/sponsors/diadal", "https://patreon.com/diadal"],
   };
@@ -98,7 +98,7 @@ export function softwareJsonLd() {
     downloadUrl: "https://www.npmjs.com/package/universal-social-auth",
     programmingLanguage: "TypeScript",
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-    author: { "@type": "Organization", name: "Diadal Nigeria Limited", url: "https://diadal.com.ng" },
+    author: { "@type": "Organization", name: "Diadal Nigeria Limited", url: "https://zintrust.com" },
   };
 }
 

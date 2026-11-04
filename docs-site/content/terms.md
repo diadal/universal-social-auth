@@ -7,7 +7,7 @@ description: Terms and Conditions for the universal-social-auth documentation we
 
 _Last updated: 2026-11-04_
 
-These terms govern your use of the documentation website at `usa.diadal.com.ng` (the "Site") and the open-source `universal-social-auth` package (the "Software"). The Site and the Software are provided by Diadal Nigeria Limited ("Diadal", "we", "us").
+These terms govern your use of the documentation website at `usa.zintrust.com` (the "Site") and the open-source `universal-social-auth` package (the "Software"). The Site and the Software are provided by Diadal Nigeria Limited ("Diadal", "we", "us").
 
 ## 1. Acceptance
 
@@ -52,4 +52,4 @@ We may change these terms or the Site at any time. The "Last updated" date shows
 
 ## 11. Contact
 
-Questions about these terms: [olaoluwa@diadal.com.ng](mailto:olaoluwa@diadal.com.ng). See the [Contact page](/contact) for other channels.
+Questions about these terms: [olaoluwa@zintrust.com](mailto:olaoluwa@zintrust.com). See the [Contact page](/contact) for other channels.

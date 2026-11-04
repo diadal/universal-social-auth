@@ -87,6 +87,12 @@ const auth = new UniversalSocialauth(axios, {
 
 <div class="home-cta">
 
+**Built by Zintrust.** universal-social-auth is maintained by the team behind [zintrust.com](https://zintrust.com). Explore more of our tools, or read the full [documentation at usa.zintrust.com](https://usa.zintrust.com).
+
+</div>
+
+<div class="home-cta">
+
 **Ready to ship?** Read the [getting started guide](/getting-started), browse the [backend recipes](/docs/recipes/express), or [support the project](/sponsor).
 
 </div>

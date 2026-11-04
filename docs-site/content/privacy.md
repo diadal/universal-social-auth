@@ -1,13 +1,13 @@
 ---
 title: Privacy Policy
-description: How universal-social-auth and the usa.diadal.com.ng documentation site handle personal data.
+description: How universal-social-auth and the usa.zintrust.com documentation site handle personal data.
 ---
 
 # Privacy Policy
 
 _Last updated: 2026-11-04_
 
-This policy explains how Diadal Nigeria Limited ("Diadal", "we", "us") handles information in connection with the `universal-social-auth` documentation website at `usa.diadal.com.ng` (the "Site") and the open-source npm package.
+This policy explains how Diadal Nigeria Limited ("Diadal", "we", "us") handles information in connection with the `universal-social-auth` documentation website at `usa.zintrust.com` (the "Site") and the open-source npm package.
 
 ## The npm package does not collect data
 
@@ -37,4 +37,4 @@ We may update this policy. The "Last updated" date shows the most recent change.
 
 ## Contact
 
-For privacy questions or requests: [olaoluwa@diadal.com.ng](mailto:olaoluwa@diadal.com.ng). See the [Contact page](/contact) for other channels.
+For privacy questions or requests: [olaoluwa@zintrust.com](mailto:olaoluwa@zintrust.com). See the [Contact page](/contact) for other channels.

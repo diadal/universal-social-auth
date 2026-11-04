@@ -11,3 +11,5 @@ fixes up to date.
 - **Star the repository**: [github.com/diadal/universal-social-auth](https://github.com/diadal/universal-social-auth)
 
 Thank you for your support.
+
+Learn more about the team at [zintrust.com](https://zintrust.com). The documentation lives at [usa.zintrust.com](https://usa.zintrust.com).

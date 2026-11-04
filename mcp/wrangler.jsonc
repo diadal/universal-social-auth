@@ -6,9 +6,9 @@
   "workers_dev": false,
   "routes": [
     {
-      "pattern": "usa-mcp.diadal.com.ng",
+      "pattern": "usa-mcp.zintrust.com",
       "custom_domain": true,
-      "zone_name": "diadal.com.ng"
+      "zone_name": "zintrust.com"
     }
   ],
   "rules": [

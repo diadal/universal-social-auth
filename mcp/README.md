@@ -46,7 +46,7 @@ variables are needed.
 
 ## Cloudflare Worker
 
-The Streamable HTTP endpoint is deployed to `https://usa-mcp.diadal.com.ng/mcp`.
+The Streamable HTTP endpoint is deployed to `https://usa-mcp.zintrust.com/mcp`.
 The server is stateless and read-only; it requires no Durable Object or secret.
 The custom domain must be an active Cloudflare zone with no conflicting DNS
 record. Wrangler manages the DNS record and certificate for the custom domain.
@@ -63,7 +63,7 @@ npm run deploy
 
 The same MCP tools and skill resource are available on the HTTP endpoint and
 the stdio server. `GET /health` is a lightweight health check. MCP clients
-should connect to `https://usa-mcp.diadal.com.ng/mcp` using Streamable HTTP.
+should connect to `https://usa-mcp.zintrust.com/mcp` using Streamable HTTP.
 This endpoint is intentionally public and unauthenticated because its tools
 only return public package metadata and documentation.
 

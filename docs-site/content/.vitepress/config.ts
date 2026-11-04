@@ -43,7 +43,8 @@ export default defineConfig({
       { text: "Recipes", link: "/docs/recipes/express" },
       { text: "Frameworks", link: "/docs/frameworks/nuxt" },
       { text: "FAQ", link: "/faq" },
-      { text: "Sponsor", link: "/sponsor" }
+      { text: "Sponsor", link: "/sponsor" },
+      { text: "Zintrust", link: "https://zintrust.com" }
     ],
     sidebar: [
       {
@@ -88,7 +89,7 @@ export default defineConfig({
       }
     ],
     footer: {
-      message: "Released under the MIT License. Published by Diadal Nigeria Limited.",
+      message: "Released under the MIT License. Published by Diadal Nigeria Limited. Part of the Zintrust ecosystem at zintrust.com.",
       copyright: "© 2026 Diadal Nigeria Limited"
     },
     socialLinks: [

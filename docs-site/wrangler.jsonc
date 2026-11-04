@@ -2,7 +2,7 @@
   "name": "universal-social-auth-docs",
   "compatibility_date": "2025-09-27",
   "routes": [
-    { "pattern": "usa.diadal.com.ng", "custom_domain": true }
+    { "pattern": "usa.zintrust.com", "custom_domain": true }
   ],
   "assets": {
     "directory": "./dist",
