@@ -31,6 +31,9 @@ features:
 <div class="home-badges">
 
 [![npm version](https://img.shields.io/npm/v/universal-social-auth?color=6b3dff&label=npm)](https://www.npmjs.com/package/universal-social-auth)
+[![downloads](https://img.shields.io/npm/dm/universal-social-auth?color=6b3dff&label=downloads%2Fmonth)](https://www.npmjs.com/package/universal-social-auth)
+[![dependents](https://img.shields.io/npm/dependents/universal-social-auth?color=6b3dff&label=used%20by)](https://www.npmjs.com/package/universal-social-auth?activeTab=dependents)
+[![GitHub stars](https://img.shields.io/github/stars/diadal/universal-social-auth?style=social)](https://github.com/diadal/universal-social-auth)
 [![license](https://img.shields.io/npm/l/universal-social-auth?color=1a1b4d)](https://github.com/diadal/universal-social-auth/blob/main/LICENSE)
 [![GitHub](https://img.shields.io/badge/source-GitHub-1a1b4d?logo=github)](https://github.com/diadal/universal-social-auth)
 
