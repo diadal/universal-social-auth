@@ -209,7 +209,8 @@ not imported by the library.
   secure-storage integration are outstanding.
 - Task 9: `scripts/check-bundle.mjs` runs in CI and enforces the 9,100-byte gzip budget
   plus the absence of `@capacitor` and `cordova` strings in the root bundle. The measured
-  size after the callback fixes is 9,099 bytes. The build emits ESM/CommonJS JavaScript,
+  size after the callback fixes is 9,072 bytes with explicit gzip level 9; CI's Node versions
+  previously differed by five bytes at the default gzip level. The build emits ESM/CommonJS JavaScript,
   source maps, and declarations for the root, providers, and Capacitor adapter. Compatibility
   checks verify tarball declarations and compile a consumer project against the public subpaths.
   The lockfile is now valid npm lockfile v3; `npm ci` passes.
