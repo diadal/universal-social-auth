@@ -53,6 +53,32 @@ describe('OAuthPopup', () => {
     await jest.advanceTimersByTimeAsync(1500);
     expect(await outcome).toBe('timeout');
     expect(win.close).toHaveBeenCalled();
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
+  it('uses the default timeout when no override is provided', async () => {
+    jest.useFakeTimers();
+    const win = fakeWindow();
+    jest.spyOn(window, 'open').mockReturnValue(win as unknown as Window);
+    const popup = new OAuthPopup('https://auth.example.com', 'google', {});
+    const outcome = kindOf(popup.open('http://localhost/cb', false));
+
+    await jest.advanceTimersByTimeAsync(5 * 60 * 1000 + 250);
+
+    expect(await outcome).toBe('timeout');
+    expect(win.close).toHaveBeenCalled();
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
+  it('rejects invalid timeout overrides without opening a popup', async () => {
+    const open = jest.spyOn(window, 'open');
+    const popup = new OAuthPopup('https://auth.example.com', 'google', {});
+
+    expect(await kindOf(popup.open('http://localhost/cb', false, 0))).toBe('config');
+    expect(await kindOf(popup.open('http://localhost/cb', false, Infinity))).toBe(
+      'config'
+    );
+    expect(open).not.toHaveBeenCalled();
   });
 
   it('maps access_denied on the redirect to cancelled', async () => {

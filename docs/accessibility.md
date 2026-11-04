@@ -48,7 +48,7 @@ kind to a message and a next step. Never retry automatically.
 | --- | --- | --- |
 | `cancelled` | The user closed the popup. | Say "Sign-in was cancelled." Offer the button again. Do not show it as an error. |
 | `popup_blocked` | The browser blocked the popup. | Say "Your browser blocked the sign-in window. Allow pop-ups for this site, then try again." Keep the button enabled for a manual retry. |
-| `timeout` | The callback did not arrive in time. | Say "Sign-in took too long." Offer a retry. Raise `callbackTimeout` only if your provider is slow. |
+| `timeout` | The callback did not arrive in time. | Say "Sign-in took too long." Offer a retry. Popup polling defaults to five minutes; raise `callbackTimeout` only if your provider is slow. |
 | `state_mismatch` | The response did not match the request. | Say "Sign-in could not be verified. Please try again." Log the kind, not the state value. |
 | `invalid_token` | The backend rejected the token. | Say "We could not confirm your account." Send the user to a support page. |
 | `provider` | The provider returned an error. | Show a generic message. Include the provider's error text only if it is safe to display. |

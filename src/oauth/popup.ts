@@ -1,6 +1,8 @@
 import { parseQueryString, getFullUrlPath, isUndefined } from '../utils';
 import { AuthError } from '../errors';
 
+const DEFAULT_POPUP_TIMEOUT_MS = 5 * 60 * 1000;
+
 /**
  * Reads the OAuth callback from the popup's URL. Returns the query/hash params,
  * or the AuthError that should reject the sign-in.
@@ -40,6 +42,13 @@ export default class OAuthPopup {
   }
 
   open(redirectUri: string, skipPooling: boolean, timeoutMs?: number) {
+    const effectiveTimeoutMs = timeoutMs ?? DEFAULT_POPUP_TIMEOUT_MS;
+    if (!Number.isFinite(effectiveTimeoutMs) || effectiveTimeoutMs <= 0) {
+      return Promise.reject(
+        new AuthError('config', 'callbackTimeout must be a positive finite number')
+      );
+    }
+
     try {
       this.popup = window.open(this.url, this.name, this._stringifyOptions());
       if (!this.popup) {
@@ -54,7 +63,7 @@ export default class OAuthPopup {
       if (skipPooling) {
         return Promise.resolve();
       } else {
-        const pool = this.pooling(redirectUri, timeoutMs);
+        const pool = this.pooling(redirectUri, effectiveTimeoutMs);
         return pool;
       }
     } catch {
@@ -63,11 +72,18 @@ export default class OAuthPopup {
   }
 
   pooling(redirectUri: string, timeoutMs?: number) {
+    const effectiveTimeoutMs = timeoutMs ?? DEFAULT_POPUP_TIMEOUT_MS;
+    if (!Number.isFinite(effectiveTimeoutMs) || effectiveTimeoutMs <= 0) {
+      return Promise.reject(
+        new AuthError('config', 'callbackTimeout must be a positive finite number')
+      );
+    }
+
     return new Promise((resolve: (value: unknown) => void, reject) => {
       const redirectUriParser = document.createElement('a');
       redirectUriParser.href = redirectUri;
       const redirectUriPath = getFullUrlPath(redirectUriParser);
-      const deadline = timeoutMs ? Date.now() + timeoutMs : 0;
+      const deadline = Date.now() + effectiveTimeoutMs;
       let poolingInterval = 0;
 
       const settle = (outcome: AuthError | Record<string, unknown>) => {

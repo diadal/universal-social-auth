@@ -10,6 +10,8 @@ lifecycle are your responsibility.
 
 - Opens the authorization popup and reads the callback (`code`, `state`, and
   any error parameters).
+- When polling for a callback, closes the popup after five minutes by default.
+  Configure a positive, finite `callbackTimeout` for slower providers.
 - Generates a cryptographically random `state` for each OAuth 2.0 sign-in by
   default and requires the callback to return the same value. A custom `state`
   must be a function that returns a fresh, unpredictable value for each attempt;
