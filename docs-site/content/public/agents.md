@@ -14,7 +14,7 @@ Before you change anything, identify:
 - The package manager: npm, pnpm, or yarn (look for a lockfile).
 - Whether `axios` is already installed.
 - The app's existing login button, callback route, and backend (Express, Laravel, Zintrust, or other).
-- Whether the app is browser-based. This library's popup flow requires `window`, so it must run only in the browser.
+- Whether the app is browser-based or a Capacitor mobile app. Browser apps use the popup flow, which requires `window`, so it must run only in the browser. Capacitor apps must use the `universal-social-auth/capacitor` adapter and follow [docs/frameworks/capacitor.md](https://usa.zintrust.com/docs/frameworks/capacitor). Cordova is not supported.
 
 Ask the user for anything you cannot determine, such as the provider (Google, GitHub, and others) and the production redirect URI.
 
@@ -38,7 +38,7 @@ Do not change unrelated dependencies.
 
 ## 3. Create one client instance
 
-Create a single instance with the app's Axios instance, and reuse it. Do not create a new instance on every render.
+Create a single instance with the app's Axios instance, and reuse it. Do not create a new instance on every render. In a Capacitor app, do not use the popup flow: call `createCapacitorAdapter` and `setPlatform` from `universal-social-auth/capacitor` once at startup, as described in the Capacitor guide.
 
 ```ts
 import axios from "axios";

@@ -1,10 +1,18 @@
-import OAuthPopup from './popup';
+import { webPlatform } from '../platform/web';
+import { getPlatform } from '../platform/current';
+import type { AuthSession, NativeContext, PlatformAdapter } from '../platform/types';
 import { camelCase, isString } from '../utils';
 import { AuthError } from '../errors';
 import { createCodeChallenge, createCodeVerifier, createRandomString } from '../pkce';
 import { discoverOidc } from '../oidc';
 
 import { AxiosInstance, AxiosResponse } from 'axios';
+
+/** Adds `state` to an authorization URL unless the provider config already put it there. */
+function withState(url: string, state: string | undefined): string {
+  if (!state || /[?&]state=/.test(url)) return url;
+  return `${url}${url.includes('?') ? '&' : '?'}state=${encodeURIComponent(state)}`;
+}
 
 interface ProviderDefaults {
   name: string | null;
@@ -19,6 +27,7 @@ interface ProviderDefaults {
   requiredUrlParams: string[] | null;
   defaultUrlParams: string[];
   responseType: string;
+  responseMode?: string | string[];
   responseParams: {
     code: string;
     clientId: string;
@@ -68,7 +77,8 @@ export interface ProviderConfig {
     | Func
     | boolean
     | Record<string, unknown>
-    | string[];
+    | string[]
+    | undefined;
   scopeDelimiter: string;
   scopePrefix: string;
   name: string;
@@ -79,6 +89,7 @@ export interface ProviderConfig {
   url: string;
   clientId: string | number;
   responseType: string;
+  responseMode?: string | string[];
   skipPooling: boolean;
 }
 
@@ -99,7 +110,7 @@ export default class OAuth2 {
   $http: AxiosInstance;
   providerConfig: ProviderConfig;
   options: Opt;
-  oauthPopup: OAuthPopup | undefined;
+  oauthPopup: AuthSession | undefined;
   transactionState: string | undefined;
   constructor(
     $http: AxiosInstance,
@@ -117,13 +128,8 @@ export default class OAuth2 {
   }
 
   async init() {
-    const isFunc: Func = <Func>this.providerConfig.state;
-    const isStr = <string>this.providerConfig.state;
-    if (typeof isFunc === 'function') {
-      this.transactionState = <string>isFunc();
-    } else if (isString(isStr)) {
-      this.transactionState = isStr;
-    }
+    const platform = getPlatform();
+    this.resolveTransactionState(platform.kind === 'native');
 
     const cfg = this.providerConfig;
     const extras: Record<string, string> = {};
@@ -136,6 +142,54 @@ export default class OAuth2 {
       cfg.authorizationEndpoint = discovery.authorization_endpoint;
     }
 
+    await this.addPkceAndNonce(extras, optionalParams);
+
+    if (optionalParams.length) {
+      cfg.optionalUrlParams = optionalParams;
+    }
+
+    const timeoutMs =
+      typeof cfg.callbackTimeout === 'number' ? cfg.callbackTimeout : undefined;
+
+    const url = [
+      cfg.authorizationEndpoint,
+      this._stringifyRequestParams()
+    ].join('?');
+
+    if (platform.kind === 'native' && platform.native) {
+      return this.initNative(platform, withState(url, this.transactionState), extras, timeoutMs);
+    }
+
+    const OauthP = webPlatform.createSession(url, cfg.name, cfg.popupOptions);
+    this.oauthPopup = OauthP;
+    const response = <Record<string, unknown> | undefined>(
+      await OauthP.open(cfg.redirectUri, cfg.skipPooling, timeoutMs)
+    );
+
+    if (!response) return undefined;
+
+    this.assertState(response);
+
+    return { ...response, ...extras };
+  }
+
+  /** Uses the configured state, or generates one for native sign-ins. */
+  private resolveTransactionState(isNative: boolean): void {
+    const isFunc: Func = <Func>this.providerConfig.state;
+    const isStr = <string>this.providerConfig.state;
+    if (typeof isFunc === 'function') {
+      this.transactionState = <string>isFunc();
+    } else if (isString(isStr)) {
+      this.transactionState = isStr;
+    }
+    if (isNative && !this.transactionState) {
+      this.transactionState = createRandomString(32);
+    }
+  }
+
+  /** Adds the PKCE challenge and OIDC nonce to the request and records them in `extras`. */
+  private async addPkceAndNonce(extras: Record<string, string>, optionalParams: string[]) {
+    const cfg = this.providerConfig;
     if (cfg.pkce) {
       const verifier = createCodeVerifier();
       cfg.codeChallenge = await createCodeChallenge(verifier);
@@ -150,34 +204,68 @@ export default class OAuth2 {
       extras.nonce = nonce;
       optionalParams.push('nonce');
     }
+  }
 
-    if (optionalParams.length) {
-      cfg.optionalUrlParams = optionalParams;
+  private assertState(response: Record<string, unknown>): void {
+    if (!this.providerConfig.state) return;
+    const expected = this.transactionState;
+    if (!expected || response.state !== expected) {
+      throw new AuthError('state_mismatch', 'OAuth state mismatch');
+    }
+  }
+
+  /**
+   * Native sign-in. The transaction (PKCE verifier, nonce) is saved under `state`
+   * before the browser opens and consumed exactly once when the callback arrives.
+   */
+  private async initNative(
+    platform: PlatformAdapter,
+    url: string,
+    extras: Record<string, string>,
+    timeoutMs: number | undefined
+  ): Promise<Record<string, unknown> | undefined> {
+    const cfg = this.providerConfig;
+    const native = <NativeContext>platform.native;
+    const state = <string>this.transactionState;
+
+    await native.transactions.save(state, {
+      provider: cfg.name,
+      codeVerifier: extras.codeVerifier,
+      nonce: extras.nonce
+    });
+
+    const session = platform.createSession(url, cfg.name, cfg.popupOptions);
+    this.oauthPopup = session;
+
+    let response: Record<string, unknown> | undefined;
+    try {
+      response = <Record<string, unknown> | undefined>(
+        await session.open(
+          cfg.redirectUri,
+          cfg.skipPooling,
+          timeoutMs,
+          state,
+          cfg.responseMode
+        )
+      );
+    } catch (error) {
+      await native.transactions.discard(state);
+      throw error;
     }
 
-    const url = [
-      cfg.authorizationEndpoint,
-      this._stringifyRequestParams()
-    ].join('?');
-
-    this.oauthPopup = new OAuthPopup(url, cfg.name, cfg.popupOptions);
-    const OauthP = this.oauthPopup;
-    const timeoutMs =
-      typeof cfg.callbackTimeout === 'number' ? cfg.callbackTimeout : undefined;
-    const response = <Record<string, unknown> | undefined>(
-      await OauthP.open(cfg.redirectUri, cfg.skipPooling, timeoutMs)
-    );
-
+    // skipPooling: the callback arrives later, and resumePendingSignIn completes it.
     if (!response) return undefined;
 
-    if (cfg.state) {
-      const expected = this.transactionState;
-      if (!expected || response.state !== expected) {
-        throw new AuthError('state_mismatch', 'OAuth state mismatch');
-      }
+    const pending = await native.transactions.consume(state);
+    if (pending?.provider !== cfg.name || !pending) {
+      throw new AuthError('state_mismatch', 'OAuth state mismatch');
     }
 
-    return { ...response, ...extras };
+    return {
+      ...response,
+      ...(pending.codeVerifier !== undefined && { codeVerifier: pending.codeVerifier }),
+      ...(pending.nonce !== undefined && { nonce: pending.nonce })
+    };
   }
 
   /**
@@ -198,7 +286,7 @@ export default class OAuth2 {
     paramCategories.forEach(categoryName => {
       if (!this.providerConfig[categoryName]) return;
       if (!Array.isArray(this.providerConfig[categoryName])) return;
-      const Procate = this.providerConfig[categoryName] as string[];
+      const Procate = this.providerConfig[categoryName];
       Procate.forEach((paramName: string) => {
         const camelCaseParamName = camelCase(paramName);
         const Proconf = <() => void>(<unknown>this.providerConfig[paramName]);

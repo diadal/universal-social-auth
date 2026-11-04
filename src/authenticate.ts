@@ -8,6 +8,8 @@ import OAuth1, { Opt1, ProviderConfig1 } from './oauth/oauth1';
 import OAuth2, { Opt, ProviderConfig, Storage1 } from './oauth/oauth2';
 import { AuthError, classifyError } from './errors';
 import { emitHook, LifecycleHooks } from './lifecycle';
+import { getPlatform } from './platform/current';
+import { applyPlatformOverrides } from './providers/platforms';
 
 interface KeyB {
   [x: string]: Record<string, unknown>;
@@ -167,6 +169,7 @@ export default class UniversalSocialauth {
     ) {
       providerConfig.callbackTimeout = overrides.callbackTimeout;
     }
+    const platformConfig = applyPlatformOverrides(providerConfig, getPlatform().platform);
     try {
       let providerInstance;
       switch (proConfig.oauthType) {
@@ -174,7 +177,7 @@ export default class UniversalSocialauth {
           providerInstance = new OAuth1(
             <AxiosInstance>this.$http,
             this.storage,
-            <ProviderConfig1>providerConfig,
+            <ProviderConfig1>(<unknown>platformConfig),
             <Opt1>FinalOpts
           );
           break;
@@ -182,7 +185,7 @@ export default class UniversalSocialauth {
           providerInstance = new OAuth2(
             <AxiosInstance>this.$http,
             this.storage,
-            <ProviderConfig>providerConfig,
+            <ProviderConfig>(<unknown>platformConfig),
             <Opt>(<unknown>FinalOpts)
           );
           break;

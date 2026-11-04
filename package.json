@@ -1,7 +1,7 @@
 {
   "name": "universal-social-auth",
-  "version": "0.3.0",
-  "description": "Social Authentication library for (SPA, PWA & App)",
+  "version": "0.3.1",
+  "description": "Social Authentication library for web, PWA, iOS, Android, and Capacitor apps",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "unpkg": "dist/index.js",
@@ -18,22 +18,30 @@
       "import": "./dist/providers/index.mjs",
       "require": "./dist/providers/index.js"
     },
+    "./capacitor": {
+      "import": "./dist/capacitor/index.mjs",
+      "require": "./dist/capacitor/index.js"
+    },
     "./dist/*": "./dist/*",
     "./package.json": "./package.json"
   },
+  "sideEffects": false,
   "files": [
     "dist"
   ],
   "scripts": {
     "check-up": "npx npm-check-updates -u --reject typescript && npm install",
     "reload-git": "git rm -r --cached .  && git add .",
-    "build": "vite build && npm run build:providers",
-    "build:dev": "vite build --mode development && npm run build:providers:dev",
+    "build": "vite build && npm run build:providers && npm run build:capacitor",
+    "build:dev": "vite build --mode development && npm run build:providers:dev && npm run build:capacitor:dev",
     "build:providers": "vite build --config vite.providers.config.ts",
     "build:providers:dev": "vite build --config vite.providers.config.ts --mode development",
+    "build:capacitor": "vite build --config vite.capacitor.config.ts",
+    "build:capacitor:dev": "vite build --config vite.capacitor.config.ts --mode development",
     "preview": "vite preview",
     "catalog:generate": "node scripts/generate-provider-catalog.mjs",
     "catalog:check": "node scripts/generate-provider-catalog.mjs --check",
+    "check:bundle": "node scripts/check-bundle.mjs",
     "compat:check": "node scripts/compat-check.mjs",
     "dev": "npm --prefix docs-site run dev",
     "d:doc": "npm --prefix docs-site run build && npm --prefix docs-site run deploy",
@@ -70,7 +78,10 @@
     "oauth 1.0",
     "oauth 2.0",
     "laravel",
-    "SPA Social Login"
+    "social login",
+    "capacitor",
+    "ios",
+    "android"
   ],
   "author": {
     "name": "diadal",
@@ -100,7 +111,10 @@
     "oauth 1.0",
     "oauth 2.0",
     "laravel",
-    "SPA Social Login"
+    "social login",
+    "capacitor",
+    "ios",
+    "android"
   ],
   "bugs": {
     "url": "https://github.com/diadal/universal-social-auth/issues"

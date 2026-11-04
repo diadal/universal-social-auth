@@ -3,7 +3,7 @@
 
 
 # universal-social-auth
- SPA universal social auth
+ Universal social auth for web, PWA, iOS, Android, and Capacitor apps
 
 `Laravel`
 
@@ -46,7 +46,7 @@ backend frameworks [Laravel](https://laravel.com/) and [Other Php Frameworks](ht
 
 **4:**  Optional how to handle addition security validation like `2fa` `Email code` if enabled by the user after first login
 
-**5:**  Support for Native App framework [Capacitorjs](https://capacitorjs.com/), [Ionic](https://ionicframework.com/), [Cordova](https://cordova.apache.org/), [Nativescript](https://nativescript.org/) & `More`
+**5:**  Native app guidance for [Capacitorjs](https://capacitorjs.com/) (iOS and Android, system-browser flow via `universal-social-auth/capacitor`). Device verification is pending. Ionic is covered through Capacitor. Cordova and NativeScript are not supported yet.
 
 **Default Provider:** `Apple` `Facebook` `Google` `Github` `Instagram` `Twitter` `Bitbucket` `Linkedin` `Vkontakte` `Live` `Discord` `Twitch` `Microsoft` `Gitlab` `Slack` `Spotify` `Reddit` `Dropbox` `Amazon` `Oauth1`, `Oauth2`
 

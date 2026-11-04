@@ -41,6 +41,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Web bundle size and native-free check
+        run: npm run check:bundle
+
       - name: Provider catalog is up to date
         run: npm run catalog:check
 

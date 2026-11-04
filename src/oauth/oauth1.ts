@@ -1,4 +1,6 @@
-import OAuthPopup from './popup';
+import { getPlatform } from '../platform/current';
+import type { AuthSession, NativeContext } from '../platform/types';
+import { AuthError } from '../errors';
 import { joinUrl } from '../utils';
 import { AxiosInstance, AxiosResponse } from 'axios';
 
@@ -99,7 +101,7 @@ export default class OAuth {
   $http: AxiosInstance;
   providerConfig: ProAndDef;
   options: Opt1;
-  oauthPopup: OAuthPopup | undefined;
+  oauthPopup: AuthSession | undefined;
   constructor(
     $http: AxiosInstance,
     storage: Storage,
@@ -118,7 +120,7 @@ export default class OAuth {
   }
 
   async init(userData: Record<string, string | undefined>) {
-    this.oauthPopup = new OAuthPopup(
+    this.oauthPopup = getPlatform().createSession(
       'about:blank',
       this.providerConfig.name,
       this.providerConfig.popupOptions
@@ -128,9 +130,10 @@ export default class OAuth {
     void this.oauthPopup.open(this.providerConfig.redirectUri, true);
 
     return this.getRequestToken().then(async response => {
-      const popupResponse = this.openPopup(<Keyc>(<unknown>response));
+      const popupResponse = await this.openPopup(<Keyc>(<unknown>response));
+      if (!popupResponse) return undefined;
       const token = this.exchangeForToken(
-        <Record<string, unknown>>(<unknown>popupResponse),
+        <Record<string, unknown>>(popupResponse),
         userData
       );
 
@@ -140,7 +143,7 @@ export default class OAuth {
 
   async getRequestToken() {
     // const requestOptions:Opt1 = { method: undefined, withCredentials: undefined, url: '', baseUrl: '', requestDataKey: '', responseDataKey: '' }
-    const requestOptions: KeyD = <KeyD>{};
+    const requestOptions: KeyD = {};
     requestOptions.method = 'POST';
     const key: string = this.options.requestDataKey;
     requestOptions[key] = {
@@ -159,26 +162,83 @@ export default class OAuth {
     return this.$http(requestOptions);
   }
 
-  openPopup(response: Keyc) {
+  async openPopup(response: Keyc) {
     const rep = response;
 
     const rep2 = <KeyD>(<unknown>rep[this.options.responseDataKey]);
+    const native = getPlatform().native;
+    if (native) {
+      return this.openNative(rep2, native);
+    }
     const url: string = [
       this.providerConfig.authorizationEndpoint,
       this.buildQueryString(rep2)
     ].join('?');
-    const OauthP = <OAuthPopup>this.oauthPopup;
-    if (!OauthP.popup) {
-      return Promise.reject(new Error('OAuth popup error occurred'));
+    const session = <AuthSession>this.oauthPopup;
+    // Navigate the already-open surface. Calling session.open() here would open a
+    // second one and wipe the authorization URL.
+    if (!(await session.navigate(url))) {
+      throw new Error('OAuth popup error occurred');
     }
-    // Navigate the already-open popup. Calling OauthP.open() here would call
-    // window.open('about:blank') again and wipe the authorization URL.
-    OauthP.popup.location.href = url;
     if (this.providerConfig.skipPooling) {
-      return Promise.resolve();
+      return undefined;
     }
-    return OauthP.pooling(this.providerConfig.redirectUri);
+    return session.waitForCallback(this.providerConfig.redirectUri);
   }
+
+  /**
+   * Native sign-in. The request-token secret stays in the saved transaction, keyed by
+   * `oauth_token`, and is kept out of the browser URL.
+   */
+  private async openNative(rep2: KeyD, native: NativeContext) {
+    const { oauth_token_secret: secret, ...publicParams } = rep2;
+    const token = typeof rep2.oauth_token === 'string' ? rep2.oauth_token : '';
+    if (!token) {
+      throw new AuthError('invalid_token', 'OAuth request token is missing');
+    }
+    const url: string = [
+      this.providerConfig.authorizationEndpoint,
+      this.buildQueryString(publicParams)
+    ].join('?');
+
+    await native.transactions.save(token, {
+      provider: this.providerConfig.name ?? '',
+      oauth1RequestTokenSecret: typeof secret === 'string' ? secret : ''
+    });
+
+    const session = <AuthSession>this.oauthPopup;
+    if (!(await session.navigate(url))) {
+      await native.transactions.discard(token);
+      throw new Error('OAuth popup error occurred');
+    }
+    if (this.providerConfig.skipPooling) {
+      return undefined;
+    }
+
+    let params: Record<string, unknown>;
+    try {
+      params = <Record<string, unknown>>(
+        await session.waitForCallback(
+          this.providerConfig.redirectUri,
+          undefined,
+          undefined,
+          token
+        )
+      );
+    } catch (error) {
+      await native.transactions.discard(token);
+      throw error;
+    }
+
+    const pending = await native.transactions.consume(
+      typeof params.oauth_token === 'string' ? params.oauth_token : token
+    );
+    if (!pending) {
+      throw new AuthError('state_mismatch', 'OAuth request token mismatch');
+    }
+    return { ...params, oauth_token_secret: pending.oauth1RequestTokenSecret };
+  }
+
 
   exchangeForToken(
     oauth: Record<string, unknown>,
@@ -189,7 +249,7 @@ export default class OAuth {
       ...oauth
     };
     // payload = objectExtend(payload, oauth)
-    const requestOptions: KeyD = <KeyD>{};
+    const requestOptions: KeyD = {};
     requestOptions.method = 'POST';
     const key = this.options.requestDataKey;
     requestOptions[key] = payload;

@@ -1,6 +1,37 @@
 # Capacitor (mobile and hybrid apps)
 
-Status: **snippet guide, not a built example.** Verify on a device before shipping.
+Status: **adapter implemented, device verification pending.** The adapter builds and is
+covered by Jest. Verify on iOS and Android devices before shipping.
+
+## Adapter (`universal-social-auth/capacitor`)
+
+Native branches run through the system browser and a secure store for pending sign-ins.
+Web code paths are unchanged.
+
+```ts
+import { setPlatform, resumePendingSignIn } from 'universal-social-auth';
+import { createCapacitorAdapter } from 'universal-social-auth/capacitor';
+import { Browser } from '@capacitor/browser';
+import { App } from '@capacitor/app';
+
+const adapter = createCapacitorAdapter({
+  platform: 'ios', // or 'android'
+  browser: Browser,
+  app: App,
+  secureStorage: mySecureStorage // a KeyValueStore backed by Keychain or Keystore
+});
+setPlatform(adapter);
+
+// On a cold launch from a callback URL, resume the saved sign-in.
+// It returns the provider and callback params. Send them to your backend for the token exchange.
+const launch = await App.getLaunchUrl();
+if (launch?.url) {
+  const resumed = await resumePendingSignIn(launch.url, adapter.native!, redirectUri);
+}
+```
+
+Set per-platform `clientId` and `redirectUri` with the `platforms` provider option
+(`web`, `ios`, `android`). A platform override takes precedence over the base value.
 
 ## Read this first
 

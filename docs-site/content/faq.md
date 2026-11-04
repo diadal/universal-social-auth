@@ -7,7 +7,7 @@ description: "Short, direct answers about universal-social-auth: what it is, whi
 
 ### What is universal-social-auth?
 
-universal-social-auth is an open-source TypeScript library for social login in the browser. It handles OAuth 1.0, OAuth 2.0, and OpenID Connect (OIDC) with PKCE, and it keeps your client secret on your backend.
+universal-social-auth is an open-source TypeScript library for social login in the browser and in Capacitor mobile apps. It handles OAuth 1.0, OAuth 2.0, and OpenID Connect (OIDC) with PKCE, and it keeps your client secret on your backend.
 
 ### Which login providers does it support?
 
@@ -27,7 +27,13 @@ The docs include recipes for Express, Laravel, Zintrust, and other backends. Any
 
 ### Does it work with Vue, React, Angular, Nuxt, or Capacitor?
 
-Yes. Vue 3 and React examples are built and included in the repository. Nuxt, Angular, and Capacitor have integration guides that show the snippets to use.
+Yes. Vue 3 and React examples are built and included in the repository. Nuxt and Angular have integration guides that show the snippets to use.
+
+Capacitor apps (iOS and Android) are supported through the `universal-social-auth/capacitor` adapter. It opens the system browser and stores pending sign-ins in a secure store. The adapter is covered by automated tests. Device verification on iOS and Android is still in progress, so test on real devices before you ship. Cordova is not supported yet.
+
+### Does it work on iOS and Android?
+
+Through Capacitor, yes, with the caveat above. Plain mobile web pages use the browser flow. Popup-based OAuth does not work reliably inside native WebViews, so native apps should use the Capacitor adapter.
 
 ### How do I install it?
 

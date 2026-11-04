@@ -1,3 +1,52 @@
+function checkPlatforms(
+  platforms: unknown,
+  options: { development?: boolean },
+  report: (field: string, message: string) => void
+): void {
+  if (typeof platforms !== 'object' || platforms === null || Array.isArray(platforms)) {
+    report('platforms', 'platforms must be an object keyed by web, ios, or android');
+    return;
+  }
+  for (const key of Object.keys(platforms)) {
+    const override = (platforms as Record<string, unknown>)[key];
+    if (!PLATFORM_NAMES.includes(key as PlatformName)) {
+      report('platforms', `unknown platform "${key}"; use web, ios, or android`);
+    } else {
+      checkPlatformOverride(key, override, options, report);
+    }
+  }
+}
+
+function checkPlatformOverride(
+  key: string,
+  override: unknown,
+  options: { development?: boolean },
+  report: (field: string, message: string) => void
+): void {
+  if (typeof override !== 'object' || override === null) {
+    report(`platforms.${key}`, 'platform override must be an object');
+    return;
+  }
+  const { clientId, redirectUri } = override as Record<string, unknown>;
+  const validClientId =
+    typeof clientId === 'number' || (typeof clientId === 'string' && clientId.length > 0);
+  if (clientId !== undefined && !validClientId) {
+    report(`platforms.${key}.clientId`, 'clientId must be a non-empty string or a number');
+  }
+  if (redirectUri === undefined) {
+    return;
+  }
+  if (typeof redirectUri !== 'string') {
+    report(`platforms.${key}.redirectUri`, 'redirectUri must be a string');
+  } else if (!isAllowedRedirectUri(redirectUri, options.development === true)) {
+    report(`platforms.${key}.redirectUri`, 'redirectUri is not allowed for this platform');
+  }
+}
+
+import { isAllowedRedirectUri } from '../platform/redirect';
+import type { PlatformName } from '../platform/types';
+import { PLATFORM_NAMES } from './platforms';
+
 export const PROVIDER_SCHEMA_VERSION = 1;
 
 export interface ProviderIssue {
@@ -35,10 +84,12 @@ function checkScope(scope: unknown): string | null {
 /**
  * Structural checks for a provider definition. Returns an empty array when the
  * definition is valid. Does not contact the provider.
+ * Pass `development: true` to allow http://localhost redirect URIs in `platforms` overrides.
  */
 export function validateProviderDefinition(
   name: string,
-  definition: Record<string, unknown>
+  definition: Record<string, unknown>,
+  options: { development?: boolean } = {}
 ): ProviderIssue[] {
   const issues: ProviderIssue[] = [];
   const report = (field: string, message: string) =>
@@ -59,6 +110,10 @@ export function validateProviderDefinition(
 
   if (definition.redirectUri !== undefined && typeof definition.redirectUri !== 'string') {
     report('redirectUri', 'redirectUri must be a string');
+  }
+
+  if (definition.platforms !== undefined) {
+    checkPlatforms(definition.platforms, options, report);
   }
 
   if (definition.scope !== undefined) {
