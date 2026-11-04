@@ -80,7 +80,7 @@ describe('OAuth2 init', () => {
     const verifier = result.codeVerifier;
 
     expect(verifier).toMatch(/^[A-Za-z0-9_-]{43,128}$/);
-    expect(storage.getItem('demo_pkce_verifier')).toBe(verifier);
+    expect(storage.getItem('demo_pkce_verifier')).toBeUndefined();
     const challenge = await createCodeChallenge(verifier);
     expect(lastPopupUrl(openSpy)).toContain(`code_challenge=${challenge}`);
     expect(lastPopupUrl(openSpy)).toContain('code_challenge_method=S256');

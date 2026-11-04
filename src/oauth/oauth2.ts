@@ -100,6 +100,7 @@ export default class OAuth2 {
   providerConfig: ProviderConfig;
   options: Opt;
   oauthPopup: OAuthPopup | undefined;
+  transactionState: string | undefined;
   constructor(
     $http: AxiosInstance,
     storage: Storage1,
@@ -116,13 +117,12 @@ export default class OAuth2 {
   }
 
   async init() {
-    const stateName = this.providerConfig.name + '_state';
     const isFunc: Func = <Func>this.providerConfig.state;
     const isStr = <string>this.providerConfig.state;
     if (typeof isFunc === 'function') {
-      this.storage.setItem(stateName, isFunc());
+      this.transactionState = <string>isFunc();
     } else if (isString(isStr)) {
-      this.storage.setItem(stateName, isStr);
+      this.transactionState = isStr;
     }
 
     const cfg = this.providerConfig;
@@ -138,7 +138,6 @@ export default class OAuth2 {
 
     if (cfg.pkce) {
       const verifier = createCodeVerifier();
-      this.storage.setItem(cfg.name + '_pkce_verifier', verifier);
       cfg.codeChallenge = await createCodeChallenge(verifier);
       cfg.codeChallengeMethod = 'S256';
       extras.codeVerifier = verifier;
@@ -147,7 +146,6 @@ export default class OAuth2 {
 
     if (cfg.oidc) {
       const nonce = createRandomString(16);
-      this.storage.setItem(cfg.name + '_nonce', nonce);
       cfg.nonce = nonce;
       extras.nonce = nonce;
       optionalParams.push('nonce');
@@ -173,7 +171,7 @@ export default class OAuth2 {
     if (!response) return undefined;
 
     if (cfg.state) {
-      const expected = this.storage.getItem(cfg.name + '_state');
+      const expected = this.transactionState;
       if (!expected || response.state !== expected) {
         throw new AuthError('state_mismatch', 'OAuth state mismatch');
       }
@@ -212,8 +210,7 @@ export default class OAuth2 {
         if (paramName === 'redirect_uri' && !paramValue) return;
 
         if (paramName === 'state') {
-          const stateName = this.providerConfig.name + '_state';
-          paramValue = encodeURIComponent(this.storage.getItem(stateName));
+          paramValue = encodeURIComponent(this.transactionState ?? '');
         }
         if (paramName === 'scope' && Array.isArray(paramValue)) {
           paramValue = paramValue.join(this.providerConfig.scopeDelimiter);
