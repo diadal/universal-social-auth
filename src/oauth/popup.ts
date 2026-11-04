@@ -1,6 +1,29 @@
 import { parseQueryString, getFullUrlPath, isUndefined } from '../utils';
 import { AuthError } from '../errors';
 
+/**
+ * Reads the OAuth callback from the popup's URL. Returns the query/hash params,
+ * or the AuthError that should reject the sign-in.
+ */
+function parseRedirectResult(location: Location): AuthError | Record<string, unknown> {
+  if (!location.search && !location.hash) {
+    return new AuthError(
+      'provider',
+      'OAuth redirect has occurred but no query or hash parameters were found.'
+    );
+  }
+  const params = {
+    ...parseQueryString(location.search.substring(1)),
+    ...parseQueryString(location.hash.substring(1))
+  };
+  if (!params.error) {
+    return params;
+  }
+  return params.error === 'access_denied'
+    ? new AuthError('cancelled', 'Authorization was denied')
+    : new AuthError('provider', 'OAuth provider returned an error');
+}
+
 export default class OAuthPopup {
   popupOptions: Record<string, unknown>;
   popup: Window | null = null;
@@ -45,71 +68,42 @@ export default class OAuthPopup {
       redirectUriParser.href = redirectUri;
       const redirectUriPath = getFullUrlPath(redirectUriParser);
       const deadline = timeoutMs ? Date.now() + timeoutMs : 0;
+      let poolingInterval = 0;
 
-      let poolingInterval = <number>(<unknown>setInterval(() => {
-        if (
-          !this.popup ||
-          this.popup.closed ||
-          this.popup.closed === undefined
-        ) {
-          clearInterval(poolingInterval);
-          poolingInterval = 0;
-          reject(new AuthError('cancelled', 'Auth popup window closed'));
+      const settle = (outcome: AuthError | Record<string, unknown>) => {
+        window.clearInterval(poolingInterval);
+        poolingInterval = 0;
+        if (outcome instanceof AuthError) {
+          reject(outcome);
+        } else {
+          resolve(outcome);
+        }
+      };
+
+      poolingInterval = window.setInterval(() => {
+        const popup = this.popup;
+        if (!popup || popup.closed || popup.closed === undefined) {
+          settle(new AuthError('cancelled', 'Auth popup window closed'));
           return;
         }
 
         if (deadline && Date.now() > deadline) {
-          clearInterval(poolingInterval);
-          poolingInterval = 0;
-          this.popup.close();
-          reject(new AuthError('timeout', 'Auth popup timed out'));
+          popup.close();
+          settle(new AuthError('timeout', 'Auth popup timed out'));
           return;
         }
 
         try {
-          const location = <Window>this.popup;
-
-          const popupWindowPath = getFullUrlPath(location.location);
-          if (popupWindowPath === redirectUriPath) {
-            if (location.location.search || location.location.hash) {
-              const query = parseQueryString(
-                location.location.search.substring(1)
-              );
-              const hash = parseQueryString(
-                location.location.hash.substring(1)
-              );
-              const params = {
-                ...query,
-                ...hash
-              };
-              clearInterval(poolingInterval);
-              poolingInterval = 0;
-              location.close();
-              if (params.error) {
-                reject(
-                  params.error === 'access_denied'
-                    ? new AuthError('cancelled', 'Authorization was denied')
-                    : new AuthError('provider', 'OAuth provider returned an error')
-                );
-              } else {
-                resolve(params);
-              }
-            } else {
-              clearInterval(poolingInterval);
-              poolingInterval = 0;
-              location.close();
-              reject(
-                new AuthError(
-                  'provider',
-                  'OAuth redirect has occurred but no query or hash parameters were found.'
-                )
-              );
-            }
+          if (getFullUrlPath(popup.location) !== redirectUriPath) {
+            return;
           }
-        } catch (e) {
+          const outcome = parseRedirectResult(popup.location);
+          popup.close();
+          settle(outcome);
+        } catch {
           // Ignore DOMException: Blocked a frame with origin from accessing a cross-origin frame.
         }
-      }, 250));
+      }, 250);
     });
   }
 

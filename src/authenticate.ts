@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { AxiosInstance, AxiosInterceptorManager } from 'axios';
 import { ProderT } from './providers';
 
@@ -94,7 +92,7 @@ export default class UniversalSocialauth {
         ...ProviderOverride
       }
     };
-    const FinalOpts: Record<string, unknown> = <Record<string, unknown>>{
+    const FinalOpts: Record<string, unknown> = {
       ...this.defaultOptions,
       ...Opts
     };

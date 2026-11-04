@@ -129,7 +129,7 @@ var d = class {
 	_getStorageKey(e) {
 		return this.namespace ? [this.namespace, e].join(".") : e;
 	}
-}, ee = class {
+}, p = class {
 	constructor(e) {
 		this.namespace = e ?? null, this._storage = {};
 	}
@@ -145,7 +145,7 @@ var d = class {
 	_getStorageKey(e) {
 		return this.namespace ? [this.namespace, e].join(".") : e;
 	}
-}, p = class {
+}, m = class {
 	constructor(e) {
 		this.namespace = e ?? null;
 	}
@@ -163,7 +163,7 @@ var d = class {
 	}
 };
 // src/storage.ts
-function m(e) {
+function h(e) {
 	try {
 		let t = e();
 		return t.setItem("testKey", "test"), t.removeItem("testKey"), !0;
@@ -171,29 +171,29 @@ function m(e) {
 		return !1;
 	}
 }
-function h(e) {
+function g(e) {
 	switch (e.storageType) {
-		case "localStorage": return m(() => window.localStorage) ? new f(e.storageNamespace) : m(() => window.sessionStorage) ? new p(e.storageNamespace) : new d(e.cookieStorage);
-		case "sessionStorage": return m(() => window.sessionStorage) ? new p(e.storageNamespace) : new d(e.cookieStorage);
+		case "localStorage": return h(() => window.localStorage) ? new f(e.storageNamespace) : h(() => window.sessionStorage) ? new m(e.storageNamespace) : new d(e.cookieStorage);
+		case "sessionStorage": return h(() => window.sessionStorage) ? new m(e.storageNamespace) : new d(e.cookieStorage);
 		case "cookieStorage": return new d(e.cookieStorage);
-		default: return new ee(e.storageNamespace);
+		default: return new p(e.storageNamespace);
 	}
 }
 // src/errors.ts
-var g = class extends Error {
+var _ = class extends Error {
 	constructor(e, t) {
 		super(t), this.name = "AuthError", this.kind = e;
 	}
 };
-function _(e) {
-	return e instanceof g ? e.kind : "unknown";
+function v(e) {
+	return e instanceof _ ? e.kind : "unknown";
 }
-async function v(e) {
+async function y(e) {
 	try {
 		let t = await e;
 		return t instanceof Error ? {
 			ok: !1,
-			kind: _(t),
+			kind: v(t),
 			error: t
 		} : {
 			ok: !0,
@@ -202,41 +202,46 @@ async function v(e) {
 	} catch (e) {
 		return {
 			ok: !1,
-			kind: _(e),
+			kind: v(e),
 			error: e instanceof Error ? e : Error(String(e))
 		};
 	}
 }
 // src/oauth/popup.ts
-var y = class {
+function b(e) {
+	if (!e.search && !e.hash) return new _("provider", "OAuth redirect has occurred but no query or hash parameters were found.");
+	let t = {
+		...s(e.search.substring(1)),
+		...s(e.hash.substring(1))
+	};
+	return t.error ? t.error === "access_denied" ? new _("cancelled", "Authorization was denied") : new _("provider", "OAuth provider returned an error") : t;
+}
+var x = class {
 	constructor(e, t, n) {
 		this.popup = null, this.url = e, this.name = t, this.popupOptions = n;
 	}
 	open(e, t, n) {
 		try {
-			return this.popup = window.open(this.url, this.name, this._stringifyOptions()), this.popup ? (this.popup.focus && this.popup.focus(), t ? Promise.resolve() : this.pooling(e, n)) : Promise.reject(new g("popup_blocked", "Auth popup was blocked by the browser"));
+			return this.popup = window.open(this.url, this.name, this._stringifyOptions()), this.popup ? (this.popup.focus && this.popup.focus(), t ? Promise.resolve() : this.pooling(e, n)) : Promise.reject(new _("popup_blocked", "Auth popup was blocked by the browser"));
 		} catch {
-			return Promise.reject(new g("unknown", "OAuth popup error occurred"));
+			return Promise.reject(new _("unknown", "OAuth popup error occurred"));
 		}
 	}
 	pooling(e, t) {
 		return new Promise((n, r) => {
 			let i = document.createElement("a");
 			i.href = e;
-			let a = o(i), c = t ? Date.now() + t : 0, l = setInterval(() => {
-				if (!this.popup || this.popup.closed || this.popup.closed === void 0) clearInterval(l), l = 0, r(new g("cancelled", "Auth popup window closed"));
-				else if (c && Date.now() > c) clearInterval(l), l = 0, this.popup.close(), r(new g("timeout", "Auth popup timed out"));
+			let a = o(i), s = t ? Date.now() + t : 0, c = 0, l = (e) => {
+				window.clearInterval(c), c = 0, e instanceof _ ? r(e) : n(e);
+			};
+			c = window.setInterval(() => {
+				let e = this.popup;
+				if (!e || e.closed || e.closed === void 0) l(new _("cancelled", "Auth popup window closed"));
+				else if (s && Date.now() > s) e.close(), l(new _("timeout", "Auth popup timed out"));
 				else try {
-					let e = this.popup;
-					if (o(e.location) === a) {
-						if (e.location.search || e.location.hash) {
-							let t = s(e.location.search.substring(1)), i = s(e.location.hash.substring(1)), a = {
-								...t,
-								...i
-							};
-							clearInterval(l), l = 0, e.close(), a.error ? r(a.error === "access_denied" ? new g("cancelled", "Authorization was denied") : new g("provider", "OAuth provider returned an error")) : n(a);
-						} else clearInterval(l), l = 0, e.close(), r(new g("provider", "OAuth redirect has occurred but no query or hash parameters were found."));
-					}
+					if (o(e.location) !== a) return;
+					let t = b(e.location);
+					e.close(), l(t);
 				} catch {}
 			}, 250);
 		});
@@ -246,7 +251,7 @@ var y = class {
 		for (let r in t) n(t[r]) || e.push(`${r}=${t[r]}`);
 		return e.join(",");
 	}
-}, b = {
+}, S = {
 	name: null,
 	url: null,
 	authorizationEndpoint: null,
@@ -258,15 +263,15 @@ var y = class {
 	defaultUrlParams: null,
 	oauthType: "1.0",
 	popupOptions: void 0
-}, x = class {
+}, ee = class {
 	constructor(e, t, n, r) {
 		this.$http = e, this.storage = t, this.providerConfig = {
-			...b,
+			...S,
 			...n
 		}, this.options = r;
 	}
 	async init(e) {
-		return this.oauthPopup = new y("about:blank", this.providerConfig.name, this.providerConfig.popupOptions), this.oauthPopup.open(this.providerConfig.redirectUri, !0), this.getRequestToken().then(async (t) => {
+		return this.oauthPopup = new x("about:blank", this.providerConfig.name, this.providerConfig.popupOptions), this.oauthPopup.open(this.providerConfig.redirectUri, !0), this.getRequestToken().then(async (t) => {
 			let n = this.openPopup(t);
 			return this.exchangeForToken(n, e);
 		});
@@ -300,54 +305,56 @@ var y = class {
 	}
 };
 // src/pkce.ts
-function S(e) {
+function C(e) {
 	let t = "";
 	return e.forEach((e) => {
-		t += String.fromCharCode(e);
-	}), btoa(t).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+		t += String.fromCodePoint(e);
+	}), btoa(t).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
-function C() {
-	if (globalThis.crypto === void 0 || !globalThis.crypto.subtle) throw Error("Web Crypto (crypto.subtle) is required for PKCE");
+function w() {
+	if (!globalThis.crypto?.subtle) throw Error("Web Crypto (crypto.subtle) is required for PKCE");
 	return globalThis.crypto;
 }
-function w(e = 32) {
+function T(e = 32) {
 	let t = new Uint8Array(e);
-	return C().getRandomValues(t), S(t);
+	return w().getRandomValues(t), C(t);
 }
-function T() {
-	return w(64);
+function E() {
+	return T(64);
 }
-async function E(e) {
-	let t = await C().subtle.digest("SHA-256", new TextEncoder().encode(e));
-	return S(new Uint8Array(t));
+async function D(e) {
+	let t = await w().subtle.digest("SHA-256", new TextEncoder().encode(e));
+	return C(new Uint8Array(t));
 }
 // src/oidc.ts
-function D(e) {
-	return e.replace(/\/+$/, "");
+function O(e) {
+	let t = e.length;
+	for (; t > 0 && e.charAt(t - 1) === "/";) t--;
+	return e.slice(0, t);
 }
-function O(e, t) {
-	if (typeof e != "string") throw new g("config", `OIDC ${t} is missing`);
+function k(e, t) {
+	if (typeof e != "string") throw new _("config", `OIDC ${t} is missing`);
 	let n = new URL(e), r = n.hostname === "localhost" || n.hostname === "127.0.0.1";
-	if (n.protocol !== "https:" && !(n.protocol === "http:" && r)) throw new g("config", `OIDC ${t} must use https`);
+	if (n.protocol !== "https:" && !(n.protocol === "http:" && r)) throw new _("config", `OIDC ${t} must use https`);
 	return e;
 }
-async function k(e, t) {
-	let n = D(O(e, "issuer")), r = (await t.get(`${n}/.well-known/openid-configuration`)).data;
-	if (!r || typeof r != "object") throw new g("config", "OIDC discovery document is invalid");
-	if (typeof r.issuer != "string" || D(r.issuer) !== n) throw new g("invalid_token", "OIDC discovery issuer does not match");
-	return O(r.authorization_endpoint, "authorization_endpoint"), r;
+async function A(e, t) {
+	let n = O(k(e, "issuer")), r = (await t.get(`${n}/.well-known/openid-configuration`)).data;
+	if (!r || typeof r != "object") throw new _("config", "OIDC discovery document is invalid");
+	if (typeof r.issuer != "string" || O(r.issuer) !== n) throw new _("invalid_token", "OIDC discovery issuer does not match");
+	return k(r.authorization_endpoint, "authorization_endpoint"), r;
 }
-function A(e, t) {
-	if (D(typeof e.iss == "string" ? e.iss : "") !== D(t.issuer)) throw new g("invalid_token", "ID token issuer mismatch");
+function j(e, t) {
+	if (O(typeof e.iss == "string" ? e.iss : "") !== O(t.issuer)) throw new _("invalid_token", "ID token issuer mismatch");
 	let n = Array.isArray(e.aud) ? e.aud : [e.aud];
-	if (n.indexOf(t.audience) === -1) throw new g("invalid_token", "ID token audience mismatch");
-	if (n.length > 1 && e.azp !== t.audience) throw new g("invalid_token", "ID token authorized party mismatch");
+	if (!n.includes(t.audience)) throw new _("invalid_token", "ID token audience mismatch");
+	if (n.length > 1 && e.azp !== t.audience) throw new _("invalid_token", "ID token authorized party mismatch");
 	let r = t.now ?? Math.floor(Date.now() / 1e3), i = t.clockSkewSeconds ?? 60;
-	if (typeof e.exp != "number" || e.exp + i < r) throw new g("invalid_token", "ID token has expired");
-	if (t.nonce !== void 0 && e.nonce !== t.nonce) throw new g("invalid_token", "ID token nonce mismatch");
+	if (typeof e.exp != "number" || e.exp + i < r) throw new _("invalid_token", "ID token has expired");
+	if (t.nonce !== void 0 && e.nonce !== t.nonce) throw new _("invalid_token", "ID token nonce mismatch");
 }
 // src/oauth/oauth2.ts
-var j = {
+var M = {
 	name: null,
 	url: null,
 	clientId: null,
@@ -371,10 +378,10 @@ var j = {
 	},
 	oauthType: "2.0",
 	popupOptions: {}
-}, M = class {
+}, N = class {
 	constructor(e, t, n, r) {
 		this.$http = e, this.storage = t, this.providerConfig = {
-			...j,
+			...M,
 			...n
 		}, this.options = r;
 	}
@@ -382,22 +389,22 @@ var j = {
 		let e = this.providerConfig.name + "_state", t = this.providerConfig.state, n = this.providerConfig.state;
 		typeof t == "function" ? this.storage.setItem(e, t()) : r(n) && this.storage.setItem(e, n);
 		let i = this.providerConfig, a = {}, o = Array.isArray(i.optionalUrlParams) ? [...i.optionalUrlParams] : [];
-		if (typeof i.issuer == "string" && i.issuer && (i.authorizationEndpoint = (await k(i.issuer, this.$http)).authorization_endpoint), i.pkce) {
-			let e = T();
-			this.storage.setItem(i.name + "_pkce_verifier", e), i.codeChallenge = await E(e), i.codeChallengeMethod = "S256", a.codeVerifier = e, o.push("code_challenge", "code_challenge_method");
+		if (typeof i.issuer == "string" && i.issuer && (i.authorizationEndpoint = (await A(i.issuer, this.$http)).authorization_endpoint), i.pkce) {
+			let e = E();
+			this.storage.setItem(i.name + "_pkce_verifier", e), i.codeChallenge = await D(e), i.codeChallengeMethod = "S256", a.codeVerifier = e, o.push("code_challenge", "code_challenge_method");
 		}
 		if (i.oidc) {
-			let e = w(16);
+			let e = T(16);
 			this.storage.setItem(i.name + "_nonce", e), i.nonce = e, a.nonce = e, o.push("nonce");
 		}
 		o.length && (i.optionalUrlParams = o);
 		let s = [i.authorizationEndpoint, this._stringifyRequestParams()].join("?");
-		this.oauthPopup = new y(s, i.name, i.popupOptions);
+		this.oauthPopup = new x(s, i.name, i.popupOptions);
 		let c = this.oauthPopup, l = typeof i.callbackTimeout == "number" ? i.callbackTimeout : void 0, u = await c.open(i.redirectUri, i.skipPooling, l);
 		if (u) {
 			if (i.state) {
 				let e = this.storage.getItem(i.name + "_state");
-				if (!e || u.state !== e) throw new g("state_mismatch", "OAuth state mismatch");
+				if (!e || u.state !== e) throw new _("state_mismatch", "OAuth state mismatch");
 			}
 			return {
 				...u,
@@ -426,14 +433,14 @@ var j = {
 	}
 };
 // src/lifecycle.ts
-function N(e, t, n) {
+function P(e, t, n) {
 	let r = e?.[t];
 	if (typeof r == "function") try {
 		r(n);
 	} catch {}
 }
 // src/authenticate.ts
-function P(e, t) {
+function F(e, t) {
 	let n = e.use;
 	return {
 		use: (...r) => {
@@ -444,7 +451,7 @@ function P(e, t) {
 		clear: () => e.clear()
 	};
 }
-var F = class {
+var I = class {
 	constructor(t, n) {
 		this.interceptorIds = {
 			request: [],
@@ -476,13 +483,13 @@ var F = class {
 			...this.defaultOptions,
 			...i
 		};
-		this.options = a, this.storage = h(a);
+		this.options = a, this.storage = g(a);
 		let o = a, s = o.provider, c = s;
 		if (o.bindRequestInterceptor && typeof o.bindRequestInterceptor == "function" && o.bindResponseInterceptor && typeof o.bindResponseInterceptor == "function") {
 			this.ejectInterceptors();
 			let e = this.$http, t = Object.assign(Object.create(e), { interceptors: {
-				request: P(e.interceptors.request, this.interceptorIds.request),
-				response: P(e.interceptors.response, this.interceptorIds.response)
+				request: F(e.interceptors.request, this.interceptorIds.request),
+				response: F(e.interceptors.response, this.interceptorIds.response)
 			} }), n = {
 				options: this.options,
 				storage: this.storage,
@@ -498,20 +505,20 @@ var F = class {
 			let t;
 			switch (c.oauthType) {
 				case "1.0":
-					t = new x(this.$http, this.storage, s, a);
+					t = new ee(this.$http, this.storage, s, a);
 					break;
 				case "2.0":
-					t = new M(this.$http, this.storage, s, a);
+					t = new N(this.$http, this.storage, s, a);
 					break;
-				default: throw new g("config", "Invalid OAuth type");
+				default: throw new _("config", "Invalid OAuth type");
 			}
-			N(u, "onStart", { provider: e });
+			P(u, "onStart", { provider: e });
 			try {
 				let r = await t.init(n);
-				return N(u, "onComplete", { provider: e }), r;
+				return P(u, "onComplete", { provider: e }), r;
 			} catch (t) {
-				let n = t instanceof Error ? t : Error(String(t)), r = _(n);
-				return r === "cancelled" ? N(u, "onCancel", { provider: e }) : N(u, "onError", {
+				let n = t instanceof Error ? t : Error(String(t)), r = v(n);
+				return r === "cancelled" ? P(u, "onCancel", { provider: e }) : P(u, "onError", {
 					provider: e,
 					kind: r
 				}), n;
@@ -520,8 +527,8 @@ var F = class {
 			return e;
 		}
 	}
-}, I = 1;
-function L(e) {
+}, L = 1;
+function R(e) {
 	try {
 		let t = new URL(e);
 		return t.protocol === "https:" || t.protocol === "http:" && (t.hostname === "localhost" || t.hostname === "127.0.0.1");
@@ -529,13 +536,13 @@ function L(e) {
 		return !1;
 	}
 }
-function R(e) {
+function z(e) {
 	let t = Array.isArray(e) ? e : [e];
 	if (typeof e != "string" && !Array.isArray(e)) return "scope must be a string or an array of strings";
 	for (let e of t) if (typeof e != "string" || e.length === 0 || /\s/.test(e)) return "scope entries must be non-empty strings without whitespace";
 	return null;
 }
-function z(e, t) {
+function B(e, t) {
 	let n = [], r = (t, r) => n.push({
 		provider: e,
 		field: t,
@@ -543,19 +550,19 @@ function z(e, t) {
 	});
 	t.name !== e && r("name", "name must match the provider key"), t.oauthType !== "1.0" && t.oauthType !== "2.0" && r("oauthType", "oauthType must be '1.0' or '2.0'");
 	let i = t.authorizationEndpoint;
-	if (typeof i == "string" && L(i) || r("authorizationEndpoint", "authorizationEndpoint must be an https URL"), t.redirectUri !== void 0 && typeof t.redirectUri != "string" && r("redirectUri", "redirectUri must be a string"), t.scope !== void 0) {
-		let e = R(t.scope);
+	if (typeof i == "string" && R(i) || r("authorizationEndpoint", "authorizationEndpoint must be an https URL"), t.redirectUri !== void 0 && typeof t.redirectUri != "string" && r("redirectUri", "redirectUri must be a string"), t.scope !== void 0) {
+		let e = z(t.scope);
 		e && r("scope", e);
 	}
 	return n;
 }
 // src/providers/index.ts
-var B = typeof window < "u" ? window.location.origin : "", V = {
+var V = typeof window < "u" ? window.location.origin : "", H = {
 	apple: {
 		name: "apple",
 		url: "",
 		authorizationEndpoint: "https://appleid.apple.com/auth/authorize",
-		redirectUri: B + "/",
+		redirectUri: V + "/",
 		requiredUrlParams: ["scope"],
 		optionalUrlParams: ["response_mode"],
 		responseType: "code id_token",
@@ -573,7 +580,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "facebook",
 		url: "/auth/facebook",
 		authorizationEndpoint: "https://www.facebook.com/v2.5/dialog/oauth",
-		redirectUri: B + "/",
+		redirectUri: V + "/",
 		responseMode: ["form_post"],
 		requiredUrlParams: ["scope"],
 		scope: ["email"],
@@ -589,7 +596,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "google",
 		url: "/auth/google",
 		authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
-		redirectUri: B,
+		redirectUri: V,
 		requiredUrlParams: ["scope"],
 		optionalUrlParams: ["display"],
 		scope: ["profile", "email"],
@@ -606,7 +613,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "github",
 		url: "/auth/github",
 		authorizationEndpoint: "https://github.com/login/oauth/authorize",
-		redirectUri: B,
+		redirectUri: V,
 		optionalUrlParams: ["scope"],
 		scope: ["user:email"],
 		scopeDelimiter: " ",
@@ -620,7 +627,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "instagram",
 		url: "/auth/instagram",
 		authorizationEndpoint: "https://api.instagram.com/oauth/authorize",
-		redirectUri: B,
+		redirectUri: V,
 		requiredUrlParams: ["scope"],
 		scope: ["basic"],
 		scopeDelimiter: "+",
@@ -634,7 +641,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "twitter",
 		url: "/auth/twitter",
 		authorizationEndpoint: "https://api.twitter.com/oauth/authenticate",
-		redirectUri: B,
+		redirectUri: V,
 		oauthType: "1.0",
 		popupOptions: {
 			width: 495,
@@ -645,7 +652,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "bitbucket",
 		url: "/auth/bitbucket",
 		authorizationEndpoint: "https://bitbucket.org/site/oauth2/authorize",
-		redirectUri: B + "/",
+		redirectUri: V + "/",
 		optionalUrlParams: ["scope"],
 		scope: ["email"],
 		scopeDelimiter: " ",
@@ -659,7 +666,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "linkedin",
 		url: "/auth/linkedin",
 		authorizationEndpoint: "https://www.linkedin.com/oauth/v2/authorization",
-		redirectUri: B,
+		redirectUri: V,
 		requiredUrlParams: ["state", "scope"],
 		scope: ["r_emailaddress"],
 		scopeDelimiter: " ",
@@ -674,7 +681,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "vkontakte",
 		url: "/auth/vkontakte",
 		authorizationEndpoint: "https://oauth.vk.com/authorize",
-		redirectUri: B + "/",
+		redirectUri: V + "/",
 		requiredUrlParams: ["scope"],
 		scope: ["email"],
 		scopeDelimiter: ",",
@@ -689,7 +696,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "live",
 		url: "/auth/live",
 		authorizationEndpoint: "https://login.live.com/oauth20_authorize.srf",
-		redirectUri: B,
+		redirectUri: V,
 		requiredUrlParams: ["display", "scope"],
 		scope: ["wl.emails"],
 		scopeDelimiter: " ",
@@ -704,7 +711,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "discord",
 		url: "/auth/discord",
 		authorizationEndpoint: "https://discord.com/oauth2/authorize",
-		redirectUri: B,
+		redirectUri: V,
 		requiredUrlParams: ["scope"],
 		scope: ["identify", "email"],
 		scopeDelimiter: " ",
@@ -718,7 +725,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "twitch",
 		url: "/auth/twitch",
 		authorizationEndpoint: "https://id.twitch.tv/oauth2/authorize",
-		redirectUri: B,
+		redirectUri: V,
 		requiredUrlParams: ["scope"],
 		scope: ["user:read:email"],
 		scopeDelimiter: " ",
@@ -732,7 +739,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "microsoft",
 		url: "/auth/microsoft",
 		authorizationEndpoint: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
-		redirectUri: B,
+		redirectUri: V,
 		requiredUrlParams: ["scope"],
 		scope: [
 			"openid",
@@ -750,7 +757,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "gitlab",
 		url: "/auth/gitlab",
 		authorizationEndpoint: "https://gitlab.com/oauth/authorize",
-		redirectUri: B,
+		redirectUri: V,
 		requiredUrlParams: ["scope"],
 		scope: ["read_user"],
 		scopeDelimiter: " ",
@@ -764,7 +771,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "slack",
 		url: "/auth/slack",
 		authorizationEndpoint: "https://slack.com/openid/connect/authorize",
-		redirectUri: B,
+		redirectUri: V,
 		requiredUrlParams: ["scope"],
 		scope: [
 			"openid",
@@ -782,7 +789,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "spotify",
 		url: "/auth/spotify",
 		authorizationEndpoint: "https://accounts.spotify.com/authorize",
-		redirectUri: B,
+		redirectUri: V,
 		requiredUrlParams: ["scope"],
 		scope: ["user-read-email"],
 		scopeDelimiter: " ",
@@ -796,7 +803,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "reddit",
 		url: "/auth/reddit",
 		authorizationEndpoint: "https://www.reddit.com/api/v1/authorize",
-		redirectUri: B,
+		redirectUri: V,
 		requiredUrlParams: ["state", "scope"],
 		scope: ["identity"],
 		scopeDelimiter: " ",
@@ -811,7 +818,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "dropbox",
 		url: "/auth/dropbox",
 		authorizationEndpoint: "https://www.dropbox.com/oauth2/authorize",
-		redirectUri: B,
+		redirectUri: V,
 		oauthType: "2.0",
 		popupOptions: {
 			width: 600,
@@ -822,7 +829,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: "amazon",
 		url: "/auth/amazon",
 		authorizationEndpoint: "https://www.amazon.com/ap/oa",
-		redirectUri: B,
+		redirectUri: V,
 		requiredUrlParams: ["scope"],
 		scope: ["profile"],
 		scopeDelimiter: " ",
@@ -836,7 +843,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: null,
 		url: "/auth/oauth1",
 		authorizationEndpoint: null,
-		redirectUri: B,
+		redirectUri: V,
 		oauthType: "1.0",
 		popupOptions: null
 	},
@@ -844,7 +851,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 		name: null,
 		url: "/auth/oauth2",
 		clientId: null,
-		redirectUri: B,
+		redirectUri: V,
 		authorizationEndpoint: null,
 		defaultUrlParams: [
 			"response_type",
@@ -866,7 +873,7 @@ var B = typeof window < "u" ? window.location.origin : "", V = {
 			redirectUri: "redirectUri"
 		}
 	}
-}, H = V.apple, U = V.facebook, W = V.google, G = V.github, te = V.instagram, K = V.twitter, q = V.bitbucket, J = V.linkedin, Y = V.vkontakte, X = V.live, Z = V.discord, Q = V.twitch, ne = V.microsoft, re = V.gitlab, ie = V.slack, ae = V.spotify, oe = V.reddit, $ = V.dropbox, se = V.amazon, ce = V.oauth1, le = V.oauth2, ue = F;
-export { se as Amazon, H as Apple, g as AuthError, q as Bitbucket, Z as Discord, $ as Dropbox, U as Facebook, G as Github, re as Gitlab, W as Google, te as Instagram, J as Linkedin, X as Live, ne as Microsoft, ce as Oauth1, le as Oauth2, I as PROVIDER_SCHEMA_VERSION, V as Providers, oe as Reddit, ie as Slack, ae as Spotify, Q as Twitch, K as Twitter, F as UniversalSocialauth, Y as Vkontakte, _ as classifyError, E as createCodeChallenge, T as createCodeVerifier, ue as default, k as discoverOidc, v as toOutcome, A as validateIdTokenClaims, z as validateProviderDefinition };
+}, U = H.apple, W = H.facebook, G = H.google, te = H.github, K = H.instagram, q = H.twitter, J = H.bitbucket, Y = H.linkedin, X = H.vkontakte, Z = H.live, Q = H.discord, ne = H.twitch, re = H.microsoft, ie = H.gitlab, ae = H.slack, oe = H.spotify, $ = H.reddit, se = H.dropbox, ce = H.amazon, le = H.oauth1, ue = H.oauth2, de = I;
+export { ce as Amazon, U as Apple, _ as AuthError, J as Bitbucket, Q as Discord, se as Dropbox, W as Facebook, te as Github, ie as Gitlab, G as Google, K as Instagram, Y as Linkedin, Z as Live, re as Microsoft, le as Oauth1, ue as Oauth2, L as PROVIDER_SCHEMA_VERSION, H as Providers, $ as Reddit, ae as Slack, oe as Spotify, ne as Twitch, q as Twitter, I as UniversalSocialauth, X as Vkontakte, v as classifyError, D as createCodeChallenge, E as createCodeVerifier, de as default, A as discoverOidc, y as toOutcome, j as validateIdTokenClaims, B as validateProviderDefinition };
 
 //# sourceMappingURL=index.mjs.map

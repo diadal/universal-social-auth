@@ -1,13 +1,14 @@
 function base64UrlEncode(bytes: Uint8Array): string {
   let binary = '';
   bytes.forEach(byte => {
-    binary += String.fromCharCode(byte);
+    binary += String.fromCodePoint(byte);
   });
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  // Base64 padding only appears at the end, so removing every '=' is equivalent.
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 function getCrypto(): Crypto {
-  if (typeof globalThis.crypto === 'undefined' || !globalThis.crypto.subtle) {
+  if (!globalThis.crypto?.subtle) {
     throw new Error('Web Crypto (crypto.subtle) is required for PKCE');
   }
   return globalThis.crypto;

@@ -22,7 +22,7 @@ const auth = new UniversalSocialauth(axios, {
 });
 
 const button = document.getElementById('google-login') as HTMLButtonElement;
-const status = document.getElementById('status') as HTMLParagraphElement;
+const status = document.getElementById('status') as HTMLOutputElement;
 
 function report(message: string): void {
   status.textContent = message;

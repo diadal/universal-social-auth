@@ -97,7 +97,7 @@ export function getFullUrlPath (location: Location | HTMLAnchorElement): string 
     location.hostname +
     ':' +
     (location.port || (isHttps ? '443' : '80')) +
-    (location.pathname.startsWith("/")
+    (location.pathname.startsWith('/')
       ? location.pathname
       : '/' + location.pathname)
   )

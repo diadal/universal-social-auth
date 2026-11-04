@@ -19,7 +19,12 @@ export interface IdTokenExpectations {
 }
 
 function normalizeIssuer(issuer: string): string {
-  return issuer.replace(/\/+$/, '');
+  // Loop instead of /\/+$/, which backtracks super-linearly on long inputs.
+  let end = issuer.length;
+  while (end > 0 && issuer.charAt(end - 1) === '/') {
+    end--;
+  }
+  return issuer.slice(0, end);
 }
 
 function assertSecureUrl(value: unknown, field: string): string {
@@ -71,7 +76,7 @@ export function validateIdTokenClaims(
   }
 
   const audience: unknown[] = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
-  if (audience.indexOf(expected.audience) === -1) {
+  if (!audience.includes(expected.audience)) {
     throw new AuthError('invalid_token', 'ID token audience mismatch');
   }
   if (audience.length > 1 && claims.azp !== expected.audience) {
