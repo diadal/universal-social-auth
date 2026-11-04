@@ -77,8 +77,20 @@ export default defineConfig({
       {
         text: "Support",
         items: [{ text: "Sponsor this project", link: "/sponsor" }]
+      },
+      {
+        text: "Legal and contact",
+        items: [
+          { text: "Contact", link: "/contact" },
+          { text: "Terms and Conditions", link: "/terms" },
+          { text: "Privacy Policy", link: "/privacy" }
+        ]
       }
     ],
+    footer: {
+      message: "Released under the MIT License. Published by Diadal Nigeria Limited.",
+      copyright: "© 2026 Diadal Nigeria Limited"
+    },
     socialLinks: [
       { icon: "github", link: "https://github.com/diadal/universal-social-auth" },
       { icon: "npm", link: "https://www.npmjs.com/package/universal-social-auth" }
