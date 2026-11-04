@@ -1,6 +1,6 @@
 {
   "name": "universal-social-auth",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Social Authentication for web and PWA, with a Capacitor adapter for iOS/Android (device verification pending)",
   "main": "dist/index.js",
   "module": "dist/index.js",

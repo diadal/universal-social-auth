@@ -182,7 +182,6 @@ var d = typeof window < "u" ? window.location.origin : "", f = {
 		requiredUrlParams: ["state", "scope"],
 		scope: ["r_emailaddress"],
 		scopeDelimiter: " ",
-		state: "STATE",
 		oauthType: "2.0",
 		popupOptions: {
 			width: 527,
@@ -319,7 +318,6 @@ var d = typeof window < "u" ? window.location.origin : "", f = {
 		requiredUrlParams: ["state", "scope"],
 		scope: ["identity"],
 		scopeDelimiter: " ",
-		state: "STATE",
 		oauthType: "2.0",
 		popupOptions: {
 			width: 600,

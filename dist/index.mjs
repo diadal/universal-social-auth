@@ -36,25 +36,22 @@ function n(e) {
 	return e === void 0;
 }
 function r(e) {
-	return typeof e == "string";
-}
-function i(e) {
 	return e.replace(/\/+/g, "/").replace(/\/\?/g, "?").replace(/\/#/g, "#").replace(/:\//g, "://");
 }
-function a(e, t) {
-	return /^(?:[a-z]+:)?\/\//i.test(t) ? t : i([e, t].join("/"));
+function i(e, t) {
+	return /^(?:[a-z]+:)?\/\//i.test(t) ? t : r([e, t].join("/"));
 }
-function o(e) {
+function a(e) {
 	let t = e.protocol === "https:";
 	return e.protocol + "//" + e.hostname + ":" + (e.port || (t ? "443" : "80")) + (e.pathname.startsWith("/") ? e.pathname : "/" + e.pathname);
 }
-function s(e) {
+function o(e) {
 	let t = {}, n, r;
 	return (e || "").split("&").forEach((e) => {
 		e && (r = e.split("="), n = decodeURIComponent(r[0]), t[n] = !r[1] || decodeURIComponent(r[1]));
 	}), t;
 }
-function c(e) {
+function s(e) {
 	if (e.length === 0) return {};
 	let t = {};
 	return e.split(";").forEach((e) => {
@@ -62,7 +59,7 @@ function c(e) {
 		t[i] = decodeURIComponent(r);
 	}), t;
 }
-function l(e) {
+function c(e) {
 	let { path: t, domain: n, expires: r, secure: i } = e, a = r, o = t, s = n;
 	return [
 		t == null ? "" : ";path=" + o,
@@ -71,16 +68,16 @@ function l(e) {
 		i == null || i === !1 ? "" : ";secure"
 	].join("");
 }
-function u(e, t, n) {
+function l(e, t, n) {
 	return [
 		encodeURIComponent(e),
 		"=",
 		encodeURIComponent(t),
-		l(n)
+		c(n)
 	].join("");
 }
 // src/storage/cookie-storage.ts
-var d = class {
+var u = class {
 	constructor(e) {
 		let t = {
 			domain: window.location.hostname,
@@ -94,14 +91,14 @@ var d = class {
 		};
 	}
 	setItem(e, t) {
-		let n = u(e, t, { ...this._defaultOptions });
+		let n = l(e, t, { ...this._defaultOptions });
 		this._setCookie(n);
 	}
 	getItem(e) {
-		return c(this._getCookie())[e] ?? null;
+		return s(this._getCookie())[e] ?? null;
 	}
 	removeItem(e) {
-		let t = u(e, "", {
+		let t = l(e, "", {
 			...this._defaultOptions,
 			expires: /* @__PURE__ */ new Date(0)
 		});
@@ -113,7 +110,7 @@ var d = class {
 	_setCookie(e) {
 		document.cookie = e;
 	}
-}, ee = class {
+}, d = class {
 	constructor(e) {
 		this.namespace = e ?? null;
 	}
@@ -171,29 +168,29 @@ function m(e) {
 		return !1;
 	}
 }
-function h(e) {
+function ee(e) {
 	switch (e.storageType) {
-		case "localStorage": return m(() => window.localStorage) ? new ee(e.storageNamespace) : m(() => window.sessionStorage) ? new p(e.storageNamespace) : new d(e.cookieStorage);
-		case "sessionStorage": return m(() => window.sessionStorage) ? new p(e.storageNamespace) : new d(e.cookieStorage);
-		case "cookieStorage": return new d(e.cookieStorage);
+		case "localStorage": return m(() => window.localStorage) ? new d(e.storageNamespace) : m(() => window.sessionStorage) ? new p(e.storageNamespace) : new u(e.cookieStorage);
+		case "sessionStorage": return m(() => window.sessionStorage) ? new p(e.storageNamespace) : new u(e.cookieStorage);
+		case "cookieStorage": return new u(e.cookieStorage);
 		default: return new f(e.storageNamespace);
 	}
 }
 // src/errors.ts
-var g = class extends Error {
+var h = class extends Error {
 	constructor(e, t) {
 		super(t), this.name = "AuthError", this.kind = e;
 	}
 };
-function _(e) {
-	return e instanceof g ? e.kind : "unknown";
+function g(e) {
+	return e instanceof h ? e.kind : "unknown";
 }
-async function v(e) {
+async function _(e) {
 	try {
 		let t = await e;
 		return t instanceof Error ? {
 			ok: !1,
-			kind: _(t),
+			kind: g(t),
 			error: t
 		} : {
 			ok: !0,
@@ -202,44 +199,48 @@ async function v(e) {
 	} catch (e) {
 		return {
 			ok: !1,
-			kind: _(e),
+			kind: g(e),
 			error: e instanceof Error ? e : Error(String(e))
 		};
 	}
 }
 // src/oauth/popup.ts
+var v = 3e5;
 function y(e) {
-	if (!e.search && !e.hash) return new g("provider", "OAuth redirect has occurred but no query or hash parameters were found.");
+	if (!e.search && !e.hash) return new h("provider", "OAuth redirect has occurred but no query or hash parameters were found.");
 	let t = {
-		...s(e.search.substring(1)),
-		...s(e.hash.substring(1))
+		...o(e.search.substring(1)),
+		...o(e.hash.substring(1))
 	};
-	return t.error ? t.error === "access_denied" ? new g("cancelled", "Authorization was denied") : new g("provider", "OAuth provider returned an error") : t;
+	return t.error ? t.error === "access_denied" ? new h("cancelled", "Authorization was denied") : new h("provider", "OAuth provider returned an error") : t;
 }
 var b = class {
 	constructor(e, t, n) {
 		this.popup = null, this.url = e, this.name = t, this.popupOptions = n;
 	}
 	open(e, t, n) {
+		let r = n ?? v;
+		if (!Number.isFinite(r) || r <= 0) return Promise.reject(new h("config", "callbackTimeout must be a positive finite number"));
 		try {
-			return this.popup = window.open(this.url, this.name, this._stringifyOptions()), this.popup ? (this.popup.focus && this.popup.focus(), t ? Promise.resolve() : this.pooling(e, n)) : Promise.reject(new g("popup_blocked", "Auth popup was blocked by the browser"));
+			return this.popup = window.open(this.url, this.name, this._stringifyOptions()), this.popup ? (this.popup.focus && this.popup.focus(), t ? Promise.resolve() : this.pooling(e, r)) : Promise.reject(new h("popup_blocked", "Auth popup was blocked by the browser"));
 		} catch {
-			return Promise.reject(new g("unknown", "OAuth popup error occurred"));
+			return Promise.reject(new h("unknown", "OAuth popup error occurred"));
 		}
 	}
 	pooling(e, t) {
-		return new Promise((n, r) => {
+		let n = t ?? v;
+		return !Number.isFinite(n) || n <= 0 ? Promise.reject(new h("config", "callbackTimeout must be a positive finite number")) : new Promise((t, r) => {
 			let i = document.createElement("a");
 			i.href = e;
-			let a = o(i), s = t ? Date.now() + t : 0, c = 0, l = (e) => {
-				window.clearInterval(c), c = 0, e instanceof g ? r(e) : n(e);
+			let o = a(i), s = Date.now() + n, c = 0, l = (e) => {
+				window.clearInterval(c), c = 0, e instanceof h ? r(e) : t(e);
 			};
 			c = window.setInterval(() => {
 				let e = this.popup;
-				if (!e || e.closed || e.closed === void 0) l(new g("cancelled", "Auth popup window closed"));
-				else if (s && Date.now() > s) e.close(), l(new g("timeout", "Auth popup timed out"));
+				if (!e || e.closed || e.closed === void 0) l(new h("cancelled", "Auth popup window closed"));
+				else if (s && Date.now() > s) e.close(), l(new h("timeout", "Auth popup timed out"));
 				else try {
-					if (o(e.location) !== a) return;
+					if (a(e.location) !== o) return;
 					let t = y(e.location);
 					e.close(), l(t);
 				} catch {}
@@ -309,7 +310,7 @@ var ne = {
 		let e = {};
 		e.method = "POST";
 		let t = this.options.requestDataKey;
-		return e[t] = { ...this.providerConfig }, e.withCredentials = this.options.withCredentials, e.url = this.options.baseUrl ? a(this.options.baseUrl, this.providerConfig.url) : this.providerConfig.url, this.$http(e);
+		return e[t] = { ...this.providerConfig }, e.withCredentials = this.options.withCredentials, e.url = this.options.baseUrl ? i(this.options.baseUrl, this.providerConfig.url) : this.providerConfig.url, this.$http(e);
 	}
 	async openPopup(e) {
 		let t = e[this.options.responseDataKey], n = w().native;
@@ -320,7 +321,7 @@ var ne = {
 	}
 	async openNative(e, t) {
 		let { oauth_token_secret: n, ...r } = e, i = typeof e.oauth_token == "string" ? e.oauth_token : "";
-		if (!i) throw new g("invalid_token", "OAuth request token is missing");
+		if (!i) throw new h("invalid_token", "OAuth request token is missing");
 		let a = [this.providerConfig.authorizationEndpoint, this.buildQueryString(r)].join("?");
 		await t.transactions.save(i, {
 			provider: this.providerConfig.name ?? "",
@@ -336,7 +337,7 @@ var ne = {
 			throw await t.transactions.discard(i), e;
 		}
 		let c = await t.transactions.consume(typeof s.oauth_token == "string" ? s.oauth_token : i);
-		if (!c) throw new g("state_mismatch", "OAuth request token mismatch");
+		if (!c) throw new h("state_mismatch", "OAuth request token mismatch");
 		return {
 			...s,
 			oauth_token_secret: c.oauth1RequestTokenSecret
@@ -348,8 +349,8 @@ var ne = {
 			...e
 		}, r = {};
 		r.method = "POST";
-		let i = this.options.requestDataKey;
-		return r[i] = n, r.withCredentials = this.options.withCredentials, r.url = this.options.baseUrl ? a(this.options.baseUrl, this.providerConfig.url) : this.providerConfig.url, this.$http(r);
+		let a = this.options.requestDataKey;
+		return r[a] = n, r.withCredentials = this.options.withCredentials, r.url = this.options.baseUrl ? i(this.options.baseUrl, this.providerConfig.url) : this.providerConfig.url, this.$http(r);
 	}
 	buildQueryString(e) {
 		let t = [];
@@ -389,31 +390,31 @@ function A(e) {
 	return e.slice(0, t);
 }
 function j(e, t) {
-	if (typeof e != "string") throw new g("config", `OIDC ${t} is missing`);
+	if (typeof e != "string") throw new h("config", `OIDC ${t} is missing`);
 	let n = new URL(e), r = n.hostname === "localhost" || n.hostname === "127.0.0.1";
-	if (n.protocol !== "https:" && !(n.protocol === "http:" && r)) throw new g("config", `OIDC ${t} must use https`);
+	if (n.protocol !== "https:" && !(n.protocol === "http:" && r)) throw new h("config", `OIDC ${t} must use https`);
 	return e;
 }
 async function M(e, t) {
 	let n = A(j(e, "issuer")), r = (await t.get(`${n}/.well-known/openid-configuration`)).data;
-	if (!r || typeof r != "object") throw new g("config", "OIDC discovery document is invalid");
-	if (typeof r.issuer != "string" || A(r.issuer) !== n) throw new g("invalid_token", "OIDC discovery issuer does not match");
+	if (!r || typeof r != "object") throw new h("config", "OIDC discovery document is invalid");
+	if (typeof r.issuer != "string" || A(r.issuer) !== n) throw new h("invalid_token", "OIDC discovery issuer does not match");
 	return j(r.authorization_endpoint, "authorization_endpoint"), r;
 }
 function N(e, t) {
-	if (A(typeof e.iss == "string" ? e.iss : "") !== A(t.issuer)) throw new g("invalid_token", "ID token issuer mismatch");
+	if (A(typeof e.iss == "string" ? e.iss : "") !== A(t.issuer)) throw new h("invalid_token", "ID token issuer mismatch");
 	let n = Array.isArray(e.aud) ? e.aud : [e.aud];
-	if (!n.includes(t.audience)) throw new g("invalid_token", "ID token audience mismatch");
-	if (n.length > 1 && e.azp !== t.audience) throw new g("invalid_token", "ID token authorized party mismatch");
+	if (!n.includes(t.audience)) throw new h("invalid_token", "ID token audience mismatch");
+	if (n.length > 1 && e.azp !== t.audience) throw new h("invalid_token", "ID token authorized party mismatch");
 	let r = t.now ?? Math.floor(Date.now() / 1e3), i = t.clockSkewSeconds ?? 60;
-	if (typeof e.exp != "number" || e.exp + i < r) throw new g("invalid_token", "ID token has expired");
-	if (t.nonce !== void 0 && e.nonce !== t.nonce) throw new g("invalid_token", "ID token nonce mismatch");
+	if (typeof e.exp != "number" || e.exp + i < r) throw new h("invalid_token", "ID token has expired");
+	if (t.nonce !== void 0 && e.nonce !== t.nonce) throw new h("invalid_token", "ID token nonce mismatch");
 }
 // src/oauth/oauth2.ts
-function ie(e, t) {
+function P(e, t) {
 	return !t || /[?&]state=/.test(e) ? e : `${e}${e.includes("?") ? "&" : "?"}state=${encodeURIComponent(t)}`;
 }
-var ae = {
+var ie = {
 	name: null,
 	url: null,
 	clientId: null,
@@ -437,20 +438,20 @@ var ae = {
 	},
 	oauthType: "2.0",
 	popupOptions: {}
-}, P = class {
+}, ae = class {
 	constructor(e, t, n, r) {
 		this.$http = e, this.storage = t, this.providerConfig = {
-			...ae,
+			...ie,
 			...n
 		}, this.options = r;
 	}
 	async init() {
 		let e = w();
-		this.resolveTransactionState(e.kind === "native");
-		let t = this.providerConfig, n = {}, r = Array.isArray(t.optionalUrlParams) ? [...t.optionalUrlParams] : [];
+		this.resolveTransactionState();
+		let t = this.providerConfig, n = {}, r = Array.isArray(t.optionalUrlParams) ? [...new Set(t.optionalUrlParams)] : [];
 		typeof t.issuer == "string" && t.issuer && (t.authorizationEndpoint = (await M(t.issuer, this.$http)).authorization_endpoint), await this.addPkceAndNonce(n, r), r.length && (t.optionalUrlParams = r);
 		let i = typeof t.callbackTimeout == "number" ? t.callbackTimeout : void 0, a = [t.authorizationEndpoint, this._stringifyRequestParams()].join("?");
-		if (e.kind === "native" && e.native) return this.initNative(e, ie(a, this.transactionState), n, i);
+		if (e.kind === "native" && e.native) return this.initNative(e, P(a, this.transactionState), n, i);
 		let o = S.createSession(a, t.name, t.popupOptions);
 		this.oauthPopup = o;
 		let s = await o.open(t.redirectUri, t.skipPooling, i);
@@ -459,25 +460,33 @@ var ae = {
 			...n
 		};
 	}
-	resolveTransactionState(e) {
-		let t = this.providerConfig.state, n = this.providerConfig.state;
-		typeof t == "function" ? this.transactionState = t() : r(n) && (this.transactionState = n), e && !this.transactionState && (this.transactionState = D(32));
+	resolveTransactionState() {
+		let e = this.providerConfig.state;
+		if (typeof e == "function") {
+			let t = e();
+			if (typeof t != "string" || t.length === 0) throw new h("config", "OAuth state factory must return a non-empty string");
+			this.transactionState = t;
+		} else {
+			if (typeof e == "string" && e.length > 0) throw new h("config", "OAuth state must be generated per sign-in attempt; configure state as a function or omit it");
+			this.transactionState = D(32);
+		}
 	}
 	async addPkceAndNonce(e, t) {
-		let n = this.providerConfig;
+		let n = this.providerConfig, r = (e) => {
+			t.includes(e) || t.push(e);
+		};
 		if (n.pkce) {
-			let r = O();
-			n.codeChallenge = await k(r), n.codeChallengeMethod = "S256", e.codeVerifier = r, t.push("code_challenge", "code_challenge_method");
+			let t = O();
+			n.codeChallenge = await k(t), n.codeChallengeMethod = "S256", e.codeVerifier = t, r("code_challenge"), r("code_challenge_method");
 		}
 		if (n.oidc) {
-			let r = D(16);
-			n.nonce = r, e.nonce = r, t.push("nonce");
+			let t = D(16);
+			n.nonce = t, e.nonce = t, r("nonce");
 		}
 	}
 	assertState(e) {
-		if (!this.providerConfig.state) return;
 		let t = this.transactionState;
-		if (!t || e.state !== t) throw new g("state_mismatch", "OAuth state mismatch");
+		if (!t || e.state !== t) throw new h("state_mismatch", "OAuth state mismatch");
 	}
 	async initNative(e, t, n, r) {
 		let i = this.providerConfig, a = e.native, o = this.transactionState;
@@ -496,7 +505,7 @@ var ae = {
 		}
 		if (!c) return;
 		let l = await a.transactions.consume(o);
-		if (l?.provider !== i.name || !l) throw new g("state_mismatch", "OAuth state mismatch");
+		if (l?.provider !== i.name || !l) throw new h("state_mismatch", "OAuth state mismatch");
 		return {
 			...c,
 			...l.codeVerifier !== void 0 && { codeVerifier: l.codeVerifier },
@@ -504,17 +513,17 @@ var ae = {
 		};
 	}
 	_stringifyRequestParams() {
-		let e = [];
+		let e = [], n = !1;
 		return [
 			"defaultUrlParams",
 			"requiredUrlParams",
 			"optionalUrlParams"
-		].forEach((n) => {
-			this.providerConfig[n] && Array.isArray(this.providerConfig[n]) && this.providerConfig[n].forEach((n) => {
-				let r = t(n), i = this.providerConfig[n], a = typeof i == "function" ? i() : this.providerConfig[r];
-				(n !== "redirect_uri" || a) && (n === "state" && (a = encodeURIComponent(this.transactionState ?? "")), n === "scope" && Array.isArray(a) && (a = a.join(this.providerConfig.scopeDelimiter), this.providerConfig.scopePrefix && (a = [this.providerConfig.scopePrefix, a].join(this.providerConfig.scopeDelimiter))), e.push([n, a]));
+		].forEach((r) => {
+			this.providerConfig[r] && Array.isArray(this.providerConfig[r]) && this.providerConfig[r].forEach((r) => {
+				let i = t(r), a = this.providerConfig[r], o;
+				r === "state" ? (n = !0, o = encodeURIComponent(this.transactionState ?? "")) : o = typeof a == "function" ? a() : this.providerConfig[i], (r !== "redirect_uri" || o) && (r === "scope" && Array.isArray(o) && (o = o.join(this.providerConfig.scopeDelimiter), this.providerConfig.scopePrefix && (o = [this.providerConfig.scopePrefix, o].join(this.providerConfig.scopeDelimiter))), e.push([r, o]));
 			});
-		}), e.map((e) => e.join("=")).join("&");
+		}), n || e.push(["state", encodeURIComponent(this.transactionState ?? "")]), e.map((e) => e.join("=")).join("&");
 	}
 };
 // src/lifecycle.ts
@@ -580,7 +589,7 @@ var z = class {
 			...this.defaultOptions,
 			...i
 		};
-		this.options = a, this.storage = h(a);
+		this.options = a, this.storage = ee(a);
 		let o = a, s = o.provider, c = s;
 		if (o.bindRequestInterceptor && typeof o.bindRequestInterceptor == "function" && o.bindResponseInterceptor && typeof o.bindResponseInterceptor == "function") {
 			this.ejectInterceptors();
@@ -606,16 +615,16 @@ var z = class {
 					t = new re(this.$http, this.storage, d, a);
 					break;
 				case "2.0":
-					t = new P(this.$http, this.storage, d, a);
+					t = new ae(this.$http, this.storage, d, a);
 					break;
-				default: throw new g("config", "Invalid OAuth type");
+				default: throw new h("config", "Invalid OAuth type");
 			}
 			F(u, "onStart", { provider: e });
 			try {
 				let r = await t.init(n);
 				return F(u, "onComplete", { provider: e }), r;
 			} catch (t) {
-				let n = t instanceof Error ? t : Error(String(t)), r = _(n);
+				let n = t instanceof Error ? t : Error(String(t)), r = g(n);
 				return r === "cancelled" ? F(u, "onCancel", { provider: e }) : F(u, "onError", {
 					provider: e,
 					kind: r
@@ -659,7 +668,7 @@ function K(e) {
 function q(e, t) {
 	return {
 		ok: !1,
-		error: new g(e, t)
+		error: new h(e, t)
 	};
 }
 function J(e, t) {
@@ -835,7 +844,6 @@ var Y = typeof window < "u" ? window.location.origin : "", X = {
 		requiredUrlParams: ["state", "scope"],
 		scope: ["r_emailaddress"],
 		scopeDelimiter: " ",
-		state: "STATE",
 		oauthType: "2.0",
 		popupOptions: {
 			width: 527,
@@ -972,7 +980,6 @@ var Y = typeof window < "u" ? window.location.origin : "", X = {
 		requiredUrlParams: ["state", "scope"],
 		scope: ["identity"],
 		scopeDelimiter: " ",
-		state: "STATE",
 		oauthType: "2.0",
 		popupOptions: {
 			width: 600,
@@ -1047,7 +1054,7 @@ async function Me(e, t, n) {
 	});
 	if (!r.ok) throw r.error;
 	let i = Ne(r.params), a = i ? await t.transactions.consume(i) : void 0;
-	if (!a) throw new g("state_mismatch", "No pending sign-in matches this callback");
+	if (!a) throw new h("state_mismatch", "No pending sign-in matches this callback");
 	return {
 		provider: a.provider,
 		params: Pe(r.params, a)
@@ -1070,7 +1077,7 @@ var Fe = 6e5, Q = "usa.tx.", $ = "usa.tx.index", Ie = class {
 		return this.run(async () => {
 			await this.purgeExpired();
 			let n = await this.readIndex();
-			if (n.includes(e)) throw new g("state_mismatch", "OAuth state mismatch");
+			if (n.includes(e)) throw new h("state_mismatch", "OAuth state mismatch");
 			let r = {
 				...t,
 				createdAt: this.now()
@@ -1129,6 +1136,6 @@ var Fe = 6e5, Q = "usa.tx.", $ = "usa.tx.index", Ie = class {
 		e.length === 0 ? await this.kv.remove($) : await this.kv.set($, JSON.stringify(e));
 	}
 }, Le = z;
-export { ke as Amazon, Z as Apple, g as AuthError, _e as Bitbucket, xe as Discord, Oe as Dropbox, fe as Facebook, me as Github, we as Gitlab, pe as Google, he as Instagram, ve as Linkedin, be as Live, Ce as Microsoft, Ae as Oauth1, je as Oauth2, ce as PROVIDER_SCHEMA_VERSION, X as Providers, De as Reddit, Te as Slack, Ee as Spotify, Ie as TransactionStore, Se as Twitch, ge as Twitter, z as UniversalSocialauth, ye as Vkontakte, _ as classifyError, k as createCodeChallenge, O as createCodeVerifier, Le as default, M as discoverOidc, U as isAllowedRedirectUri, Me as resumePendingSignIn, te as setPlatform, v as toOutcome, N as validateIdTokenClaims, de as validateProviderDefinition };
+export { ke as Amazon, Z as Apple, h as AuthError, _e as Bitbucket, xe as Discord, Oe as Dropbox, fe as Facebook, me as Github, we as Gitlab, pe as Google, he as Instagram, ve as Linkedin, be as Live, Ce as Microsoft, Ae as Oauth1, je as Oauth2, ce as PROVIDER_SCHEMA_VERSION, X as Providers, De as Reddit, Te as Slack, Ee as Spotify, Ie as TransactionStore, Se as Twitch, ge as Twitter, z as UniversalSocialauth, ye as Vkontakte, g as classifyError, k as createCodeChallenge, O as createCodeVerifier, Le as default, M as discoverOidc, U as isAllowedRedirectUri, Me as resumePendingSignIn, te as setPlatform, _ as toOutcome, N as validateIdTokenClaims, de as validateProviderDefinition };
 
 //# sourceMappingURL=index.mjs.map
