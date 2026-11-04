@@ -14,7 +14,7 @@ Before you change anything, identify:
 - The package manager: npm, pnpm, or yarn (look for a lockfile).
 - Whether `axios` is already installed.
 - The app's existing login button, callback route, and backend (Express, Laravel, Zintrust, or other).
-- Whether the app is browser-based or a Capacitor mobile app. Browser apps use the popup flow, which requires `window`, so it must run only in the browser. Capacitor apps must use the `universal-social-auth/capacitor` adapter and follow [docs/frameworks/capacitor.md](https://usa.zintrust.com/docs/frameworks/capacitor). Cordova is not supported.
+- Whether the app is browser-based or a Capacitor mobile app. Browser apps use the popup flow, which requires `window`, so it must run only in the browser. Capacitor apps must use the `universal-social-auth/capacitor` adapter and follow [docs/frameworks/capacitor.md](https://usa.zintrust.com/docs/frameworks/capacitor). The adapter has automated test coverage, but iOS/Android device verification is pending; do not describe it as production-verified. Cordova is not supported.
 
 Ask the user for anything you cannot determine, such as the provider (Google, GitHub, and others) and the production redirect URI.
 

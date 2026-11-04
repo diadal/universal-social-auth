@@ -1,26 +1,44 @@
 {
   "name": "universal-social-auth",
   "version": "0.3.1",
-  "description": "Social Authentication library for web, PWA, iOS, Android, and Capacitor apps",
+  "description": "Social Authentication for web and PWA, with a Capacitor adapter for iOS/Android (device verification pending)",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "unpkg": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "./dist/index.d.ts",
   "engines": {
     "node": ">=20.19.0"
   },
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.js"
+      }
     },
     "./providers": {
-      "import": "./dist/providers/index.mjs",
-      "require": "./dist/providers/index.js"
+      "import": {
+        "types": "./dist/providers/index.d.mts",
+        "default": "./dist/providers/index.mjs"
+      },
+      "require": {
+        "types": "./dist/providers/index.d.cts",
+        "default": "./dist/providers/index.js"
+      }
     },
     "./capacitor": {
-      "import": "./dist/capacitor/index.mjs",
-      "require": "./dist/capacitor/index.js"
+      "import": {
+        "types": "./dist/adapters/capacitor/index.d.mts",
+        "default": "./dist/capacitor/index.mjs"
+      },
+      "require": {
+        "types": "./dist/adapters/capacitor/index.d.cts",
+        "default": "./dist/capacitor/index.js"
+      }
     },
     "./dist/*": "./dist/*",
     "./package.json": "./package.json"
@@ -32,17 +50,20 @@
   "scripts": {
     "check-up": "npx npm-check-updates -u --reject typescript && npm install",
     "reload-git": "git rm -r --cached .  && git add .",
-    "build": "vite build && npm run build:providers && npm run build:capacitor",
+    "build": "vite build && npm run build:providers && npm run build:capacitor && npm run build:types",
     "build:dev": "vite build --mode development && npm run build:providers:dev && npm run build:capacitor:dev",
     "build:providers": "vite build --config vite.providers.config.ts",
     "build:providers:dev": "vite build --config vite.providers.config.ts --mode development",
     "build:capacitor": "vite build --config vite.capacitor.config.ts",
     "build:capacitor:dev": "vite build --config vite.capacitor.config.ts --mode development",
+    "build:types": "tsc -p tsconfig.build.json && node scripts/prepare-types.mjs",
+    "consumer:check": "node scripts/check-consumer-types.mjs",
+    "prepack": "npm run build",
     "preview": "vite preview",
     "catalog:generate": "node scripts/generate-provider-catalog.mjs",
     "catalog:check": "node scripts/generate-provider-catalog.mjs --check",
     "check:bundle": "node scripts/check-bundle.mjs",
-    "compat:check": "node scripts/compat-check.mjs",
+    "compat:check": "node scripts/compat-check.mjs && npm run consumer:check",
     "dev": "npm --prefix docs-site run dev",
     "d:doc": "npm --prefix docs-site run build && npm --prefix docs-site run deploy",
     "d:mcp": "npm --prefix mcp run deploy",

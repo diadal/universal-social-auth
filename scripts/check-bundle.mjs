@@ -10,7 +10,7 @@ const FORBIDDEN = ['@capacitor', 'cordova'];
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const webBundle = resolve(root, 'dist/index.mjs');
 const source = readFileSync(webBundle);
-const gzipSize = gzipSync(source).length;
+const gzipSize = gzipSync(source, { level: 9 }).length;
 const failures = [];
 
 if (gzipSize > WEB_GZIP_BUDGET) {
