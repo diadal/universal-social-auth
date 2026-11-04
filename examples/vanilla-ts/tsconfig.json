@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["es2020", "dom"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "paths": {
+      "universal-social-auth": ["../../src/index.ts"]
+    }
+  },
+  "include": ["./main.ts"]
+}

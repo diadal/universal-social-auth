@@ -1,9 +1,12 @@
 import OAuthPopup from './popup';
 import { camelCase, isString } from '../utils';
+import { AuthError } from '../errors';
+import { createCodeChallenge, createCodeVerifier, createRandomString } from '../pkce';
+import { discoverOidc } from '../oidc';
 
 import { AxiosInstance, AxiosResponse } from 'axios';
 
-interface def {
+interface ProviderDefaults {
   name: string | null;
   url: string | null;
   clientId: string | null;
@@ -25,7 +28,7 @@ interface def {
   popupOptions: Record<string, unknown>;
 }
 
-const defaultProviderConfig: def = {
+const defaultProviderConfig: ProviderDefaults = {
   name: null,
   url: null,
   clientId: null,
@@ -47,10 +50,8 @@ const defaultProviderConfig: def = {
   popupOptions: {}
 };
 
-export interface Func {
-  (): unknown;
-}
-export interface oAuth {
+export type Func = () => unknown;
+export interface OAuthParams {
   [x: string]: number | string;
   code: string;
   clientId: string | number;
@@ -58,10 +59,16 @@ export interface oAuth {
   state: string;
 }
 
-export type RepsO = AxiosResponse & oAuth;
+export type RepsO = AxiosResponse & OAuthParams;
 
 export interface ProviderConfig {
-  [x: string]: number | string | Func | boolean | Record<string, unknown>;
+  [x: string]:
+    | number
+    | string
+    | Func
+    | boolean
+    | Record<string, unknown>
+    | string[];
   scopeDelimiter: string;
   scopePrefix: string;
   name: string;
@@ -85,7 +92,7 @@ export interface Storage1 {
   getItem: (arg0: string) => string;
 }
 
-type ProAndDef = ProviderConfig & def;
+type ProAndDef = ProviderConfig & ProviderDefaults;
 
 export default class OAuth2 {
   storage: Storage1;
@@ -118,31 +125,61 @@ export default class OAuth2 {
       this.storage.setItem(stateName, isStr);
     }
 
+    const cfg = this.providerConfig;
+    const extras: Record<string, string> = {};
+    const optionalParams = Array.isArray(cfg.optionalUrlParams)
+      ? [...cfg.optionalUrlParams]
+      : [];
+
+    if (typeof cfg.issuer === 'string' && cfg.issuer) {
+      const discovery = await discoverOidc(cfg.issuer, this.$http);
+      cfg.authorizationEndpoint = discovery.authorization_endpoint;
+    }
+
+    if (cfg.pkce) {
+      const verifier = createCodeVerifier();
+      this.storage.setItem(cfg.name + '_pkce_verifier', verifier);
+      cfg.codeChallenge = await createCodeChallenge(verifier);
+      cfg.codeChallengeMethod = 'S256';
+      extras.codeVerifier = verifier;
+      optionalParams.push('code_challenge', 'code_challenge_method');
+    }
+
+    if (cfg.oidc) {
+      const nonce = createRandomString(16);
+      this.storage.setItem(cfg.name + '_nonce', nonce);
+      cfg.nonce = nonce;
+      extras.nonce = nonce;
+      optionalParams.push('nonce');
+    }
+
+    if (optionalParams.length) {
+      cfg.optionalUrlParams = optionalParams;
+    }
+
     const url = [
-      this.providerConfig.authorizationEndpoint,
+      cfg.authorizationEndpoint,
       this._stringifyRequestParams()
     ].join('?');
 
-    this.oauthPopup = new OAuthPopup(
-      url,
-      this.providerConfig.name,
-      this.providerConfig.popupOptions
-    );
+    this.oauthPopup = new OAuthPopup(url, cfg.name, cfg.popupOptions);
     const OauthP = this.oauthPopup;
-    try {
-      const response: Record<string, unknown> = <Record<string, unknown>>(
-        await OauthP.open(
-          this.providerConfig.redirectUri,
-          this.providerConfig.skipPooling
-        )
-      );
-      if (response) {
-        return response;
+    const timeoutMs =
+      typeof cfg.callbackTimeout === 'number' ? cfg.callbackTimeout : undefined;
+    const response = <Record<string, unknown> | undefined>(
+      await OauthP.open(cfg.redirectUri, cfg.skipPooling, timeoutMs)
+    );
+
+    if (!response) return undefined;
+
+    if (cfg.state) {
+      const expected = this.storage.getItem(cfg.name + '_state');
+      if (!expected || response.state !== expected) {
+        throw new AuthError('state_mismatch', 'OAuth state mismatch');
       }
-    } catch (error) {
-      return Promise.reject(error);
     }
-    return;
+
+    return { ...response, ...extras };
   }
 
   /**
@@ -163,7 +200,7 @@ export default class OAuth2 {
     paramCategories.forEach(categoryName => {
       if (!this.providerConfig[categoryName]) return;
       if (!Array.isArray(this.providerConfig[categoryName])) return;
-      const Procate = <string[]>(<unknown>this.providerConfig[categoryName]);
+      const Procate = this.providerConfig[categoryName] as string[];
       Procate.forEach((paramName: string) => {
         const camelCaseParamName = camelCase(paramName);
         const Proconf = <() => void>(<unknown>this.providerConfig[paramName]);

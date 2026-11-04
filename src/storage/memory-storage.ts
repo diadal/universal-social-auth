@@ -2,7 +2,7 @@ class MemoryStorage {
   namespace: null
   _storage: Record<string, unknown>
   constructor (namespace: null) {
-    this.namespace = namespace || null
+    this.namespace = namespace ?? null
     this._storage = {}
   }
 

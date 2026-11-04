@@ -1,6 +1,19 @@
 import UniversalSocialauth from './authenticate';
 
 export {
+  AuthError,
+  classifyError,
+  toOutcome
+} from './errors';
+export type { AuthErrorKind, AuthOutcome } from './errors';
+export type { LifecycleHooks, LifecycleEvent, LifecycleErrorEvent } from './lifecycle';
+export { createCodeVerifier, createCodeChallenge } from './pkce';
+export { discoverOidc, validateIdTokenClaims } from './oidc';
+export type { IdTokenExpectations, OidcDiscoveryDocument } from './oidc';
+export { validateProviderDefinition, PROVIDER_SCHEMA_VERSION } from './providers';
+export type { ProviderIssue } from './providers';
+
+export {
   Providers,
   Apple,
   Facebook,

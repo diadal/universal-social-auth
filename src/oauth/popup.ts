@@ -1,8 +1,9 @@
 import { parseQueryString, getFullUrlPath, isUndefined } from '../utils';
+import { AuthError } from '../errors';
 
 export default class OAuthPopup {
   popupOptions: Record<string, unknown>;
-  popup: Window | null;
+  popup: Window | null = null;
   url: string;
   name: string;
   constructor(
@@ -10,35 +11,40 @@ export default class OAuthPopup {
     name: string,
     popupOptions: Record<string, unknown>
   ) {
-    this.popup = null;
     this.url = url;
     this.name = name;
     this.popupOptions = popupOptions;
   }
 
-  open(redirectUri: string, skipPooling: boolean) {
+  open(redirectUri: string, skipPooling: boolean, timeoutMs?: number) {
     try {
       this.popup = window.open(this.url, this.name, this._stringifyOptions());
-      if (this.popup && this.popup.focus) {
+      if (!this.popup) {
+        return Promise.reject(
+          new AuthError('popup_blocked', 'Auth popup was blocked by the browser')
+        );
+      }
+      if (this.popup.focus) {
         this.popup.focus();
       }
 
       if (skipPooling) {
         return Promise.resolve();
       } else {
-        const pool = this.pooling(redirectUri);
+        const pool = this.pooling(redirectUri, timeoutMs);
         return pool;
       }
-    } catch (e) {
-      return Promise.reject(new Error('OAuth popup error occurred'));
+    } catch {
+      return Promise.reject(new AuthError('unknown', 'OAuth popup error occurred'));
     }
   }
 
-  pooling(redirectUri: string) {
+  pooling(redirectUri: string, timeoutMs?: number) {
     return new Promise((resolve: (value: unknown) => void, reject) => {
       const redirectUriParser = document.createElement('a');
       redirectUriParser.href = redirectUri;
       const redirectUriPath = getFullUrlPath(redirectUriParser);
+      const deadline = timeoutMs ? Date.now() + timeoutMs : 0;
 
       let poolingInterval = <number>(<unknown>setInterval(() => {
         if (
@@ -48,7 +54,16 @@ export default class OAuthPopup {
         ) {
           clearInterval(poolingInterval);
           poolingInterval = 0;
-          reject('Auth popup window closed');
+          reject(new AuthError('cancelled', 'Auth popup window closed'));
+          return;
+        }
+
+        if (deadline && Date.now() > deadline) {
+          clearInterval(poolingInterval);
+          poolingInterval = 0;
+          this.popup.close();
+          reject(new AuthError('timeout', 'Auth popup timed out'));
+          return;
         }
 
         try {
@@ -71,7 +86,11 @@ export default class OAuthPopup {
               poolingInterval = 0;
               location.close();
               if (params.error) {
-                reject(<string>params.error);
+                reject(
+                  params.error === 'access_denied'
+                    ? new AuthError('cancelled', 'Authorization was denied')
+                    : new AuthError('provider', 'OAuth provider returned an error')
+                );
               } else {
                 resolve(params);
               }
@@ -80,7 +99,10 @@ export default class OAuthPopup {
               poolingInterval = 0;
               location.close();
               reject(
-                'OAuth redirect has occurred but no query or hash parameters were found.'
+                new AuthError(
+                  'provider',
+                  'OAuth redirect has occurred but no query or hash parameters were found.'
+                )
               );
             }
           }

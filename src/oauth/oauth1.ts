@@ -9,7 +9,7 @@ interface Keyc {
 interface KeyD {
   [x: string]: Record<string, unknown> | string | boolean | undefined;
 }
-interface def {
+interface ProviderDefaults {
   name: string | null;
   url: string | null;
   authorizationEndpoint: string | null;
@@ -23,7 +23,7 @@ interface def {
   popupOptions: string[] | undefined;
 }
 
-const defaultProviderConfig: def = {
+const defaultProviderConfig: ProviderDefaults = {
   name: null,
   url: null,
   authorizationEndpoint: null,
@@ -37,10 +37,8 @@ const defaultProviderConfig: def = {
   popupOptions: undefined
 };
 
-export interface Func {
-  (): unknown;
-}
-export interface oAuth {
+export type Func = () => unknown;
+export interface OAuthParams {
   [x: string]: number | string;
   code: string;
   clientId: string | number;
@@ -55,7 +53,6 @@ export interface ProviderConfig1 {
     | Func
     | boolean
     | Record<string, string | undefined>
-    | boolean
     | undefined;
   name: string;
   popupOptions: Record<string, string | undefined>;
@@ -71,7 +68,6 @@ export interface Opt1 {
     | boolean
     | Func
     | Record<string, string | undefined>
-    | boolean
     | undefined;
   withCredentials: boolean | undefined;
   baseUrl: string;
@@ -96,8 +92,8 @@ interface Storage {
 //   withCredentials: boolean | undefined ;
 // }
 
-// interface IFooBar extends ProviderConfig1, def {}
-type ProAndDef = ProviderConfig1 & def;
+// interface IFooBar extends ProviderConfig1, ProviderDefaults {}
+type ProAndDef = ProviderConfig1 & ProviderDefaults;
 export default class OAuth {
   storage: Storage;
   $http: AxiosInstance;

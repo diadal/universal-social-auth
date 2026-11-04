@@ -1,7 +1,7 @@
 class LocalStorage {
   namespace: null
   constructor (namespace: null) {
-    this.namespace = namespace || null
+    this.namespace = namespace ?? null
   }
 
   setItem (key: string, value: string) {

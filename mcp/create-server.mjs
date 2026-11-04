@@ -107,6 +107,51 @@ export function createMcpServer(skillText) {
     }
   );
 
+  server.registerTool(
+    "validate_provider_config",
+    {
+      description:
+        "Check a custom provider definition for structural problems (OAuth type, HTTPS endpoints, scope format). Read-only; returns field names and messages only, never echoes values.",
+      inputSchema: {
+        name: z.string().min(1),
+        definition: z.record(z.string(), z.unknown())
+      }
+    },
+    async ({ name, definition }) => {
+      const issues = [];
+      const add = (field, message) => issues.push({ field, message });
+
+      if (definition.name !== name) add("name", "name must match the provider key");
+      if (definition.oauthType !== "1.0" && definition.oauthType !== "2.0") {
+        add("oauthType", 'oauthType must be "1.0" or "2.0"');
+      }
+      if (definition.authorizationEndpoint !== undefined) {
+        const endpoint = String(definition.authorizationEndpoint);
+        const isLocal = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/.test(endpoint);
+        if (!endpoint.startsWith("https://") && !isLocal) {
+          add("authorizationEndpoint", "authorizationEndpoint must use https (or localhost)");
+        }
+      }
+      if (definition.redirectUri !== undefined && typeof definition.redirectUri !== "string") {
+        add("redirectUri", "redirectUri must be a string");
+      }
+      if (definition.scope !== undefined) {
+        const scopes = Array.isArray(definition.scope) ? definition.scope : [definition.scope];
+        const valid = scopes.every(
+          (s) => typeof s === "string" && s.length > 0 && !/\s/.test(s)
+        );
+        if (typeof definition.scope !== "string" && !Array.isArray(definition.scope)) {
+          add("scope", "scope must be a string or an array of strings");
+        } else if (!valid) {
+          add("scope", "each scope must be a non-empty string without whitespace");
+        }
+      }
+
+      const result = { provider: name, valid: issues.length === 0, issues };
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
   server.registerResource(
     "agent-skill",
     "universal-social-auth://skill",

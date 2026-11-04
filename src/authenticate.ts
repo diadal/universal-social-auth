@@ -8,6 +8,8 @@ import defaultOptions from './options';
 import StorageFactory from './storage';
 import OAuth1, { Opt1, ProviderConfig1 } from './oauth/oauth1';
 import OAuth2, { Opt, ProviderConfig, Storage1 } from './oauth/oauth2';
+import { AuthError, classifyError } from './errors';
+import { emitHook, LifecycleHooks } from './lifecycle';
 
 interface KeyB {
   [x: string]: Record<string, unknown>;
@@ -157,7 +159,15 @@ export default class UniversalSocialauth {
       );
     }
     if (!providerConfig) {
-      return Promise.reject('Unknown provider');
+      throw new Error('Unknown provider');
+    }
+    const overrides = this.OverrideOptions ?? {};
+    const hooks = overrides.hooks as LifecycleHooks | undefined;
+    if (
+      providerConfig.callbackTimeout === undefined &&
+      typeof overrides.callbackTimeout === 'number'
+    ) {
+      providerConfig.callbackTimeout = overrides.callbackTimeout;
     }
     try {
       let providerInstance;
@@ -179,17 +189,27 @@ export default class UniversalSocialauth {
           );
           break;
         default:
-          return new Error('Invalid OAuth type');
+          throw new AuthError('config', 'Invalid OAuth type');
       }
-      return providerInstance
-        .init(userData)
-        .then((response: any) => {
-          return response;
-        })
-        .catch(err => new Error(err));
+      emitHook(hooks, 'onStart', { provider });
+      try {
+        const response: unknown = await providerInstance.init(userData);
+        emitHook(hooks, 'onComplete', { provider });
+        return response;
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        const kind = classifyError(error);
+        if (kind === 'cancelled') {
+          emitHook(hooks, 'onCancel', { provider });
+        } else {
+          emitHook(hooks, 'onError', { provider, kind });
+        }
+        return error;
+      }
     } catch (error) {
       const err: Record<string, unknown> = <Record<string, unknown>>error;
       return err;
     }
   }
 }
+

@@ -31,7 +31,7 @@ class CookieStorage {
 
   getItem (key: string | number) {
     const cookies = parseCookies(this._getCookie())
-    return (cookies[key] !== undefined) ? cookies[key] : null
+    return (cookies[key] ?? null)
   }
 
   removeItem (key: string | number) {
@@ -43,9 +43,8 @@ class CookieStorage {
   }
 
   _getCookie () {
-    return typeof document === 'undefined'
-      ? '' : typeof document.cookie === 'undefined'
-        ? '' : document.cookie
+    if (typeof document === 'undefined') return ''
+    return document.cookie ?? ''
   }
 
   _setCookie (cookie: string) {

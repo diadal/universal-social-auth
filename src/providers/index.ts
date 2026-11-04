@@ -320,3 +320,6 @@ export {
   Oauth1,
   ProderT
 };
+
+export { PROVIDER_SCHEMA_VERSION, validateProviderDefinition } from './schema';
+export type { ProviderIssue } from './schema';

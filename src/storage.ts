@@ -4,21 +4,33 @@ import MemoryStorage from './storage/memory-storage'
 import SessionStorage from './storage/session-storage'
 import { OptionsA } from './utils'
 
+function isStorageAvailable (getStorage: () => Storage): boolean {
+  try {
+    const storage = getStorage()
+    storage.setItem('testKey', 'test')
+    storage.removeItem('testKey')
+    return true
+  } catch {
+    return false
+  }
+}
+
 export default function StorageFactory (options: { storageType: string; storageNamespace: null; cookieStorage: OptionsA }) {
   switch (options.storageType) {
     case 'localStorage':
-      try {
-        window.localStorage.setItem('testKey', 'test')
-        window.localStorage.removeItem('testKey')
+      if (isStorageAvailable(() => window.localStorage)) {
         return new LocalStorage(options.storageNamespace)
-      } catch (e) {}
+      }
+      if (isStorageAvailable(() => window.sessionStorage)) {
+        return new SessionStorage(options.storageNamespace)
+      }
+      return new CookieStorage(options.cookieStorage)
 
     case 'sessionStorage':
-      try {
-        window.sessionStorage.setItem('testKey', 'test')
-        window.sessionStorage.removeItem('testKey')
+      if (isStorageAvailable(() => window.sessionStorage)) {
         return new SessionStorage(options.storageNamespace)
-      } catch (e) {}
+      }
+      return new CookieStorage(options.cookieStorage)
 
     case 'cookieStorage':
       return new CookieStorage(options.cookieStorage)

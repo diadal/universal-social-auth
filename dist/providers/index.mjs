@@ -1,10 +1,40 @@
+// src/providers/schema.ts
+var e = 1;
+function t(e) {
+	try {
+		let t = new URL(e);
+		return t.protocol === "https:" || t.protocol === "http:" && (t.hostname === "localhost" || t.hostname === "127.0.0.1");
+	} catch {
+		return !1;
+	}
+}
+function n(e) {
+	let t = Array.isArray(e) ? e : [e];
+	if (typeof e != "string" && !Array.isArray(e)) return "scope must be a string or an array of strings";
+	for (let e of t) if (typeof e != "string" || e.length === 0 || /\s/.test(e)) return "scope entries must be non-empty strings without whitespace";
+	return null;
+}
+function r(e, r) {
+	let i = [], a = (t, n) => i.push({
+		provider: e,
+		field: t,
+		message: n
+	});
+	r.name !== e && a("name", "name must match the provider key"), r.oauthType !== "1.0" && r.oauthType !== "2.0" && a("oauthType", "oauthType must be '1.0' or '2.0'");
+	let o = r.authorizationEndpoint;
+	if (typeof o == "string" && t(o) || a("authorizationEndpoint", "authorizationEndpoint must be an https URL"), r.redirectUri !== void 0 && typeof r.redirectUri != "string" && a("redirectUri", "redirectUri must be a string"), r.scope !== void 0) {
+		let e = n(r.scope);
+		e && a("scope", e);
+	}
+	return i;
+}
 // src/providers/index.ts
-var e = typeof window < "u" ? window.location.origin : "", t = {
+var i = typeof window < "u" ? window.location.origin : "", a = {
 	apple: {
 		name: "apple",
 		url: "",
 		authorizationEndpoint: "https://appleid.apple.com/auth/authorize",
-		redirectUri: e + "/",
+		redirectUri: i + "/",
 		requiredUrlParams: ["scope"],
 		optionalUrlParams: ["response_mode"],
 		responseType: "code id_token",
@@ -22,7 +52,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "facebook",
 		url: "/auth/facebook",
 		authorizationEndpoint: "https://www.facebook.com/v2.5/dialog/oauth",
-		redirectUri: e + "/",
+		redirectUri: i + "/",
 		responseMode: ["form_post"],
 		requiredUrlParams: ["scope"],
 		scope: ["email"],
@@ -38,7 +68,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "google",
 		url: "/auth/google",
 		authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
-		redirectUri: e,
+		redirectUri: i,
 		requiredUrlParams: ["scope"],
 		optionalUrlParams: ["display"],
 		scope: ["profile", "email"],
@@ -55,7 +85,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "github",
 		url: "/auth/github",
 		authorizationEndpoint: "https://github.com/login/oauth/authorize",
-		redirectUri: e,
+		redirectUri: i,
 		optionalUrlParams: ["scope"],
 		scope: ["user:email"],
 		scopeDelimiter: " ",
@@ -69,7 +99,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "instagram",
 		url: "/auth/instagram",
 		authorizationEndpoint: "https://api.instagram.com/oauth/authorize",
-		redirectUri: e,
+		redirectUri: i,
 		requiredUrlParams: ["scope"],
 		scope: ["basic"],
 		scopeDelimiter: "+",
@@ -83,7 +113,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "twitter",
 		url: "/auth/twitter",
 		authorizationEndpoint: "https://api.twitter.com/oauth/authenticate",
-		redirectUri: e,
+		redirectUri: i,
 		oauthType: "1.0",
 		popupOptions: {
 			width: 495,
@@ -94,7 +124,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "bitbucket",
 		url: "/auth/bitbucket",
 		authorizationEndpoint: "https://bitbucket.org/site/oauth2/authorize",
-		redirectUri: e + "/",
+		redirectUri: i + "/",
 		optionalUrlParams: ["scope"],
 		scope: ["email"],
 		scopeDelimiter: " ",
@@ -108,7 +138,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "linkedin",
 		url: "/auth/linkedin",
 		authorizationEndpoint: "https://www.linkedin.com/oauth/v2/authorization",
-		redirectUri: e,
+		redirectUri: i,
 		requiredUrlParams: ["state", "scope"],
 		scope: ["r_emailaddress"],
 		scopeDelimiter: " ",
@@ -123,7 +153,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "vkontakte",
 		url: "/auth/vkontakte",
 		authorizationEndpoint: "https://oauth.vk.com/authorize",
-		redirectUri: e + "/",
+		redirectUri: i + "/",
 		requiredUrlParams: ["scope"],
 		scope: ["email"],
 		scopeDelimiter: ",",
@@ -138,7 +168,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "live",
 		url: "/auth/live",
 		authorizationEndpoint: "https://login.live.com/oauth20_authorize.srf",
-		redirectUri: e,
+		redirectUri: i,
 		requiredUrlParams: ["display", "scope"],
 		scope: ["wl.emails"],
 		scopeDelimiter: " ",
@@ -153,7 +183,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "discord",
 		url: "/auth/discord",
 		authorizationEndpoint: "https://discord.com/oauth2/authorize",
-		redirectUri: e,
+		redirectUri: i,
 		requiredUrlParams: ["scope"],
 		scope: ["identify", "email"],
 		scopeDelimiter: " ",
@@ -167,7 +197,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "twitch",
 		url: "/auth/twitch",
 		authorizationEndpoint: "https://id.twitch.tv/oauth2/authorize",
-		redirectUri: e,
+		redirectUri: i,
 		requiredUrlParams: ["scope"],
 		scope: ["user:read:email"],
 		scopeDelimiter: " ",
@@ -181,7 +211,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "microsoft",
 		url: "/auth/microsoft",
 		authorizationEndpoint: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
-		redirectUri: e,
+		redirectUri: i,
 		requiredUrlParams: ["scope"],
 		scope: [
 			"openid",
@@ -199,7 +229,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "gitlab",
 		url: "/auth/gitlab",
 		authorizationEndpoint: "https://gitlab.com/oauth/authorize",
-		redirectUri: e,
+		redirectUri: i,
 		requiredUrlParams: ["scope"],
 		scope: ["read_user"],
 		scopeDelimiter: " ",
@@ -213,7 +243,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "slack",
 		url: "/auth/slack",
 		authorizationEndpoint: "https://slack.com/openid/connect/authorize",
-		redirectUri: e,
+		redirectUri: i,
 		requiredUrlParams: ["scope"],
 		scope: [
 			"openid",
@@ -231,7 +261,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "spotify",
 		url: "/auth/spotify",
 		authorizationEndpoint: "https://accounts.spotify.com/authorize",
-		redirectUri: e,
+		redirectUri: i,
 		requiredUrlParams: ["scope"],
 		scope: ["user-read-email"],
 		scopeDelimiter: " ",
@@ -245,7 +275,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "reddit",
 		url: "/auth/reddit",
 		authorizationEndpoint: "https://www.reddit.com/api/v1/authorize",
-		redirectUri: e,
+		redirectUri: i,
 		requiredUrlParams: ["state", "scope"],
 		scope: ["identity"],
 		scopeDelimiter: " ",
@@ -260,7 +290,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "dropbox",
 		url: "/auth/dropbox",
 		authorizationEndpoint: "https://www.dropbox.com/oauth2/authorize",
-		redirectUri: e,
+		redirectUri: i,
 		oauthType: "2.0",
 		popupOptions: {
 			width: 600,
@@ -271,7 +301,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: "amazon",
 		url: "/auth/amazon",
 		authorizationEndpoint: "https://www.amazon.com/ap/oa",
-		redirectUri: e,
+		redirectUri: i,
 		requiredUrlParams: ["scope"],
 		scope: ["profile"],
 		scopeDelimiter: " ",
@@ -285,7 +315,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: null,
 		url: "/auth/oauth1",
 		authorizationEndpoint: null,
-		redirectUri: e,
+		redirectUri: i,
 		oauthType: "1.0",
 		popupOptions: null
 	},
@@ -293,7 +323,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 		name: null,
 		url: "/auth/oauth2",
 		clientId: null,
-		redirectUri: e,
+		redirectUri: i,
 		authorizationEndpoint: null,
 		defaultUrlParams: [
 			"response_type",
@@ -315,7 +345,7 @@ var e = typeof window < "u" ? window.location.origin : "", t = {
 			redirectUri: "redirectUri"
 		}
 	}
-}, n = t.apple, r = t.facebook, i = t.google, a = t.github, o = t.instagram, s = t.twitter, c = t.bitbucket, l = t.linkedin, u = t.vkontakte, d = t.live, f = t.discord, p = t.twitch, m = t.microsoft, h = t.gitlab, g = t.slack, _ = t.spotify, v = t.reddit, y = t.dropbox, b = t.amazon, x = t.oauth1, S = t.oauth2;
-export { b as Amazon, n as Apple, c as Bitbucket, f as Discord, y as Dropbox, r as Facebook, a as Github, h as Gitlab, i as Google, o as Instagram, l as Linkedin, d as Live, m as Microsoft, x as Oauth1, S as Oauth2, t as Providers, v as Reddit, g as Slack, _ as Spotify, p as Twitch, s as Twitter, u as Vkontakte };
+}, o = a.apple, s = a.facebook, c = a.google, l = a.github, u = a.instagram, d = a.twitter, f = a.bitbucket, p = a.linkedin, m = a.vkontakte, h = a.live, g = a.discord, _ = a.twitch, v = a.microsoft, y = a.gitlab, b = a.slack, x = a.spotify, S = a.reddit, C = a.dropbox, w = a.amazon, T = a.oauth1, E = a.oauth2;
+export { w as Amazon, o as Apple, f as Bitbucket, g as Discord, C as Dropbox, s as Facebook, l as Github, y as Gitlab, c as Google, u as Instagram, p as Linkedin, h as Live, v as Microsoft, T as Oauth1, E as Oauth2, e as PROVIDER_SCHEMA_VERSION, a as Providers, S as Reddit, b as Slack, x as Spotify, _ as Twitch, d as Twitter, m as Vkontakte, r as validateProviderDefinition };
 
 //# sourceMappingURL=index.mjs.map

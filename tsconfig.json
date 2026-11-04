@@ -19,6 +19,7 @@
         "noImplicitReturns": true,
         "noUnusedLocals": true,
         "esModuleInterop": true,
+        "types": ["jest"],
         "removeComments": true,
         "ignoreDeprecations": "6.0"
     },

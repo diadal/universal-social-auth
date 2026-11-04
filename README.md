@@ -88,6 +88,8 @@ npm install universal-social-auth
 
 ## Usage
 
+For session, logout, unlinking, and revocation guidance, see [docs/lifecycle.md](docs/lifecycle.md).
+
 ### Vue 3 example
 
 ```ts

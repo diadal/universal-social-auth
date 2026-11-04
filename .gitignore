@@ -13,3 +13,4 @@ plans/
 .env
 mcp/node_modules
 .wrangler/
+coverage/

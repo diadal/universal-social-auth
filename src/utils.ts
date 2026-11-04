@@ -8,10 +8,10 @@ export interface KeyB {
 export interface OptionsA {
 
   [x: string]: string | boolean | null | undefined | Date;
-  domain?: string | undefined;
-  expires?: null | undefined | Date;
-  path?: string | undefined;
-  secure?: boolean | undefined;
+  domain?: string;
+  expires?: null | Date;
+  path?: string;
+  secure?: boolean;
 }
 export interface ProviderA {
 
@@ -35,11 +35,11 @@ export function camelCase (name: string) {
 }
 
 export function isUndefined (value: undefined) {
-  return typeof value === 'undefined'
+  return value === undefined
 }
 
 export function isDefined (value: string[]) {
-  return typeof value !== 'undefined'
+  return value !== undefined
 }
 
 export function isObject (value: Record<string, unknown>) {
@@ -64,19 +64,20 @@ export function isNumber (value: number) {
  * @param  {String} url     URI
  * @return {String}
  */
+function normalizeUrl (str: string): string {
+  return str
+    .replace(/\/+/g, '/')
+    .replace(/\/\?/g, '?')
+    .replace(/\/#/g, '#')
+    .replace(/:\//g, '://')
+}
+
 export function joinUrl (baseUrl: string, url: string): string {
   if (/^(?:[a-z]+:)?\/\//i.test(url)) {
     return url
   }
   const joined = [baseUrl, url].join('/')
-  const normalize = function (str: string) {
-    return str
-      .replace(/[/]+/g, '/')
-      .replace(/\/\?/g, '?')
-      .replace(/\/#/g, '#')
-      .replace(/:\//g, '://')
-  }
-  return normalize(joined)
+  return normalizeUrl(joined)
 }
 
 /**
@@ -96,7 +97,7 @@ export function getFullUrlPath (location: Location | HTMLAnchorElement): string 
     location.hostname +
     ':' +
     (location.port || (isHttps ? '443' : '80')) +
-    (/^\//.test(location.pathname)
+    (location.pathname.startsWith("/")
       ? location.pathname
       : '/' + location.pathname)
   )
@@ -140,10 +141,8 @@ export function decodeBase64 (base64: string): string {
 export function parseCookies (str: string) {
   if (str.length === 0) return {}
   const parsed: KeyB = {}
-  // eslint-disable-next-line prefer-regex-literals
-  const pattern = new RegExp('\\s*;\\s*')
-  str.split(pattern).forEach(i => {
-    const [encodedKey, encodedValue] = i.split('=')
+  str.split(';').forEach(i => {
+    const [encodedKey, encodedValue] = i.trim().split('=')
     const key = decodeURIComponent(encodedKey)
     const value = decodeURIComponent(encodedValue)
     parsed[key] = value
@@ -157,12 +156,12 @@ export function formatOptions (options: Record<string, unknown>) {
   const Path = <string> path
   const Domain = <string> domain
   return [
-    typeof path === 'undefined' || path === null ? '' : ';path=' + Path,
-    typeof domain === 'undefined' || domain === null ? '' : ';domain=' + Domain,
-    typeof expires === 'undefined' || expires === null
+    path === undefined || path === null ? '' : ';path=' + Path,
+    domain === undefined || domain === null ? '' : ';domain=' + Domain,
+    expires === undefined || expires === null
       ? ''
       : ';expires=' + exp.toUTCString(),
-    typeof secure === 'undefined' || secure === null || secure === false
+    secure === undefined || secure === null || secure === false
       ? ''
       : ';secure'
   ].join('')
