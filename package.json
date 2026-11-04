@@ -35,6 +35,7 @@
     "catalog:generate": "node scripts/generate-provider-catalog.mjs",
     "catalog:check": "node scripts/generate-provider-catalog.mjs --check",
   "compat:check": "node scripts/compat-check.mjs",
+  "dev": "npm --prefix docs-site run dev",
   "d:doc": "npm --prefix docs-site run build && npm --prefix docs-site run deploy",
     "test": "jest"
   },
