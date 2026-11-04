@@ -220,10 +220,10 @@ not imported by the library.
   caveat. Final support claims and SEO copy still need review after task 11.
 - Task 13: package version is 0.3.1. The version policy is patch releases 0.3.1 through
   0.3.9, then 0.4.0. The npm registry reported 0.3.0 as latest and no 0.3.1 release on
-  2026-11-04. `tsc`,
-  Jest (78 passing), build, `check:bundle`, `compat:check`, and the docs-site build must pass
-  on the release PR; `d:doc` is not a validation command because it deploys. The release
-  remains unverified on devices.
+  2026-11-04. PR #38 is open; `npm ci`, `tsc`, Jest (78 passing), build, `check:bundle`,
+  `catalog:check`, `compat:check`, docs build, audit threshold, CodeQL, and CI on Node 20,
+  22, and 24 pass. Review/merge and publication remain; `d:doc` is not a validation command
+  because it deploys. Native behavior remains unverified on devices.
 - Platform overrides (task 5) are applied in `authenticate.ts` before the OAuth class is constructed.
 
 ## Risks
