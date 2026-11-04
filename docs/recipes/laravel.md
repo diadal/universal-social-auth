@@ -1,8 +1,10 @@
 # Laravel recipe
 
-The browser runs `universal-social-auth`. It generates `state`, the PKCE verifier,
-and `nonce`, and it checks `state` on return. Laravel receives the code and
-exchanges it for tokens, so the client secret stays on the server.
+The browser runs `universal-social-auth`. Laravel creates a one-time state value
+in the user's session before sign-in; the browser supplies it to the provider
+and returns it with the authorization code. Laravel must compare and consume
+that session value before exchanging the code. The library's callback check
+alone does not protect a backend endpoint that accepts arbitrary codes.
 
 ## 1. Config
 
@@ -18,11 +20,12 @@ exchanges it for tokens, so the client secret stays on the server.
 
 ## 2. Route
 
-`routes/api.php`:
+`routes/web.php` (so Laravel's session middleware is active):
 
 ```php
 use App\Http\Controllers\SocialAuthController;
 
+Route::post('/api/auth/google/state', [SocialAuthController::class, 'state']);
 Route::post('/auth/google', [SocialAuthController::class, 'google']);
 ```
 
@@ -41,13 +44,27 @@ use Illuminate\Support\Facades\Http;
 
 class SocialAuthController extends Controller
 {
+    public function state(Request $request): JsonResponse
+    {
+        $state = bin2hex(random_bytes(32));
+        $request->session()->put('oauth_state', $state);
+
+        return response()->json(['state' => $state]);
+    }
+
     public function google(Request $request): JsonResponse
     {
+        $expectedState = $request->session()->get('oauth_state');
         $data = $request->validate([
             'code' => ['required', 'string'],
+            'state' => ['required', 'string'],
             'codeVerifier' => ['required', 'string', 'min:43', 'max:128'],
             'nonce' => ['required', 'string'],
         ]);
+        if (!is_string($expectedState) || !hash_equals($expectedState, $data['state'])) {
+            return response()->json(['message' => 'Invalid OAuth state'], 401);
+        }
+        $request->session()->forget('oauth_state');
 
         $token = Http::asForm()->post('https://oauth2.googleapis.com/token', [
             'code' => $data['code'],
@@ -75,7 +92,10 @@ ID-token check. Do not decode the token without verifying its signature.
 
 ## 4. Browser side
 
-Post the result from `authenticate` to `/api/auth/google`. Use the
+Before calling `authenticate`, POST to `/api/auth/google/state` with the same
+session cookie and CSRF token, then configure Google with `state: () => state`
+using the returned value. Include the callback's `state` with the result when
+posting to Laravel. Keep both POST routes behind Laravel's CSRF protection. Use the
 [Vue 3 example](../../examples/vue3-vite/) or the [vanilla example](../../examples/vanilla-ts/)
 as a starting point.
 

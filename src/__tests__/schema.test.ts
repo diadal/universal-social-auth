@@ -1,6 +1,11 @@
 import { Providers, validateProviderDefinition } from '../providers';
 
 describe('provider schema', () => {
+  it('does not use a fixed state for LinkedIn or Reddit', () => {
+    expect(Providers.linkedin.state).toBeUndefined();
+    expect(Providers.reddit.state).toBeUndefined();
+  });
+
   it('accepts every built-in provider except the generic placeholders', () => {
     const placeholders = new Set(['oauth1', 'oauth2']);
     const issues = Object.keys(Providers)

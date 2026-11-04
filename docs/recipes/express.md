@@ -8,7 +8,7 @@ the session. The client secret never leaves the server.
 ## 1. Install
 
 ```bash
-npm install express jose
+npm install express express-session jose
 ```
 
 `jose` verifies the ID token signature against the provider's JWKS.
@@ -19,12 +19,28 @@ and `nonce`. It does **not** check signatures, so do not rely on it alone.
 
 ```ts
 import express from 'express';
+import session from 'express-session';
+import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { discoverOidc, validateIdTokenClaims } from 'universal-social-auth';
 import axios from 'axios';
 
+declare module 'express-session' {
+  interface SessionData {
+    oauthState?: string;
+  }
+}
+
 const app = express();
 app.use(express.json());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { httpOnly: true, secure: true, sameSite: 'lax' }
+  })
+);
 
 const ISSUER = 'https://accounts.google.com';
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
@@ -44,11 +60,27 @@ async function getProviderMetadata() {
   return { tokenEndpoint: doc.token_endpoint, jwks };
 }
 
+app.post('/api/auth/google/state', (req, res) => {
+  const state = randomBytes(32).toString('base64url');
+  req.session.oauthState = state;
+  return res.json({ state });
+});
+
 app.post('/api/auth/google', async (req, res) => {
-  const { code, codeVerifier, nonce } = req.body ?? {};
-  if (typeof code !== 'string' || typeof codeVerifier !== 'string' || typeof nonce !== 'string') {
+  const { code, codeVerifier, nonce, state } = req.body ?? {};
+  const expectedState = req.session.oauthState;
+  if (
+    typeof code !== 'string' ||
+    typeof codeVerifier !== 'string' ||
+    typeof nonce !== 'string' ||
+    typeof state !== 'string' ||
+    typeof expectedState !== 'string' ||
+    Buffer.byteLength(state) !== Buffer.byteLength(expectedState) ||
+    !timingSafeEqual(Buffer.from(state), Buffer.from(expectedState))
+  ) {
     return res.status(400).json({ error: 'invalid_request' });
   }
+  delete req.session.oauthState;
 
   try {
     const { tokenEndpoint, jwks } = await getProviderMetadata();
@@ -97,11 +129,16 @@ app.listen(3000);
 
 ## Notes
 
+- **State:** Before starting sign-in, POST to `/api/auth/google/state` with the
+  user's session cookie and CSRF protection, then configure the provider with
+  `state: () => state`. Send the returned callback `state` in the exchange POST.
+  The backend compares it with and consumes the one-time value in the same
+  session; do not make either endpoint stateless. This example allows one
+  in-flight sign-in per session; use a session-bound, expiring state map if you
+  need concurrent sign-ins. Use a production session store and configure
+  cookies/CORS for your deployment.
 - **PKCE:** `codeVerifier` is sent to the token endpoint. Google requires it when
   the authorization request used a `code_challenge`.
-- **State:** the browser library checks `state` before it returns the code.
-  Repeat the check on the server only if your flow passes `state` through the
-  backend.
 - **Nonce:** `nonce` must match the value sent in the authorization request.
   Store it server-side per attempt if you need stronger replay protection.
 - **Session:** the final step is a placeholder. Create your session there with

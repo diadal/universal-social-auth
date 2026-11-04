@@ -1,7 +1,7 @@
 import { webPlatform } from '../platform/web';
 import { getPlatform } from '../platform/current';
 import type { AuthSession, NativeContext, PlatformAdapter } from '../platform/types';
-import { camelCase, isString } from '../utils';
+import { camelCase } from '../utils';
 import { AuthError } from '../errors';
 import { createCodeChallenge, createCodeVerifier, createRandomString } from '../pkce';
 import { discoverOidc } from '../oidc';
@@ -129,12 +129,12 @@ export default class OAuth2 {
 
   async init() {
     const platform = getPlatform();
-    this.resolveTransactionState(platform.kind === 'native');
+    this.resolveTransactionState();
 
     const cfg = this.providerConfig;
     const extras: Record<string, string> = {};
     const optionalParams = Array.isArray(cfg.optionalUrlParams)
-      ? [...cfg.optionalUrlParams]
+      ? [...new Set(cfg.optionalUrlParams)]
       : [];
 
     if (typeof cfg.issuer === 'string' && cfg.issuer) {
@@ -173,41 +173,53 @@ export default class OAuth2 {
     return { ...response, ...extras };
   }
 
-  /** Uses the configured state, or generates one for native sign-ins. */
-  private resolveTransactionState(isNative: boolean): void {
-    const isFunc: Func = <Func>this.providerConfig.state;
-    const isStr = <string>this.providerConfig.state;
-    if (typeof isFunc === 'function') {
-      this.transactionState = <string>isFunc();
-    } else if (isString(isStr)) {
-      this.transactionState = isStr;
+  /** Generates a fresh state unless a per-transaction state factory is configured. */
+  private resolveTransactionState(): void {
+    const configuredState = this.providerConfig.state;
+    if (typeof configuredState === 'function') {
+      const state = configuredState();
+      if (typeof state !== 'string' || state.length === 0) {
+        throw new AuthError('config', 'OAuth state factory must return a non-empty string');
+      }
+      this.transactionState = state;
+      return;
     }
-    if (isNative && !this.transactionState) {
-      this.transactionState = createRandomString(32);
+
+    if (typeof configuredState === 'string' && configuredState.length > 0) {
+      throw new AuthError(
+        'config',
+        'OAuth state must be generated per sign-in attempt; configure state as a function or omit it'
+      );
     }
+
+    this.transactionState = createRandomString(32);
   }
 
   /** Adds the PKCE challenge and OIDC nonce to the request and records them in `extras`. */
   private async addPkceAndNonce(extras: Record<string, string>, optionalParams: string[]) {
     const cfg = this.providerConfig;
+    const addOptionalParam = (param: string) => {
+      if (!optionalParams.includes(param)) optionalParams.push(param);
+    };
+
     if (cfg.pkce) {
       const verifier = createCodeVerifier();
       cfg.codeChallenge = await createCodeChallenge(verifier);
       cfg.codeChallengeMethod = 'S256';
       extras.codeVerifier = verifier;
-      optionalParams.push('code_challenge', 'code_challenge_method');
+      addOptionalParam('code_challenge');
+      addOptionalParam('code_challenge_method');
     }
 
     if (cfg.oidc) {
       const nonce = createRandomString(16);
       cfg.nonce = nonce;
       extras.nonce = nonce;
-      optionalParams.push('nonce');
+      addOptionalParam('nonce');
     }
   }
 
   private assertState(response: Record<string, unknown>): void {
-    if (!this.providerConfig.state) return;
     const expected = this.transactionState;
     if (!expected || response.state !== expected) {
       throw new AuthError('state_mismatch', 'OAuth state mismatch');
@@ -277,6 +289,7 @@ export default class OAuth2 {
    */
   _stringifyRequestParams(): string {
     const keyValuePairs: unknown[][] = [];
+    let includesState = false;
     const paramCategories = [
       'defaultUrlParams',
       'requiredUrlParams',
@@ -291,15 +304,18 @@ export default class OAuth2 {
         const camelCaseParamName = camelCase(paramName);
         const Proconf = <() => void>(<unknown>this.providerConfig[paramName]);
 
-        let paramValue =
-          typeof Proconf === 'function'
-            ? Proconf()
-            : this.providerConfig[camelCaseParamName];
+        let paramValue: unknown;
+        if (paramName === 'state') {
+          includesState = true;
+          paramValue = encodeURIComponent(this.transactionState ?? '');
+        } else {
+          paramValue =
+            typeof Proconf === 'function'
+              ? Proconf()
+              : this.providerConfig[camelCaseParamName];
+        }
         if (paramName === 'redirect_uri' && !paramValue) return;
 
-        if (paramName === 'state') {
-          paramValue = encodeURIComponent(this.transactionState ?? '');
-        }
         if (paramName === 'scope' && Array.isArray(paramValue)) {
           paramValue = paramValue.join(this.providerConfig.scopeDelimiter);
           if (this.providerConfig.scopePrefix) {
@@ -312,6 +328,10 @@ export default class OAuth2 {
         keyValuePairs.push([paramName, paramValue]);
       });
     });
+
+    if (!includesState) {
+      keyValuePairs.push(['state', encodeURIComponent(this.transactionState ?? '')]);
+    }
 
     return keyValuePairs
       .map(param => {

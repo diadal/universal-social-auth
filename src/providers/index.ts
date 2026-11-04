@@ -103,7 +103,6 @@ const Providers: ProderT = {
     requiredUrlParams: ['state', 'scope'],
     scope: ['r_emailaddress'],
     scopeDelimiter: ' ',
-    state: 'STATE',
     oauthType: '2.0',
     popupOptions: { width: 527, height: 582 }
   },
@@ -215,7 +214,6 @@ const Providers: ProderT = {
     requiredUrlParams: ['state', 'scope'],
     scope: ['identity'],
     scopeDelimiter: ' ',
-    state: 'STATE',
     oauthType: '2.0',
     popupOptions: { width: 600, height: 700 }
   },

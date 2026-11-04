@@ -185,11 +185,10 @@ const options = {
   providers: {
     apple: {
       nonce: '**************',
-      state: '**************',
       clientId: '**************',
       responseMode: 'form_post',
       response_type: 'code  id_token',
-      optionalUrlParams: ['response_mode', 'use_popup', 'state'],
+      optionalUrlParams: ['response_mode', 'use_popup'],
       usePopup: true,
       redirectUri: 'https://myapp.com/auth/github/callback'
     },
@@ -451,8 +450,9 @@ class AuthController extends Controller
             return $this->SocialSignupNext($r, $hashuser);
         }
         try {
-            // Socialite will pick response data automatic
-            $user = Socialite::driver($provider)->stateless()->user();
+            // Use a session-backed Socialite flow; stateless() disables the
+            // transaction-state check and is unsafe for browser sign-in.
+            $user = Socialite::driver($provider)->user();
            $token = $user->token ?? null;
             $refreshToken = $user->refreshToken ?? null;
             $expiresIn = $user->expiresIn ?? null;

@@ -98,16 +98,15 @@ describe('readCallback', () => {
     expect(kindOf(CUSTOM, CUSTOM)).toBe('provider');
   });
 
-  it('rejects a state mismatch but skips the check when no state is expected', () => {
+  it('rejects a state mismatch when an expected state is provided', () => {
     expect(kindOf(CUSTOM, `${CUSTOM}?code=a&state=attacker`, { expectedState: 's1' })).toBe(
       'state_mismatch'
     );
     expect(kindOf(CUSTOM, `${CUSTOM}?code=a`, { expectedState: 's1' })).toBe('state_mismatch');
-    expect(kindOf(CUSTOM, `${CUSTOM}?code=a`)).toBe('ok');
   });
 
   it('rejects a callback that does not match the redirect URI', () => {
-    expect(kindOf(CUSTOM, `myapp://other/callback?code=a`)).toBe('provider');
+    expect(kindOf(CUSTOM, 'myapp://other/callback?code=a')).toBe('provider');
   });
 
   it('rejects a disallowed redirect URI before reading params', () => {
