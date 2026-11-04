@@ -21,6 +21,8 @@
 
 `More`
 
+Documentation: [usa.zintrust.com](https://usa.zintrust.com)
+
 Support this project through [GitHub Sponsors](https://github.com/sponsors/diadal) or [Patreon](https://www.patreon.com/diadal).
 
 **universal-social-auth** is easily configurable solution for frontend frameworks [Vue2.js](https://vuejs.org/), [Vue3.js](https://v3.vuejs.org/), [Nuxtjs](https://nuxtjs.org/), [React](https://reactjs.org/), [Angularjs](https://angularjs.org/), [Otherjs Framework that support TypeScript & JavaScript](https://www.typescriptlang.org/) &

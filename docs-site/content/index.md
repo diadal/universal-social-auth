@@ -85,6 +85,14 @@ const auth = new UniversalSocialauth(axios, {
 
 :::
 
+## Add an agent to your app
+
+Using an AI coding agent? Point it at the agent instructions and it will wire universal-social-auth into your project:
+
+```text
+Add an agent to my app using instructions from https://usa.zintrust.com/agents.md
+```
+
 <div class="home-cta">
 
 **Built by Zintrust.** universal-social-auth is maintained by the team behind [zintrust.com](https://zintrust.com). Explore more of our tools, or read the full [documentation at usa.zintrust.com](https://usa.zintrust.com).
