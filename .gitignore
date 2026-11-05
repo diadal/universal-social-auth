@@ -10,7 +10,6 @@ package-lock.json
 
 .DS_Store
 *.log
-plans/
 .env
 mcp/node_modules
 .wrangler/
@@ -25,3 +24,5 @@ docs-site/content/.vitepress/cache
 
 # docs site generated copy
 docs-site/content/docs
+
+plans/*

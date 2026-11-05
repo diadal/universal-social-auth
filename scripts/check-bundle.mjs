@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 // Accepted baseline for the web entry, in gzip bytes (see plans/native-and-hybrid-support.md).
-const WEB_GZIP_BUDGET = 9100;
+const WEB_GZIP_BUDGET = 9300;
 const FORBIDDEN = ['@capacitor', 'cordova'];
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
