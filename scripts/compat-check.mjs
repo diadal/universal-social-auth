@@ -50,15 +50,18 @@ check("SSR-safe import without window or document", () => {
 check("package exports point at built files", () => {
   const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
   const targets = [
-    pkg.exports["."].types,
-    pkg.exports["."].import,
-    pkg.exports["."].require,
-    pkg.exports["./providers"].types,
-    pkg.exports["./providers"].import,
-    pkg.exports["./providers"].require,
-    pkg.exports["./capacitor"].types,
-    pkg.exports["./capacitor"].import,
-    pkg.exports["./capacitor"].require,
+    pkg.exports["."].import.types,
+    pkg.exports["."].import.default,
+    pkg.exports["."].require.types,
+    pkg.exports["."].require.default,
+    pkg.exports["./providers"].import.types,
+    pkg.exports["./providers"].import.default,
+    pkg.exports["./providers"].require.types,
+    pkg.exports["./providers"].require.default,
+    pkg.exports["./capacitor"].import.types,
+    pkg.exports["./capacitor"].import.default,
+    pkg.exports["./capacitor"].require.types,
+    pkg.exports["./capacitor"].require.default,
     pkg.types
   ];
   for (const target of targets) {
